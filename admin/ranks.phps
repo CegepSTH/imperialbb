@@ -1,0 +1,279 @@
+<?php
+/*======================================================================*\
+|| #################################################################### ||
+|| #  				  Imperial Bulletin Board v2.x                    # ||
+|| # ---------------------------------------------------------------- # ||
+|| #  For licence, version amd changelog questions or concerns,       # ||
+|| #  navigate to the docs/ folder or visit the forums at the		  # ||
+|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
+|| # ---------------------------------------------------------------- # ||
+|| # Name: ranks.php                                                  # ||
+|| # ---------------------------------------------------------------- # ||
+|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| # ---------------------------------------------------------------- # ||
+|| #################################################################### ||
+\*======================================================================*/
+
+define("IN_IBB", 1);
+define("IN_ADMIN", 1);
+
+$root_path = "../";
+include($root_path . "includes/common.php");
+
+$language->add_file("admin/ranks");
+
+if(!isset($_GET['func'])) $_GET['func'] = "";
+if($_GET['func'] == "add")
+{
+	if(isset($_POST['Submit']))
+	{
+		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
+		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
+		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
+
+		// Sort the rank orderby
+		if(!isset($_POST['display_rank']))
+		{
+			$rank_orderby = "0";
+		}
+		else
+		{
+			$query = $db->query("SELECT `rank_orderby` FROM `".$db_prefix."ranks` ORDER BY `rank_orderby` DESC LIMIT 1");
+			if($result = $db->fetch_array($query))
+			{
+				$rank_orderby = ($result['rank_orderby'] + 1);
+			}
+			else
+			{
+				$rank_orderby = "1";
+			}
+		}
+        if(isset($_POST['special_rank']))
+        {
+        	$special_rank = "1";
+        	$minimum_posts = "0";
+        }
+        else
+        {
+        	$special_rank = "0";
+        	$minimum_posts = $_POST['minimum_posts'];
+        }
+
+		$db->query("INSERT INTO `".$db_prefix."ranks` (`rank_name`, `rank_color`, `rank_image`, `rank_bold`, `rank_underline`, `rank_italics`, `rank_orderby`, `rank_special`, `rank_minimum_posts`) VALUES ('".$_POST['name']."', '".$_POST['color']."', '".$_POST['image']."', '".$_POST['bold']."', '".$_POST['underline']."', '".$_POST['italics']."', '".$rank_orderby."', '".$special_rank."', '".$minimum_posts."')");
+		info_box($lang['Create_New_Rank'], $lang['Rank_Created_Msg'], "ranks.php");
+	}
+	else
+	{
+		$theme->new_file("add_rank", "edit_rank.tpl");
+
+		$theme->replace_tags("add_rank", array(
+			"ACTION" => $lang['Add_Rank'],
+			"NAME" => "",
+			"COLOR" => "#000000",
+			"IMAGE" => "",
+			"BOLD" => "",
+			"UNDERLINE" => "",
+			"ITALICS" => "",
+			"DISPLAY_RANK" => "checked=\"checked\"",
+			"SPECIAL_RANK" => "",
+			"MINIMUM_POSTS" => 0
+		));
+
+		//
+		// Output the page header
+		//
+		include($root_path . "includes/page_header.php");
+
+		//
+		// Output the main page
+		//
+		$theme->output("add_rank");
+
+		//
+		// Output the page footer
+		//
+		include($root_path . "includes/page_footer.php");
+	}
+}
+else if($_GET['func'] == "edit")
+{
+	if(isset($_POST['Submit']))
+	{
+		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
+		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
+		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
+		if(!isset($_POST['special_rank'])) $_POST['special_rank'] = "0";
+        if(!isset($_POST['minimum_posts'])) $_POST['minimum_posts'] = "0";
+
+		// Sort the rank orderby
+		$query = $db->query("SELECT r.`rank_orderby`, p.`rank_orderby` AS 'old_rank_orderby'
+							FROM (`".$db_prefix."ranks` r
+							LEFT JOIN `".$db_prefix."ranks` p ON p.`rank_id` = '".$_GET['id']."')
+							ORDER BY `rank_orderby` DESC LIMIT 1");
+		$result = $db->fetch_array($query);
+
+		if(!isset($_POST['display_rank']))
+		{
+			$rank_orderby = "0";
+		}
+		else
+		{
+			if($result['old_rank_orderby'] > 0)
+			{
+				$rank_orderby = $result['old_rank_orderby'];
+			}
+			else
+			{
+				if(!empty($result['rank_orderby']))
+				{
+					$rank_orderby = ($result['rank_orderby'] + 1);
+				}
+				else
+				{
+					$rank_orderby = "1";
+				}
+			}
+
+		}
+
+		if($rank_orderby != $result['old_rank_orderby'] && $result['old_rank_orderby'] != 0)
+		{
+			$db->query("UPDATE `".$db_prefix."ranks` SET `rank_orderby` = (`rank_orderby` - 1) WHERE `rank_orderby` > '".$result['old_rank_orderby']."'");
+		}
+
+		$db->query("UPDATE `".$db_prefix."ranks` SET `rank_name` = '".$_POST['name']."', `rank_color` = '".$_POST['color']."', `rank_image` = '".$_POST['image']."', `rank_bold` = '".$_POST['bold']."', `rank_underline` = '".$_POST['underline']."', `rank_italics` = '".$_POST['italics']."', `rank_orderby` = '".$rank_orderby."', `rank_special` = '".$_POST['special_rank']."', `rank_minimum_posts` = '".$_POST['minimum_posts']."' WHERE `rank_id` = '".$_GET['id']."'");
+		info_box($lang['Edit_Rank'], $lang['Rank_Updated_Msg'], "ranks.php");
+	}
+	else
+	{
+		$sql = $db->query ("SELECT * FROM `".$db_prefix."ranks` WHERE `rank_id`='".$_GET['id']."' LIMIT 1");
+		if ($result = $db->fetch_array($sql)) {
+			$theme->new_file("edit_rank", "edit_rank.tpl");
+			$theme->replace_tags("edit_rank", array(
+				"ACTION" => $lang['Edit_Rank'],
+				"NAME" => $result['rank_name'],
+				"COLOR" => $result['rank_color'],
+				"IMAGE" => $result['rank_image'],
+				"BOLD" => ($result['rank_bold'] == 1) ? 'checked="checked"' : '',
+				"UNDERLINE" => ($result['rank_underline'] == 1) ? 'checked="checked"' : '',
+				"ITALICS" => ($result['rank_italics'] == 1) ? 'checked="checked"' : '',
+				"DISPLAY_RANK" => ($result['rank_orderby'] > 0) ? 'checked="checked"' : '',
+				"SPECIAL_RANK" => ($result['rank_special'] == 1) ? 'checked="checked"' : '',
+				"MINIMUM_POSTS" => $result['rank_minimum_posts']
+			));
+			//
+			// Output the page header
+			//
+			include($root_path . "includes/page_header.php");
+
+			//
+			// Output the main page
+			//
+			$theme->output("edit_rank");
+
+			//
+			// Output the page footer
+			//
+			include($root_path . "includes/page_footer.php");
+		} else {
+			error_msg($lang['Error'], $lang['Invalid_Rank_Id']);
+		}
+	}
+}
+else if($_GET['func'] == "delete")
+{
+	$db->query("DELETE FROM `".$db_prefix."ranks` WHERE `rank_id`='".$_GET['id']."'");
+	info_box($lang['Delete_Rank'], $lang['Rank_Deleted_Msg'], "ranks.php");
+
+}
+else
+{
+	if(isset($_GET['move']))
+	{
+		if(!isset($_GET['id']))
+		{
+			error_msg($lang['Error'], $lang['Invalid_Rank_Id']);
+		}
+		$old_sign = ($_GET['move'] == "up") ? "+" : "-";
+		$new_sign = ($_GET['move'] == "up") ? "-" : "+";
+		$query = $db->query("SELECT r.`rank_id`, p.`rank_id` AS 'old_rank_id'
+							FROM (`".$db_prefix."ranks` r
+							LEFT JOIN `".$db_prefix."ranks` p ON p.`rank_orderby` = (r.`rank_orderby` ".$new_sign." 1) AND p.`rank_orderby` > 0)
+							WHERE r.`rank_id` = '".$_GET['id']."' AND r.`rank_orderby` > 0");
+
+		if($result = $db->fetch_array($query))
+		{
+			if(!(empty($result['rank_id']) || empty($result['old_rank_id'])))
+			{
+				$db->query("UPDATE `".$db_prefix."ranks` SET `rank_orderby` = (`rank_orderby` ".$new_sign." 1) WHERE `rank_id` = '".$result['rank_id']."'");
+				$db->query("UPDATE `".$db_prefix."ranks` SET `rank_orderby` = (`rank_orderby` ".$old_sign." 1) WHERE `rank_id` = '".$result['old_rank_id']."'");
+			}
+		}
+	}
+	$theme->new_file("ranks", "manage_ranks.tpl");
+	$sql = $db->query("SELECT * FROM `".$db_prefix."ranks`
+						ORDER BY `rank_orderby`, `rank_id`");
+	while ($result = $db->fetch_array($sql)) {
+		$rank_style = "color:".$result['rank_color'].";";
+		if($result['rank_bold'] == 1)
+		{
+			$rank_style .= " font-weight:bold;";
+		}
+		else
+		{
+			$rank_style .= "";
+		}
+		if($result['rank_underline'] == 1)
+		{
+			$rank_style .= " text-decoration: underline;";
+		}
+		else
+		{
+			$rank_style .= "";
+		}
+		if($result['rank_italics'] == 1)
+		{
+			$rank_style .= " font-style:italic;";
+		}
+		else
+		{
+			$rank_style .= "";
+		}
+		$rank_style .= "";
+
+		$nest_prefix = ($result['rank_orderby'] > 0) ? "displayed" : "not_displayed";
+
+		$theme->insert_nest("ranks", $nest_prefix . "_rank_row", array(
+			"ID" => $result['rank_id'],
+			"NAME" => $result['rank_name'],
+			"MINIMUM_POSTS" => $result['rank_minimum_posts'],
+			"RANK_STYLE" => $rank_style,
+			"COLOR" => $result['rank_color'],
+			"BOLD" => ($result['rank_bold'] == "1") ? "CHECKED" : "",
+			"UNDERLINE" => ($result['rank_underline'] == "1") ? "CHECKED" : "",
+			"ITALICS" => ($result['rank_italics'] == "1") ? "CHECKED" : ""
+		));
+		$theme->add_nest("ranks", $nest_prefix . "_rank_row");
+		}
+		//
+		// Output the page header
+		//
+		include($root_path . "includes/page_header.php");
+
+		//
+		// Output the main page
+		//
+		$theme->output("ranks");
+
+		//
+		// Output the page footer
+		//
+		include($root_path . "includes/page_footer.php");
+}
+
+/*======================================================================*\
+|| #################################################################### ||
+|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #################################################################### ||
+\*======================================================================*/
+?>

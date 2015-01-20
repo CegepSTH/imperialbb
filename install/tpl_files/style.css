@@ -1,0 +1,98 @@
+body {
+        background : #E5E5E5;
+        margin : 20px;
+}
+
+table.bodytable {
+        border-width : 1.5px;
+        border-style : solid;
+        border-color : #D2D3D5;
+        background : #FFFFFF;
+}
+
+td {
+        color : #000000;
+        font-size : 12px;
+        font-family : Tahoma,Verdana,Arial;
+}
+td a {
+        color : #455995;
+        font-weight: bold;
+}
+td a:hover {
+        color : #294A7B;
+}
+.cell1 {
+        padding-left:5px;
+        padding-top:5px;
+        padding-bottom:5px;
+        background : #DEE3E8;
+}
+
+.cell2 {
+        padding-left:5px;
+        padding-top:5px;
+        padding-bottom:5px;
+        background : #e9eef3;
+}
+/* Cells used to describe others */
+.desc_row {
+        font-weight : bold;
+        background : #C3D1E3 url(desc_row.gif) repeat-x;
+}
+table.maintable {
+        border-width : 1px;
+        border-style : solid;
+        border-color : #006699;
+}
+
+.quotetable {
+	border-width : 2px;
+	border-style : solid;
+	border-color : #999999;
+}
+
+th {
+        color: #DEEEF3;
+        background : #0051A0 url(cat_back.gif) repeat-x;
+        font-size : 12px;
+        font-family : Tahoma,Verdana,Arial;
+
+}
+
+th a {
+        color : #DEEEF3;
+        text-decoration : none;
+}
+th a:hover {
+        color : #DEEEF3;
+        text-decoration : underline;
+}
+input, select {
+        color : #000000;
+        background : #EAEAEA;
+        font-size : 12px;
+        font-family : Tahoma,Verdana,Arial;
+        font-weight: bold;
+        padding-left : 3px;
+}
+p {
+        color : #000000;
+        margin-top : 5px;
+        padding-bottom : 10px;
+        margin-bottom : 0px;
+        margin-left : 10px;
+        margin-right : 10px;
+        font-size : 12px;
+        font-family : Tahoma,Verdana,Arial;
+}
+p a {
+        color : #000000;
+        font-weight: bold;
+}
+p a:hover {
+        color : #294A7B;
+}
+img {
+        border : none;
+}
