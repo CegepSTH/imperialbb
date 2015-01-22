@@ -52,6 +52,10 @@ switch($debug)
 
 include($root_path . "classes/db/class_".$database['dbtype'].".php");
 $db = new ibb_db_engine();
+
+include($root_path . "classes/database.php");
+$db2 = new Database($database);
+
 unset($database);
 
 include($root_path . "includes/constants.php");
