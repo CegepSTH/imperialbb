@@ -26,11 +26,15 @@ $theme->new_file("board_home", "board_home.tpl", "");
 if($user['user_id'] > 0)
 {
 	// Get PM info
-	$sql = $db->query("SELECT count(u.`pm_id`) AS 'unread_count', count(r.`pm_id`) AS 'read_count'
-	FROM (`".$db_prefix."pm` r LEFT JOIN `".$db_prefix."pm` u ON r.`pm_id` = u.`pm_id` AND u.`pm_unread` = '1')
-	WHERE r.`pm_send_to` = '".$user['user_id']."'");
+	$sql = $db2->query("SELECT count(u.`pm_id`) AS 'unread_count', count(r.`pm_id`) AS 'read_count'
+		FROM (`".$db_prefix."pm` r LEFT JOIN `".$db_prefix."pm` u ON r.`pm_id` = u.`pm_id` AND u.`pm_unread` = '1')
+		WHERE r.`pm_send_to` = :user_id",
+		array(
+			':user_id' => $user['user_id']
+		)
+	);
 
-	$result = $db->fetch_array($sql);
+	$result = $sql->fetch();
 
 	$pm_unread_count = $result['unread_count'];
 	$pm_read_count = $result['read_count'];
@@ -62,11 +66,11 @@ else
 load_forum_stats();
 
 $cat_no = "0";
-$cat_sql = $db->query("SELECT `cat_id`, `cat_name`
-					FROM `".$db_prefix."categories`
-					ORDER BY `cat_orderby`");
+$cat_sql = $db2->query("SELECT `cat_id`, `cat_name`
+	 FROM `".$db_prefix."categories`
+	 ORDER BY `cat_orderby`");
 
-while ($category = $db->fetch_array($cat_sql))
+while ($category = $cat_sql->fetch())
 {
 	$theme->insert_nest("board_home", "catrow", array(
 		"CAT_ID" => $category['cat_id'],
@@ -76,9 +80,12 @@ while ($category = $db->fetch_array($cat_sql))
 	$forum_no = 0;
 	if(!isset($_GET['cid']) || $_GET['cid'] == $category['cat_id'])
 	{
-		$forum_sql = $db->query("SELECT f.*, g.`ug_read`
-		FROM (`".$db_prefix."forums` f LEFT JOIN `".$db_prefix."ug_auth` g ON g.`usergroup` = '".$user['user_usergroup']."' AND g.`ug_forum_id` = f.`forum_id`) WHERE f.forum_cat_id = '"  . $category['cat_id'] .  "' AND f.`forum_type` = 'c' ORDER BY f.forum_orderby");
-		while ($forum = $db->fetch_array($forum_sql))
+		$forum_sql = $db2->query("SELECT f.*, g.`ug_read`
+			FROM (`".$db_prefix."forums` f
+			LEFT JOIN `".$db_prefix."ug_auth` g ON g.`usergroup` = '".$user['user_usergroup']."' AND g.`ug_forum_id` = f.`forum_id`)
+			WHERE f.forum_cat_id = '"  . $category['cat_id'] .  "' AND f.`forum_type` = 'c'
+			ORDER BY f.forum_orderby");
+		while ($forum = $forum_sql->fetch())
 		{
 			if(($forum['forum_read'] <= $user['user_level'] && $forum['ug_read'] == 0) || $forum['ug_read'] == 1)
 			{
@@ -104,11 +111,18 @@ while ($category = $db->fetch_array($cat_sql))
 					));
 	
 					// List the subforums of each forum.
-					$subforums_query = $db->query("SELECT `forum_id`, `forum_name` FROM `".$db_prefix."forums` WHERE `forum_cat_id` = '" . $forum['forum_id'] . "' AND `forum_type` = 'f' LIMIT 5");
+					$subforums_query = $db2->query("SELECT `forum_id`, `forum_name` FROM `".$db_prefix."forums`
+						WHERE `forum_cat_id` = :forum_id AND `forum_type` = 'f'
+						LIMIT 5",
+						array(
+							':forum_id' => $forum['forum_id']
+						)
+					);
+					
 	
 					$subforum_count = 0;
 					$subforum_data = "";
-					while($subforums_result = $db->fetch_array($subforums_query))
+					while($subforums_result = $subforums_query->fetch())
 					{
 						$subforum_data .= "<a href=\"view_forum.php?fid=" . $subforums_result['forum_id'] . "\">" . shortentext($subforums_result['forum_name'], 20, false) . "</a>, ";
 						$subforum_count++;
@@ -131,12 +145,16 @@ while ($category = $db->fetch_array($cat_sql))
 					}
 					else
 					{
-						$last_post_sql = $db->query("SELECT p.*, t.`topic_title`, u.`username`
-													FROM ((`".$db_prefix."posts` p
-													LEFT JOIN `".$db_prefix."topics` t ON t.`topic_id` = p.`post_topic_id`)
-													LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = p.`post_user_id`)
-													WHERE p.`post_id` = '" . $forum['forum_last_post'] . "'");
-						if($last_post = $db->fetch_array($last_post_sql))
+						$last_post_sql = $db2->query("SELECT p.*, t.`topic_title`, u.`username`
+							FROM ((`".$db_prefix."posts` p
+							LEFT JOIN `".$db_prefix."topics` t ON t.`topic_id` = p.`post_topic_id`)
+							LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = p.`post_user_id`)
+							WHERE p.`post_id` = '" . $forum['forum_last_post'] . "'",
+							array(
+								':post_id' => $forum['forum_last_post']
+							)
+						);
+						if($last_post = $last_post_sql->fetch())
 						{
 							$new_posts = false;
 							if($user['user_id'] > 0)
@@ -177,7 +195,13 @@ while ($category = $db->fetch_array($cat_sql))
 						}
 						else
 						{
-							$db->query("UPDATE `".$db_prefix."forums` SET `forum_last_post` = '0' WHERE `forum_id` = '".$forum['forum_id']."'");
+							$db2->query("UPDATE `".$db_prefix."forums`
+								SET `forum_last_post` = '0'
+								WHERE `forum_id` = :forum_id",
+								array(
+									':forum_id' => $forum['forum_id']
+								)
+							);
 							$theme->switch_nest("board_home", "catrow/forumrow/last_post", false, "", 2);
 							$theme->switch_nest("board_home", "catrow/forumrow/new_posts", false, "", 2);
 						}
