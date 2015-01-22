@@ -76,7 +76,7 @@ class Theme
 		{
 			foreach ($tags as $tag => $data)
 			{
-				$this->theme[$template_name]['value'] = ereg_replace("{" . $tag . "}", $data, $this->theme[$template_name]['value']);
+				$this->theme[$template_name]['value'] = preg_replace("#{" . $tag . "}#i", $data, $this->theme[$template_name]['value']);
 			}
 		}
 	}
