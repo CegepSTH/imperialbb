@@ -71,10 +71,6 @@ class ibb_db_engine
 	{
 		$this->sqlstart 	= explode(' ',microtime());
 		$this->sqlstart 	= $this->sqlstart[0] + $this->sqlstart[1];
-    	if(!get_magic_quotes_gpc())
-    	{
-    		$sql = $this->escape_string($sql);
-    	}
 		$this->query 		= $query_type($sql, $this->dblink) or $this->sqlerror($sql);
 		$this->sqlstop 		= explode(' ',microtime());
 		$this->sqlstop 		= $this->sqlstop[0] + $this->sqlstop[1];
