@@ -214,7 +214,7 @@ if($_GET['func'] == "edit")
 				$db->query("UPDATE `".$db_prefix."users` SET `user_avatar_type` = '".REMOTE_AVATAR."', `user_avatar_location` = '".$_POST['Remote_Avatar_URL']."' WHERE `user_id` = '".$user['user_id']."'");
 			}
 			$sql = "UPDATE `".$db_prefix."users` SET `user_email` = '".$_POST['Email']."', `user_signature` = '".$_POST['signature']."', ";
-			if(strlen($_POST['PassWord']) > 0) $sql .= ", `user_password` = '".md5(md5($_POST['PassWord']))."'";
+			if(strlen($_POST['PassWord']) > 0) $sql .= "`user_password` = '".md5(md5($_POST['PassWord']))."', ";
 
 			if(isset($_POST['day']))
             {
