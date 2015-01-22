@@ -50,7 +50,7 @@ $session_sql = $db2->query("SELECT count(f.`ip`) AS 'count', s.*, u.`username`, 
 	FROM ((`".$db_prefix."sessions` f
 	LEFT JOIN `".$db_prefix."sessions` s ON s.`ip` = :remote_ip1 AND s.`session_id` = :session_id)
 	LEFT JOIN `".$db_prefix."users` u ON  u.`user_id` = s.`user_id`)
-    WHERE f.`ip` = :remote_ip2'
+    WHERE f.`ip` = :remote_ip2
     GROUP BY f.`ip`",
 	array(
 		':remote_ip1' => $_SERVER['REMOTE_ADDR'],
