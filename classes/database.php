@@ -71,22 +71,22 @@ class Database {
 	 * query Executes the given query.
 	 * @param $query Query's string.
 	 * @param $values Binded values if any. Can be left empty.
-	 * @returns True if success, false otherwise.
+	 * @returns PDOStatement object if success, null otherwise.
 	 */
 	function query($query, $values = null) {
 		if(!is_string($query)) {
 			$this->m_error = "Query is not a string";
-			return false;
+			return null;
 		}
 		
 		if(!is_null($values) && !is_array($values)) {
 			$this->m_error = "Values are not in an array format.";
-			return false;
+			return null;
 		}
 		
 		if($this->m_db == null) {
 			$this->m_error = "Tried to query without a valid DB Context.";
-			return false;
+			return null;
 		}
 		
 		try {
@@ -95,10 +95,10 @@ class Database {
 			$this->m_results->execute($values);
 		} catch (PDOException $ex) {
 			$this->m_error = $ex->getMessage();
-			return false;
+			return null;
 		}
 		
-		return true;
+		return $this->m_results;
 	}
 	
 	/**
