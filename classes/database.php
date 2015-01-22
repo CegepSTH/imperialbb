@@ -90,6 +90,7 @@ class Database {
 		}
 		
 		try {
+			$this->m_results = null;
 			$this->m_results = $this->m_db->prepare($query, is_null($values) ? array() : $values);
 			$this->m_results->execute($values);
 		} catch (PDOException $ex) {
@@ -153,6 +154,14 @@ class Database {
 		}
 		
 		return $this->m_results->fetchAll();	
+	}
+	
+	/**
+	 * freeData
+	 * Free the data.
+	 */
+	function freeData() {
+		$this->m_results = null;
 	}
 	
 	/**
