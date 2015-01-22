@@ -58,7 +58,6 @@ $db2 = new Database($database);
 
 unset($database);
 
-include($root_path . "classes/db/class_query.php");
 include($root_path . "includes/constants.php");
 include($root_path . "includes/init.php");
 include($root_path . "includes/sessions.php");
