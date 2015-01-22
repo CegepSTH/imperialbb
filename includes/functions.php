@@ -199,7 +199,7 @@ function ibb_censor($text)
 //===========================================
 function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_html=true, $censor_text=true)
 {
-	global $db, $db_prefix, $root_path, $lang;
+	global $db2, $db_prefix, $root_path, $lang;
 
 	if($remove_html)
 	{
@@ -210,8 +210,8 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 
 	if($insert_smilies)
 	{
-		$sql = $db->query("SELECT `smilie_code`, `smilie_url` FROM `".$db_prefix."smilies`");
-		while ($row = $db->fetch_array ($sql))
+		$sql = $db2->query("SELECT `smilie_code`, `smilie_url` FROM `".$db_prefix."smilies`");
+		while ($row = $sql->fetch())
         {
 			$text = str_replace($row['smilie_code'],"<img src=\"" . $root_path . "images/smilies/".$row['smilie_url']."\" border=\"0\">", $text);
 		}
@@ -301,9 +301,9 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 //===========================================
 function insertsmilies($post)
 {
-    global $db, $db_prefix, $root_path;
-    $sql = $db->query("SELECT `smilie_code`, `smilie_url` FROM `".$db_prefix."smilies`");
-    while ($row = $db->fetch_array ($sql))
+    global $db2, $db_prefix, $root_path;
+    $sql = $db2->query("SELECT `smilie_code`, `smilie_url` FROM `".$db_prefix."smilies`");
+    while ($row = $sql->fetch())
     {
         $post = str_replace($row['smilie_code'],"<img src=\"" . $root_path . "images/smilies/".$row['smilie_url']."\" border=\"0\">",$post);
     }
@@ -417,7 +417,7 @@ function shortentext($text, $length, $remove_bb = true)
 //===========================================
 function email($subject, $template, $tags = array(), $to, $from = '')
 {
-    global $config, $lang, $db_prefix, $user, $root_path;
+    global $config, $lang, $ldb_prefix, $user, $root_path;
     if(empty($from))
     {
         $from = $config['site_name']."\" <".$config['admin_email'].">";
@@ -464,9 +464,15 @@ function changehtml($string)
 //===========================================
 function userexists($username)
 {
-    global $db, $db_prefix;
-    $result = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `username` = '".$username."'");
-    $result2=$db->fetch_array($result);
+    global $db2, $db_prefix;
+    $result = $db2->query("SELECT *
+		FROM `".$db_prefix."users`
+		WHERE `username` = :username",
+		array(
+			':username' => $username
+		)
+	);
+    $result2 = $result->fetch();
     if($result2)
     {
         return "1";
@@ -547,11 +553,17 @@ function ifelse($condition, $true='', $false='')
 //===========================================
 function format_membername($member_rank, $member_id, $member_name)
 {
-	global $config, $user, $theme, $lang, $db, $db_prefix;
+	global $config, $user, $theme, $lang, $db2, $db_prefix;
 
 	$format = '';
-	$rsql = $db->query("SELECT * FROM `".$db_prefix."ranks` WHERE `rank_id` = '".$member_rank."'");
-	while($rank = $db->fetch_array($rsql))
+	$rsql = $db2->query("SELECT *
+		FROM `".$db_prefix."ranks`
+		WHERE `rank_id` = :member_rank",
+		array(
+			':member_rank' => $member_rank
+		)
+	);
+	while($rank = $rsql->fetch())
 	{
 		$format .= "<a href=\"profile.php?id=".$member_id."\"><span style=\"";
 		if(!empty($rank['rank_color']))
@@ -593,14 +605,14 @@ function format_membername($member_rank, $member_id, $member_name)
 //===========================================
 function load_forum_stats()
 {
-	global $config, $user, $theme, $lang, $db, $db_prefix;
+	global $config, $user, $theme, $lang, $db2, $db_prefix;
 
 	//Online Listing
-	$onlinesql = $db->query("SELECT u.* FROM `".$db_prefix."sessions` s LEFT JOIN `".$db_prefix."users` u ON (u.`user_id` = s.`user_id`)");
+	$onlinesql = $db2->query("SELECT u.* FROM `".$db_prefix."sessions` s LEFT JOIN `".$db_prefix."users` u ON (u.`user_id` = s.`user_id`)");
 	$online_list = '';
 	$users_online = 0;
 	$guests_online = 0;
-	while($result = $db->fetch_array($onlinesql))
+	while($result = $onlinesql->fetch())
 	{
 		if($result['user_id'] != -1)
 		{
@@ -622,12 +634,12 @@ function load_forum_stats()
 
 	//Rank Listing
 	$rank_list = '';
-	$ranksql = $db->query("SELECT `rank_name`, `rank_color`, `rank_bold`, `rank_underline`, `rank_italics`
+	$ranksql = $db2->query("SELECT `rank_name`, `rank_color`, `rank_bold`, `rank_underline`, `rank_italics`
 						   FROM `".$db_prefix."ranks`
 						   WHERE `rank_orderby` > '0'
 						   ORDER BY `rank_orderby`"
 	);
-	while($result = $db->fetch_array($ranksql))
+	while($result = $ranksql->fetch())
 	{
 		$rank_list .= "[ <span style=\"color: ".$result['rank_color'].";";
 
@@ -654,8 +666,8 @@ function load_forum_stats()
 	$online_today = '';
 	$onlinetoday = 0;
 	$stime = time()-(60*60*24);
-    $todaysql = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `user_lastvisit` > $stime ORDER BY `user_lastvisit` DESC");
-	while($result = $db->fetch_array($todaysql))
+    $todaysql = $db2->query("SELECT * FROM `".$db_prefix."users` WHERE `user_lastvisit` > $stime ORDER BY `user_lastvisit` DESC");
+	while($result = $todaysql->fetch())
 	{
 		if($result['user_id'] != -1)
 		{
@@ -674,8 +686,8 @@ function load_forum_stats()
 	//Forums Newest Member
 	$newestmember = '';
 	$newest_member = '';
-	$newestsql = $db->query("SELECT * FROM `".$db_prefix."users` ORDER BY `user_id` DESC LIMIT 1");
-	$lastmember = $db->fetch_array($newestsql);
+	$newestsql = $db2->query("SELECT * FROM `".$db_prefix."users` ORDER BY `user_id` DESC LIMIT 1");
+	$lastmember = $newestsql->fetch();
 	if(!$lastmember['username'])
 	{
 
@@ -690,10 +702,10 @@ function load_forum_stats()
 	//Forums total members
 	$totalusers = '';
 	$total_users = '';
-	$usertotalsql = $db->query("SELECT COUNT(*) FROM `".$db_prefix."users` WHERE `user_id` > 0");
-	if($res = $db->fetch_row($usertotalsql))
+	$usertotalsql = $db2->query("SELECT COUNT(*) AS 'total_members' FROM `".$db_prefix."users` WHERE `user_id` > 0");
+	if($res = $usertotalsql->fetch())
 	{
-		$totalusers = $res[0];
+		$totalusers = $res['total_members'];
 	}
 	$total_users = sprintf($lang['stats_total_members'], number_format($totalusers));
 
@@ -701,15 +713,15 @@ function load_forum_stats()
 	$totaltopics = '';
 	$totalposts  = '';
 	$total_topics_posts = '';
-	$topictotalsql = $db->query("SELECT COUNT(*) FROM `".$db_prefix."topics`");
-	if($result = $db->fetch_row($topictotalsql))
+	$topictotalsql = $db2->query("SELECT COUNT(*) AS 'total_topics' FROM `".$db_prefix."topics`");
+	if($result = $topictotalsql->fetch())
 	{
-		$totaltopics = $result[0];
+		$totaltopics = $result['total_topics'];
 	}
-	$posttotalsql = $db->query("SELECT COUNT(*) FROM `".$db_prefix."posts`");
-	if($result = $db->fetch_row($posttotalsql))
+	$posttotalsql = $db2->query("SELECT COUNT(*) AS 'total_posts' FROM `".$db_prefix."posts`");
+	if($result = $posttotalsql->fetch())
 	{
-		$totalposts = $result[0];
+		$totalposts = $result['total_posts'];
 	}
 	$total_topics_posts = sprintf($lang['stats_total_poststopics'], number_format($totalposts), number_format($totaltopics));
 
@@ -719,10 +731,10 @@ function load_forum_stats()
 	$bdaytime = time();
 	$currentdate = create_date('m-d', $bdaytime);
 	$currentyear = intval(create_date('Y', $bdaytime));
-	$birth = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `user_birthday` LIKE '%-$currentdate' ORDER BY `username` ASC");
+	$birth = $db2->query("SELECT * FROM `".$db_prefix."users` WHERE `user_birthday` LIKE '%-$currentdate' ORDER BY `username` ASC");
 	$bdaybit = '';
 	$sep = '';
-	while($bday = $db->fetch_array($birth))
+	while($bday = $db2->fetch())
 	{
 		$birthyear = intval(substr($bday['user_birthday'], 0, 4));
 		$age = $currentyear - $birthyear;
