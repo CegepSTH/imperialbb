@@ -19,32 +19,65 @@ if(!defined("IN_IBB")) {
 }
 
 // Clear sessions with an excess of 15 mins inactivity
-$time = time() - 900;
-$sql = $db->query("SELECT * FROM `".$db_prefix."sessions` WHERE `time` < $time");
-while($result = $db->fetch_array($sql)) {
-        $db->query("UPDATE `".$db_prefix."users` SET `user_lastvisit` = '" . $result['time'] . "' WHERE `user_id` = '" . $result['user_id'] . "'");
-        $db->query("DELETE FROM `".$db_prefix."sessions` WHERE `session_id` = '" . $result['session_id'] . "'");
+$expiry_time = time() - 900;
+$sql = $db2->query("SELECT * FROM `".$db_prefix."sessions`
+	WHERE `time` < :expiry_time",
+	array(
+		':expiry_time' => $expiry_time
+	)
+);
+while($result = $sql->fetch()) {
+        $db2->query("UPDATE `".$db_prefix."users`
+			SET `user_lastvisit` = :time
+			WHERE `user_id` = :user_id",
+			array(
+				':time' => $result['time'],
+				':user_id' => $result['user_id']
+			)
+		);
+
+        $db2->query("DELETE FROM `".$db_prefix."sessions`
+			WHERE `session_id` = :session_id",
+			array(
+				':session_id' => $result['session_id']
+			)
+		);
 }
 
 
 // Begin the main check
-$session_sql = $db->query("SELECT count(f.`ip`) AS 'count', s.*, u.`username`, u.`user_password`
-							FROM ((`".$db_prefix."sessions` f
-							LEFT JOIN `".$db_prefix."sessions` s ON s.`ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND s.`session_id` = '".session_id()."')
-							LEFT JOIN `".$db_prefix."users` u ON  u.`user_id` = s.`user_id`)
-                            WHERE f.`ip` = '" . $_SERVER['REMOTE_ADDR'] . "'
-                            GROUP BY f.`ip`");
+$session_sql = $db2->query("SELECT count(f.`ip`) AS 'count', s.*, u.`username`, u.`user_password`
+	FROM ((`".$db_prefix."sessions` f
+	LEFT JOIN `".$db_prefix."sessions` s ON s.`ip` = :remote_ip1 AND s.`session_id` = :session_id)
+	LEFT JOIN `".$db_prefix."users` u ON  u.`user_id` = s.`user_id`)
+    WHERE f.`ip` = :remote_ip2
+    GROUP BY f.`ip`",
+	array(
+		':remote_ip1' => $_SERVER['REMOTE_ADDR'],
+		':remote_ip2' => $_SERVER['REMOTE_ADDR'],
+		':session_id' => session_id()
+	)
+);
 
-$session = $db->fetch_array($session_sql);
+$session = $session_sql->fetch();
 if($session['count'] > 1) {
    // Just encase drop ALL sessions from this user and create a new session id..
-   $db->query("DELETE FROM `".$db_prefix."sessions` WHERE `ip` =  '" . $_SERVER['REMOTE_ADDR'] . "'");
+   $db2->query("DELETE FROM `".$db_prefix."sessions` WHERE `ip` = :remote_ip",
+		array(
+			':remote_ip' => $_SERVER['REMOTE_ADDR']
+		)
+	);
    session_regenerate_id();
    if(isset($_COOKIE['UserName']) && isset($_COOKIE['Password'])) {
-      $check_cookies_sql = $db->query("SELECT * FROM `".$db_prefix."users`
-                                        WHERE `username` = '".$_COOKIE['UserName']."'
-                                        AND `password` = '".$_COOKIE['Password']."'");
-      if($check_user = $db->fetch_array($check_cookies_sql)) {
+      $check_cookies_sql = $db2->query("SELECT * FROM `".$db_prefix."users`
+         WHERE `username` = :username
+         AND `user_password` = :password",
+         array(
+            ':username' => $_COOKIE['UserName'],
+            ':password' => $_COOKIE['Password']
+         )
+      );
+      if($check_user = $check_cookies_sql->fetch()) {
          $_SESSION['user_id'] = $check_user['user_id'];
       } else {
          $_SESSION['user_id'] = -1;
@@ -52,27 +85,58 @@ if($session['count'] > 1) {
    } else {
          $_SESSION['user_id'] = -1;
    }
-   $db->query("INSERT INTO `".$db_prefix."sessions` VALUES('".session_id()."',
-                                            '".$_SERVER['REMOTE_ADDR']."',
-                                            '".$_SESSION['user_id']."',
-                                            '".time()."',
-                                            '".time()."')");
+   $db2->query("INSERT INTO `".$db_prefix."sessions`
+      VALUES(:session_id,
+      :remote_ip,
+      :user_id,
+      :current_time1,
+      :current_time2)",
+      array(
+         ':session_id' => session_id(),
+         ':remote_ip' => $_SERVER['REMOTE_ADDR'],
+         ':user_id' => $_SESSION['user_id'],
+         ':current_time1' => time(),
+         ':current_time2' => time()
+      )
+   );
 } else if($session['count'] == 1) {
   if($session['session_id'] == session_id()) {
           if($session['user_id'] == $_SESSION['user_id']) {
-                  $db->query("UPDATE `".$db_prefix."sessions` SET `time` = '".time()."' WHERE `ip` = '".$_SERVER['REMOTE_ADDR']."' AND `session_id` = '".session_id()."'");
+                  $db2->query("UPDATE `".$db_prefix."sessions`
+                      SET `time` = '".time()."'
+                      WHERE `ip` = :remote_ip AND `session_id` = :session_id",
+                      array(
+                          ':remote_ip' => $_SERVER['REMOTE_ADDR'],
+                          ':session_id' => session_id()
+                      )
+                  );
                   setcookie("UserName", $session['username'], time()+604800);
 		          setcookie("Password", $session['user_password'], time()+604800);
           } else {
                   // If the user id is wrong just log them straight out!
-                  $db->query("DELETE FROM `".$db_prefix."sessions` WHERE `session_id` = '".session_id()."' AND `ip` = '".$_SERVER['REMOTE_ADDR']."'");
+                  $db2->query("DELETE FROM `".$db_prefix."sessions`
+                      WHERE `session_id` = :session_id AND `ip` = :remote_ip",
+                      array(
+                          ':remote_ip' => $_SERVER['REMOTE_ADDR'],
+                          ':session_id' => session_id()
+                      )
+                  );
                   $_SESSION['user_id'] = -1;
                   session_regenerate_id();
-                  $db->query("INSERT INTO `".$db_prefix."sessions` VALUES('".session_id()."',
-                                                          '".$_SERVER['REMOTE_ADDR']."',
-                                                          '".$_SESSION['user_id']."',
-                                                          '".time()."',
-                                                          '".time()."')");
+                  $db2->query("INSERT INTO `".$db_prefix."sessions`
+                     VALUES(:session_id,
+                     :remote_ip,
+                     :user_id,
+                     :current_time1,
+                     :current_time2)",
+                     array(
+                        ':session_id' => session_id(),
+                        ':remote_ip' => $_SERVER['REMOTE_ADDR'],
+                        ':user_id' => $_SESSION['user_id'],
+                        ':current_time1' => time(),
+                        ':current_time2' => time()
+                     )
+                  );
                   setcookie("UserName", "");
 		          setcookie("Password", "");
           }
@@ -80,13 +144,23 @@ if($session['count'] > 1) {
   } else {
     // The user is trying to use a session thats not right? Maybe they opened a new browser... or maybe there a hacker ... we will never know
     // Get it reset anyway!
-    $db->query("DELETE FROM `".$db_prefix."sessions` WHERE `ip` =  '" . $_SERVER['REMOTE_ADDR'] . "'");
+    $db2->query("DELETE FROM `".$db_prefix."sessions`
+        WHERE `ip` = :remote_ip",
+        array(
+            ':remote_ip' => $_SERVER['REMOTE_ADDR']
+        )
+    );
     session_regenerate_id();
     if(isset($_COOKIE['UserName']) && isset($_COOKIE['Password'])) {
-       $check_cookies_sql = $db->query("SELECT `user_id` FROM `".$db_prefix."users`
-                                         WHERE `username` = '".$_COOKIE['UserName']."'
-                                         AND `user_password` = '".$_COOKIE['Password']."'");
-       if($check_user = $db->fetch_array($check_cookies_sql)) {
+       $check_cookies_sql = $db2->query("SELECT `user_id` FROM `".$db_prefix."users`
+          WHERE `username` = :username
+          AND `user_password` = :password",
+          array(
+             ':username' => $_COOKIE['UserName'],
+             ':password' => $_COOKIE['Password']
+          )
+       );
+       if($check_user = $check_cookies_sql->fetch()) {
           $_SESSION['user_id'] = $check_user['user_id'];
        } else {
           $_SESSION['user_id'] = -1;
@@ -94,20 +168,34 @@ if($session['count'] > 1) {
     } else {
       $_SESSION['user_id'] = -1;
     }
-    $db->query("INSERT INTO `".$db_prefix."sessions` VALUES('".session_id()."',
-                                             '".$_SERVER['REMOTE_ADDR']."',
-                                             '".$_SESSION['user_id']."',
-                                             '".time()."',
-                                             '".time()."')");
+    $db2->query("INSERT INTO `".$db_prefix."sessions`
+        VALUES(:session_id,
+        :remote_ip,
+        :user_id,
+        :current_time1,
+        :current_time2)",
+        array(
+            ':session_id' => session_id(),
+            ':remote_ip' => $_SERVER['REMOTE_ADDR'],
+            ':user_id' => $_SESSION['user_id'],
+            ':current_time1' => time(),
+            ':current_time2' => time()
+        )
+    );
   }
 } else if($session['count'] == 0) {
      // Get the session created! - change session_id
      session_regenerate_id();
         if(isset($_COOKIE['UserName']) && isset($_COOKIE['Password'])) {
-           $check_cookies_sql = $db->query("SELECT `user_id` FROM `".$db_prefix."users`
-                                             WHERE `username` = '".$_COOKIE['UserName']."'
-                                             AND `user_password` = '".$_COOKIE['Password']."'");
-           if($check_user = $db->fetch_array($check_cookies_sql)) {
+           $check_cookies_sql = $db2->query("SELECT `user_id` FROM `".$db_prefix."users`
+              WHERE `username` = :username
+              AND `user_password` = :password",
+              array(
+                 ':username' => $_COOKIE['UserName'],
+                 ':password' => $_COOKIE['Password']
+              )
+           );
+           if($check_user = $check_cookies_sql->fetch()) {
               $_SESSION['user_id'] = $check_user['user_id'];
            } else {
               $_SESSION['user_id'] = -1;
@@ -115,11 +203,20 @@ if($session['count'] > 1) {
         } else {
               $_SESSION['user_id'] = -1;
         }
-        $db->query("INSERT INTO `".$db_prefix."sessions` VALUES('".session_id()."',
-                                                 '".$_SERVER['REMOTE_ADDR']."',
-                                                 '".$_SESSION['user_id']."',
-                                                 '".time()."',
-                                                 '".time()."')");
+        $db2->query("INSERT INTO `".$db_prefix."sessions`
+            VALUES(:session_id,
+            :remote_ip,
+            :user_id,
+            :current_time1,
+            :current_time2)",
+            array(
+                ':session_id' => session_id(),
+                ':remote_ip' => $_SERVER['REMOTE_ADDR'],
+                ':user_id' => $_SESSION['user_id'],
+                ':current_time1' => time(),
+                ':current_time2' => time()
+            )
+        );
 }
 
 /*======================================================================*\

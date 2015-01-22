@@ -52,9 +52,12 @@ switch($debug)
 
 include($root_path . "classes/db/class_".$database['dbtype'].".php");
 $db = new ibb_db_engine();
+
+include($root_path . "classes/database.php");
+$db2 = new Database($database);
+
 unset($database);
 
-include($root_path . "classes/db/class_query.php");
 include($root_path . "includes/constants.php");
 include($root_path . "includes/init.php");
 include($root_path . "includes/sessions.php");
@@ -65,13 +68,13 @@ include($root_path . "classes/class_language.php");
 $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
 
 // Config Select //
-$sql = $db->query("
-SELECT c.*, l.`language_folder`
-FROM (`".$db_prefix."config` c
-LEFT JOIN `".$db_prefix."languages` l
-ON c.`config_name` = 'default_language'
-AND l.`language_id` = c.`config_value`)".$protected."");
-while($row = $db->fetch_array($sql))
+$sql = $db2->query("SELECT c.*, l.`language_folder`
+	FROM (`".$db_prefix."config` c
+	LEFT JOIN `".$db_prefix."languages` l
+	ON c.`config_name` = 'default_language'
+	AND l.`language_id` = c.`config_value`)".$protected.""
+);
+while($row = $sql->fetch())
 {
 	$config[$row['config_name']] = stripslashes($row['config_value']);
 	if(isset($row['language_folder']))
@@ -82,11 +85,15 @@ while($row = $db->fetch_array($sql))
 }
 
 // Get user data and put into array
-$sql = $db->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l.`language_name`
-		   FROM (`".$db_prefix."users` u LEFT JOIN
-		   `".$db_prefix."languages` l ON l.`language_id` =  u.`user_language`)
-		   WHERE u.`user_id` = '".$_SESSION['user_id']."'");
-if($row = $db->fetch_array($sql))
+$sql = $db2->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l.`language_name`
+	FROM (`".$db_prefix."users` u LEFT JOIN
+	`".$db_prefix."languages` l ON l.`language_id` =  u.`user_language`)
+	WHERE u.`user_id` = :user_id",
+	array(
+		':user_id' => $_SESSION['user_id']
+	)
+);
+if($row = $sql->fetch())
 {
 	$user = $row;
 	unset($user['user_password']); // Unset the password just to be safe..
@@ -97,7 +104,12 @@ else
 	setcookie("Password");
 	$_SESSION['user_id'] = -1;
 	session_regenerate_id();
-	$db->query("DELETE FROM `".$db_prefix."sessions` WHERE `ip` = '".$_SERVER['REMOTE_ADDR']."'");
+	$db2->query("DELETE FROM `".$db_prefix."sessions`
+		WHERE `ip` = :remote_addr",
+		array(
+			':remote_addr' => $_SERVER['REMOTE_ADDR']
+		)
+	);
 	error_msg("Error", "Unable to select user information.");
 }
 
@@ -114,13 +126,17 @@ if($user['user_id'] < 0)
 	$user['user_template'] = $config['default_template'];
 }
 
-$sql = "SELECT `template_folder` FROM `".$db_prefix."templates` WHERE `template_id` = '".$user['user_template']."'";
+$sql = "SELECT `template_folder` FROM `".$db_prefix."templates` WHERE `template_id` = :user_template'";
 if($user['user_level'] != "5")
 {
 	$sql .= " AND `template_usable` = '1'";
 }
-$sql = $db->query($sql);
-if($result = $db->fetch_array($sql))
+$sql = $db2->query($sql,
+	array(
+		':user_template' => $user['user_template']
+	)
+);
+if($result = $sql->fetch())
 {
 	$user['user_template_folder'] = $result['template_folder'];
 }
@@ -128,11 +144,23 @@ else
 {
 	if($user['user_id'] > 0)
 	{
-		$db->query("UPDATE `".$db_prefix."users` SET `user_template` = '".$config['default_template']."' WHERE `user_id` = '".$user['user_id']."'");
+		$db2->query("UPDATE `".$db_prefix."users`
+			SET `user_template` = :default_template
+			WHERE `user_id` = :user_id",
+			array(
+				':default_template' => $config['default_template'],
+				':user_id' => $user['user_id']
+			)
+		);
 	}
 
-	$sql = $db->query("SELECT * FROM `".$db_prefix."templates` WHERE `template_id` = '".$config['default_template']."'");
-	if($result = $db->fetch_array($sql))
+	$sql = $db2->query("SELECT *
+		FROM `".$db_prefix."templates`
+		WHERE `template_id` = :default_template",
+		array(
+			':default_template' => $config['default_template']
+	));
+	if($result = $sql->fetch())
 	{
 		$user['user_template_folder'] = $result['template_folder'];
 	}
