@@ -328,7 +328,7 @@ if($forum = $db->fetch_array($forum_sql))
 		$theme->add_nest("view_forum", "postrow");
     }
 	$theme->replace_tags("view_forum", array(
-		"FID" => $fid
+		"FID" => (string)$fid
 	));
 }
 else
