@@ -1,0 +1,7 @@
+
+# Exclude uploaded avatars directory
+images/avatars/uploads/
+
+# Exclude database configuration
+includes/config.php
+
