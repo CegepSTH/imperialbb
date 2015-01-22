@@ -54,7 +54,6 @@ include($root_path . "classes/db/class_".$database['dbtype'].".php");
 $db = new ibb_db_engine();
 unset($database);
 
-include($root_path . "classes/db/class_query.php");
 include($root_path . "includes/constants.php");
 include($root_path . "includes/init.php");
 include($root_path . "includes/sessions.php");
