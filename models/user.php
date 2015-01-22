@@ -57,6 +57,57 @@ class User {
 	}
 	
 	/**
+	 * findUser Finds a user in the database.
+	 * @param $id_username Id or username of the user.
+	 * @returns User class if success, null otherwise.
+	 */
+	static function findUser($id_username) {
+		$result = null;
+		
+		if(is_numeric($id_username)) {
+			// Search with id.
+			$db = new Database($database);
+			$db->query("SELECT * FROM ".$db_prefix."users WHERE id=:uid", array(":uid" => $id_username));
+			$result = $db->fetch();
+			
+		} else if (is_string($id_username)) {
+			$db = new Database($database);
+			$db->query("SELECT * FROM ".$db_prefix."users WHERE username=:uname", array(":uname" => $id_username));
+			$result = $db->fetch();
+		} else {
+			return null;
+		}
+		
+		if(is_null($result)) {
+			return null;
+		}
+		
+		// If we're here, it means we got a user in array.
+		$user = new User($result["user_id"], $result["username"], $result["user_email"]);
+		$user->setActivation($result["user_activation_key"]);
+		$user->setAvatarDimensions($result["user_avatar_dimensions"]);
+		$user->setAvatarLocation($result["user_avatar_location"]);
+		$user->setAvatarType($result["user_avatar_type"]);
+		$user->setBirthday($result["user_birthday"]);
+		$user->setDateJoined($result["user_date_joined"]);
+		$user->setEmailOnPm($result["user_email_on_pm"]);
+		$user->setLanguageId($result["user_language"]);
+		$user->setLastVisit($result["user_last_visit"]);
+		$user->setLevel($result["user_level"]);
+		$user->setLocation($result["user_location"]);
+		$user->setMessengers(array("aim" => $result["user_aim"], "icq" => $result["user_icq"], "msn" => $result["user_msn"], "yahoo" => $result["user_yahoo"]));
+		$user->setPostsCount($result["user_posts"]);
+		$user->setRankId($result["user_rank"]);
+		$user->setSignature($result["user_signature"]);
+		$user->setTemplateId($result["user_template"]);
+		$user->setTimezone($result["user_timezone"]);
+		$user->setUsergroupId($result["user_usergroup"]);
+		$user->setWebsite($result["user_website"]);		
+		
+		return $user;
+	}
+	
+	/**
 	 * getId Gets the user's id.
 	 * @returns User id (int)
 	 */
