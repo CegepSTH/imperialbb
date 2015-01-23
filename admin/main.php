@@ -16,12 +16,6 @@ define("IN_ADMIN", 1);
 $root_path = "../";
 include($root_path."includes/common.php");
 
-if(isset($_GET['func']) && $_GET['func'] == "phpinfo")
-{
-	phpinfo();
-    exit();
-}
-
 $config['admincp_notepad'] = htmlspecialchars($config['admincp_notepad']);
 if(isset($_GET['func']) && $_GET['func'] == 'update_notepad')
 {
@@ -75,6 +69,8 @@ $theme->replace_tags("main", array(
 	"TOPICS_TODAY"  => $topics_today
 ));
 
+/* DEACTIVATED --Alexandre Leblanc
+ * Super dupper dangerous. !!!
 $vcheck = file_get_contents("http://www.imperialbb.com/scripts/upgrades/");
 eval($vcheck);
 if($config['version'] < $latest_version)
@@ -103,7 +99,8 @@ if($config['version'] < $latest_version)
 else
 {
 	$theme->switch_nest("main", "vcheck", true);
-}
+}*/
+
 $theme->add_nest("main", "vcheck");
 if(is_dir("../install"))
 {

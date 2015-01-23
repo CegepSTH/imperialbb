@@ -23,7 +23,6 @@
                     <a href="main.php" target="main">{L.Admin_Home}</a><br>
                     <a href="../index.php" target="_parent">{L.Forum_Home}</a><br>
                     <a href="../index.php" target="main">{L.Forum_Preview}</a><br>
-                    <a href="main.php?func=phpinfo" target="main">{L.phpinfo}</a><br>
                 </td>
             </tr>
         </tbody>
