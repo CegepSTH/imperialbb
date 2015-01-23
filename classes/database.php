@@ -49,7 +49,8 @@ class Database {
 		$conn_str = $database['dbtype'].":host=".$database['dbhost'].";dbname=".$database['dbname'].";charset=UTF8";
 		
 		try {
-			$this->m_db = new PDO($conn_str, $database['dbuser'], $database['dbpass']);
+			$options = array(PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC);			
+			$this->m_db = new PDO($conn_str, $database['dbuser'], $database['dbpass'], $options);
 		} catch (PDOException $ex) {
 			$this->m_error = $ex->getMessage();
 			$this->m_db = null;
