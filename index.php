@@ -39,13 +39,11 @@ if($user['user_id'] > 0)
 	$pm_unread_count = $result['unread_count'];
 	$pm_read_count = $result['read_count'];
 
-	if($pm_unread_count > 0)
-	{
-		$pm_info = "<a href=\"pm.php\">" . sprintf($lang['You_have_x_new_pms'], $pm_unread_count) . "</a>";
+	if($pm_unread_count > 0) {
+		$pm_info = sprintf($lang['You_have_x_new_pms'], $pm_unread_count);
 	}
-	else
-	{
-		$pm_info = "<a href=\"pm.php\">" . $lang['You_have_no_new_pms'] . "</a>";
+	else {
+		$pm_info = $lang['You_have_no_new_pms'];
 	}
 
 	$theme->replace_tags("board_home",  array(

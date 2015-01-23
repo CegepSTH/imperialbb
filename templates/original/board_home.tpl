@@ -1,7 +1,7 @@
 <!-- BEGIN SWITCH logged_in -->
 <table width="100%">
 	<tr>
-		<td>{PRIVATE_MESSAGE_INFO}<br />{CURRENT_TIME} |  {ALL_TIMES_ARE_TIMEZONE}</td>
+		<td><a href="pm.php">{PRIVATE_MESSAGE_INFO}</a><br />{CURRENT_TIME} |  {ALL_TIMES_ARE_TIMEZONE}</td>
 	</tr>
 	<tr>
 		<td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a></td>
