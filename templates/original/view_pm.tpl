@@ -1,6 +1,6 @@
 <table width="100%">
  <tr>
-  <td align="left" style="padding-left:5px;" valign="bottom"><a href="/">{C.site_name}</a> &raquo; <a href="/forum/">Forum</a> &raquo; <a href="pm.php">{L.PM_Manager}</a> &raquo; <b>{L.View_PM}</b></td>
+  <td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <a href="pm.php">{L.PM_Manager}</a> &raquo; <b>{L.View_PM}</b></td>
  </tr>
 </table>
 <table width="100%" align="center" class="maintable">
