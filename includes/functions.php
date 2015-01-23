@@ -241,7 +241,7 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 		$bb_replace[] = "<hr />";
 
 		// [img]http://www.domain.com[/img]
-		$bb_search[] = "#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#is";
+		$bb_search[] = "#\[img\](http://)([\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#is";
 		$bb_replace[] = "<img src=\"\\1\\2\" />";
 
 		// [url=http://www.domain.com]Domain[/url] (With xxxx:// prefix)
