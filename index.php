@@ -147,7 +147,7 @@ while ($category = $cat_sql->fetch())
 							FROM ((`".$db_prefix."posts` p
 							LEFT JOIN `".$db_prefix."topics` t ON t.`topic_id` = p.`post_topic_id`)
 							LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = p.`post_user_id`)
-							WHERE p.`post_id` = '" . $forum['forum_last_post'] . "'",
+							WHERE p.`post_id` = :post_id",
 							array(
 								':post_id' => $forum['forum_last_post']
 							)
