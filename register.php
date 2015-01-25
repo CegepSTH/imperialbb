@@ -62,26 +62,90 @@ if(isset($_POST['Submit'])) {
 	include($root_path . "includes/page_footer.php");
 	} else {
 		if($config['register_auth_type'] == 0) {
-			$db->query("INSERT INTO `".$db_prefix."users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_template`, `user_language`)
-						VALUES('".$_POST['UserName']."', '".md5(md5($_POST['Password']))."', '".$_POST['Email']."', '".date("D d M Y")."', '3', '".$config['default_template']."', '".$config['default_language']."')");
+			$db2->query("INSERT INTO `_PREFIX_users` (
+				`username`,
+				`user_password`,
+				`user_email`,
+				`user_date_joined`,
+				`user_level`,
+				`user_template`,
+				`user_language`
+				)
+				VALUES(
+				:username,
+				:user_password,
+				:user_email,
+				:user_date_joined,
+				'3',
+				:user_template,
+				:user_language
+				)",
+				array(
+					":username" => $_POST['UserName'],
+					":user_password" => md5(md5($_POST['Password'])),
+					":user_email" => $_POST['Email'],
+					":user_date_joined" => date("D d M Y"),
+					":user_template" => $config['default_template'],
+					":user_language" => $config['default_language']
+				)
+			);
 			info_box($lang['Registration'], $lang['Registration_Successful_Msg'], "?act=login");
 		} else {
 			$activation_key = generate_activate_key();
-			$db->query("INSERT INTO `".$db_prefix."users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_activation_key`, `user_template`, `user_language`)
-						VALUES('".$_POST['UserName']."', '".md5(md5($_POST['Password']))."', '".$_POST['Email']."', '".time()."', '2', '$activation_key', '".$config['default_template']."', '".$config['default_language']."')");
+			$db2->query("INSERT INTO `_PREFIX_users` (
+				`username`,
+				`user_password`,
+				`user_email`,
+				`user_date_joined`,
+				`user_level`,
+				`user_activation_key`
+				`user_template`,
+				`user_language`
+				)
+				VALUES(
+				:username,
+				:user_password,
+				:user_email,
+				:user_date_joined,
+				'3',
+				:user_activation_key,
+				:user_template,
+				:user_language
+				)",
+				array(
+					":username" => $_POST['UserName'],
+					":user_password" => md5(md5($_POST['Password'])),
+					":user_email" => $_POST['Email'],
+					":user_date_joined" => date("D d M Y"),
+					":user_activation_key" => $activation_key,
+					":user_template" => $config['default_template'],
+					":user_language" => $config['default_language']
+				)
+			);
 			email($lang['Email_New_Account_Subject'], "new_account", array("USER_ID" => $db->insert_id(), "USERNAME" => $_POST['UserName'], "PASSWORD" => $_POST['Password'], "KEY" => $activation_key, "DOMAIN" => $config['url'], "SITE_NAME" => $config['site_name']), $_POST['Email']);
 			info_box($lang['Registration'], $lang['Activate_Your_Acct_Msg'], "?act=login");
 		}
 	}
 } else if(isset($_GET['id']) && isset($_GET['key'])) {
-	$sql = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `user_id` = '".$_GET['id']."'");
-	if($result = $db->fetch_array($sql)) {
+	$sql = $db2->query("SELECT * FROM `_PREFIX_users`
+		WHERE `user_id` = :user_id",
+		array(
+			":user_id" => $_GET['id']
+		)
+	);
+	if($result = $sql->fetch()) {
 		if($result['user_level'] != "2") {
 			error_msg($lang['Account_Activation'], $lang['Account_Already_Activated']);
 		} else if($result['activation_key'] != $_GET['key']) {
 			error_msg($lang['Account_Activation'], $lang['Invalid_Activation_Key']);
 		} else {
-			$db->query("UPDATE `".$db_prefix."users` SET `user_level` = '3' WHERE `user_id` = '".$_GET['id']."'");
+			$db2->query("UPDATE `_PREFIX_users`
+				SET `user_level` = '3'
+				WHERE `user_id` = :user_id",
+				array(
+					":user_id" => $_GET['id']
+				)
+			);
 			info_box($lang['Account_Activation'], $lang['Account_Activated'], "?act=login");
 		}
 	} else {
