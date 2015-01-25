@@ -14,11 +14,14 @@ class Database {
 	// Resultset handle (PDOStatement)
 	private $m_results;
 	
+	// Tables prefix (e.g. ibb_users, prefix is ibb_)
+	private $m_prefix;
+	
 	/**
 	 * CTOR
 	 * @param $database String array containing each settings for the db.
 	 */
-	function __construct($database) {
+	function __construct($database, $prefix = "") {
 		$this->m_error = "";
 		
 		if(!isset($database) || !is_array($database)) {
@@ -46,6 +49,12 @@ class Database {
 			return;
 		}
 		
+		if(!is_string($prefix) || $prefix == null) {
+			$this->m_error = "Database tables prefix are either not string or is null");
+			return;
+		}
+		
+		$this->m_prefix = $prefix;
 		$conn_str = $database['dbtype'].":host=".$database['dbhost'].";dbname=".$database['dbname'].";charset=UTF8";
 		
 		try {
@@ -89,6 +98,9 @@ class Database {
 			$this->m_error = "Tried to query without a valid DB Context.";
 			return null;
 		}
+		
+		// Replace the prefix marker. The space is important.
+		str_replace(" _PREFIX_", $this->m_prefix, $query);
 		
 		try {
 			$this->m_results = null;
