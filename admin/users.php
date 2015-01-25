@@ -14,7 +14,7 @@ define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
-include($root_path . "includes/common.php");
+require_once($root_path."includes/common.php");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
@@ -22,9 +22,9 @@ if($_GET['func'] == "edit")
 {
 	if(isset($_POST['username']))
 	{
+		$db2->query("SELECT * FROM _PREFIX_users WHERE `username`='".$_POST['username']."' LIMIT 1");
 
-		$sql = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `username` = '".$_POST['username']."' LIMIT 1");
-		if($result = $db->fetch_array($sql))
+		if($result = $db2->fetch())
 		{
 			$theme->new_file("edit_user", "edit_user.tpl");
 			$theme->replace_tags("edit_user", array(
@@ -38,8 +38,9 @@ if($_GET['func'] == "edit")
 				"YAHOO" => $result['user_yahoo']
 			));
 
-			$ug_sql = $db->query("SELECT * FROM `".$db_prefix."usergroups`");
-			while($ug_result = $db->fetch_array($ug_sql))
+			$db2->query("SELECT * FROM _PREFIX_usergroups");
+
+			while($ug_result = $db2->fetch())
 			{
 				$theme->insert_nest("edit_user", "usergroup_option", array(
 					"UG_ID" => $ug_result['id'],
@@ -48,9 +49,10 @@ if($_GET['func'] == "edit")
 				));
 				$theme->add_nest("edit_user", "usergroup_option");
 			}
-
-			$rank_sql = $db->query("SELECT * FROM `".$db_prefix."ranks`");
-			while($rank_result = $db->fetch_array($rank_sql))
+			
+			$db2->query("SELECT * FROM `_PREFIX_ranks`");
+	
+			while($rank_result = $db2->fetch())
 			{
 				$theme->insert_nest("edit_user", "rank_option", array(
 					"RANK_ID" => $rank_result['rank_id'],
@@ -59,6 +61,7 @@ if($_GET['func'] == "edit")
 				));
 				$theme->add_nest("edit_user", "rank_option");
 			}
+			
 			$user_levels = array($lang['Administrator'] => "5", $lang['Moderator'] => "4", $lang['Registered'] => "3", $lang['Validating'] => "2", $lang['Guest'] => "1", $lang['Banned'] => "0");
 			foreach($user_levels as $ul_name => $ul_id)
 			{
@@ -124,8 +127,10 @@ if($_GET['func'] == "edit")
 				"MSN" => $_POST['msn'],
 				"YAHOO" => $_POST['yahoo']
 			));
-			$ug_sql = $db->query("SELECT * FROM `".$db_prefix."usergroups`");
-			while($ug_result = $db->fetch_array($ug_sql))
+			
+			$db2->query("SELECT * FROM `_PREFIX_usergroups`");
+			
+			while($ug_result = $db2->fetch())
 			{
 				$theme->insert_nest("edit_user", "usergroup_option", array(
 					"UG_ID" => $ug_result['id'],
@@ -134,9 +139,10 @@ if($_GET['func'] == "edit")
 				));
 				$theme->add_nest("edit_user", "usergroup_option");
 			}
-
-			$rank_sql = $db->query("SELECT * FROM `".$db_prefix."ranks`");
-			while($rank_result = $db->fetch_array($rank_sql))
+			
+			$db2->query("SELECT * FROM `_PREFIX_ranks`");
+			
+			while($rank_result = $db2->fetch())
 			{
 				$theme->insert_nest("edit_user", "rank_option", array(
 					"RANK_ID" => $rank_result['rank_id'],
@@ -179,13 +185,15 @@ if($_GET['func'] == "edit")
 		}
 		else
 		{
-			$sql = "UPDATE `".$db_prefix."users` SET `username` = '".$_POST['Username']."', `user_email` = '".$_POST['Email']."', `user_signature` = '".$_POST['signature']."'";
+			$sql = "UPDATE `_PREFIX_users` SET `username` = '".$_POST['Username']."', `user_email` = '".$_POST['Email']."', `user_signature` = '".$_POST['signature']."'";
 
 			if(strlen($_POST['PassWord']) > 0) $sql .= ", `user_password`='".md5(md5($_POST['PassWord']))."'";
 			$sql .= ", `user_aim` = '".$_POST['aim']."', `user_icq` = '".$_POST['icq']."', `user_msn` ='".$_POST['msn']."', `user_yahoo` ='".$_POST['yahoo']."', `user_usergroup` ='".$_POST['usergroup']."', `user_rank` = '".$_POST['rank']."', `user_level` = '".$_POST['user_level']."'
 					WHERE `user_id` = '".$_GET['user_id']."'";
-
-			if($db->query($sql)) {
+			
+			$db2->query($sql);
+			
+			if($db2->getError() == "" || $db2->getError() == null) {
 				info_box($lang['Edit_User'], $lang['User_Updated_Msg'], "main.php");
 			}
 		}
@@ -193,14 +201,15 @@ if($_GET['func'] == "edit")
 	else
 	{
 		$theme->new_file("edit_user", "edit_user_start.tpl");
-		$sql = $db->query("SELECT `username` FROM `".$db_prefix."users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 50");
-		while($result = $db->fetch_array($sql))
+		$db2->query("SELECT `username` FROM `_PREFIX_users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 50");
+		while($result = $db2->fetch())
 		{
 			$theme->insert_nest("edit_user", "user_option", array(
 				"USERNAME" => $result['username']
 			));
 			$theme->add_nest("edit_user", "user_option");
 		}
+		
 		//
 		// Output the page header
 		//
@@ -223,8 +232,8 @@ else if($_GET['func'] == "delete")
 	if(!isset($_POST['username']) && !isset($_GET['username']))
 	{
 		$theme->new_file("delete_user", "delete_user.tpl");
-		$sql = $db->query("SELECT `username` FROM `".$db_prefix."users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 25");
-		while($result = $db->fetch_array($sql))
+		$db2->query("SELECT `username` FROM `_PREFIX_users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 25");
+		while($result = $db2->fetch())
 		{
 			$theme->insert_nest("delete_user", "user_option", array(
 				"USERNAME" => $result['username']
@@ -252,7 +261,7 @@ else if($_GET['func'] == "delete")
 	}
 	else
 	{
-		$db->query("DELETE FROM `".$db_prefix."users` WHERE `username` = '".$_GET['username']."' LIMIT 1");
+		$db2->query("DELETE FROM `_PREFIX_users` WHERE `username` = '".$_GET['username']."' LIMIT 1");
 		info_box($lang['Delete_User'], $lang['User_Deleted_Msg'], "main.php");
 	}
 }

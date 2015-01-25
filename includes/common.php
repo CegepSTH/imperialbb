@@ -69,8 +69,8 @@ $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
 
 // Config Select //
 $sql = $db2->query("SELECT c.*, l.`language_folder`
-	FROM (`".$db_prefix."config` c
-	LEFT JOIN `".$db_prefix."languages` l
+	FROM (`_PREFIX_config` c
+	LEFT JOIN `_PREFIX_languages` l
 	ON c.`config_name` = 'default_language'
 	AND l.`language_id` = c.`config_value`)".$protected.""
 );
@@ -86,8 +86,8 @@ while($row = $sql->fetch())
 
 // Get user data and put into array
 $sql = $db2->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l.`language_name`
-	FROM (`".$db_prefix."users` u LEFT JOIN
-	`".$db_prefix."languages` l ON l.`language_id` =  u.`user_language`)
+	FROM (`_PREFIX_users` u LEFT JOIN
+	`_PREFIX_languages` l ON l.`language_id` =  u.`user_language`)
 	WHERE u.`user_id` = :user_id",
 	array(
 		':user_id' => $_SESSION['user_id']
@@ -104,7 +104,7 @@ else
 	setcookie("Password");
 	$_SESSION['user_id'] = -1;
 	session_regenerate_id();
-	$db2->query("DELETE FROM `".$db_prefix."sessions`
+	$db2->query("DELETE FROM `_PREFIX_sessions`
 		WHERE `ip` = :remote_addr",
 		array(
 			':remote_addr' => $_SERVER['REMOTE_ADDR']
@@ -126,7 +126,7 @@ if($user['user_id'] < 0)
 	$user['user_template'] = $config['default_template'];
 }
 
-$sql = "SELECT `template_folder` FROM `".$db_prefix."templates` WHERE `template_id` = :user_template'";
+$sql = "SELECT `template_folder` FROM `_PREFIX_templates` WHERE `template_id` = :user_template'";
 if($user['user_level'] != "5")
 {
 	$sql .= " AND `template_usable` = '1'";
@@ -144,7 +144,7 @@ else
 {
 	if($user['user_id'] > 0)
 	{
-		$db2->query("UPDATE `".$db_prefix."users`
+		$db2->query("UPDATE `_PREFIX_users`
 			SET `user_template` = :default_template
 			WHERE `user_id` = :user_id",
 			array(
@@ -155,7 +155,7 @@ else
 	}
 
 	$sql = $db2->query("SELECT *
-		FROM `".$db_prefix."templates`
+		FROM `_PREFIX_templates`
 		WHERE `template_id` = :default_template",
 		array(
 			':default_template' => $config['default_template']
