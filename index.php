@@ -27,7 +27,7 @@ if($user['user_id'] > 0)
 {
 	// Get PM info
 	$sql = $db2->query("SELECT count(u.`pm_id`) AS 'unread_count', count(r.`pm_id`) AS 'read_count'
-		FROM (`".$db_prefix."pm` r LEFT JOIN `".$db_prefix."pm` u ON r.`pm_id` = u.`pm_id` AND u.`pm_unread` = '1')
+		FROM (`_PREFIX_pm` r LEFT JOIN `_PREFIX_pm` u ON r.`pm_id` = u.`pm_id` AND u.`pm_unread` = '1')
 		WHERE r.`pm_send_to` = :user_id",
 		array(
 			':user_id' => $user['user_id']
@@ -65,7 +65,7 @@ load_forum_stats();
 
 $cat_no = "0";
 $cat_sql = $db2->query("SELECT `cat_id`, `cat_name`
-	 FROM `".$db_prefix."categories`
+	 FROM `_PREFIX_categories`
 	 ORDER BY `cat_orderby`");
 
 while ($category = $cat_sql->fetch())
@@ -79,8 +79,8 @@ while ($category = $cat_sql->fetch())
 	if(!isset($_GET['cid']) || $_GET['cid'] == $category['cat_id'])
 	{
 		$forum_sql = $db2->query("SELECT f.*, g.`ug_read`
-			FROM (`".$db_prefix."forums` f
-			LEFT JOIN `".$db_prefix."ug_auth` g ON g.`usergroup` = '".$user['user_usergroup']."' AND g.`ug_forum_id` = f.`forum_id`)
+			FROM (`_PREFIX_forums` f
+			LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup` = '".$user['user_usergroup']."' AND g.`ug_forum_id` = f.`forum_id`)
 			WHERE f.forum_cat_id = '"  . $category['cat_id'] .  "' AND f.`forum_type` = 'c'
 			ORDER BY f.forum_orderby");
 		while ($forum = $forum_sql->fetch())
@@ -109,7 +109,7 @@ while ($category = $cat_sql->fetch())
 					));
 	
 					// List the subforums of each forum.
-					$subforums_query = $db2->query("SELECT `forum_id`, `forum_name` FROM `".$db_prefix."forums`
+					$subforums_query = $db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
 						WHERE `forum_cat_id` = :forum_id AND `forum_type` = 'f'
 						LIMIT 5",
 						array(
@@ -144,9 +144,9 @@ while ($category = $cat_sql->fetch())
 					else
 					{
 						$last_post_sql = $db2->query("SELECT p.*, t.`topic_title`, u.`username`
-							FROM ((`".$db_prefix."posts` p
-							LEFT JOIN `".$db_prefix."topics` t ON t.`topic_id` = p.`post_topic_id`)
-							LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = p.`post_user_id`)
+							FROM ((`_PREFIX_posts` p
+							LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
+							LEFT JOIN `_PREFIX_users` u ON u.`user_id` = p.`post_user_id`)
 							WHERE p.`post_id` = :post_id",
 							array(
 								':post_id' => $forum['forum_last_post']
@@ -193,7 +193,7 @@ while ($category = $cat_sql->fetch())
 						}
 						else
 						{
-							$db2->query("UPDATE `".$db_prefix."forums`
+							$db2->query("UPDATE `_PREFIX_forums`
 								SET `forum_last_post` = '0'
 								WHERE `forum_id` = :forum_id",
 								array(
