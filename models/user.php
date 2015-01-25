@@ -293,7 +293,7 @@ class User {
 	 * setMessengers Sets the specified ims to user.
 	 * @param $ims Key=>value array.
 	 */
-	function setMessengers($ims) {
+	function setMessengers(array $ims) {
 		if(!is_array($ims)) {
 			return "Messengers array passed is not an array";
 		}
