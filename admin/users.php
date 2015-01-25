@@ -22,7 +22,7 @@ if($_GET['func'] == "edit")
 {
 	if(isset($_POST['username']))
 	{
-		$db2->query("SELECT * FROM _PREFIX_users WHERE `username`='".$_POST['username']."' LIMIT 1");
+		$db2->query("SELECT * FROM _PREFIX_users WHERE `username`=:uname LIMIT 1", array(":uname" => $_POST['username']));
 
 		if($result = $db2->fetch())
 		{
@@ -185,13 +185,21 @@ if($_GET['func'] == "edit")
 		}
 		else
 		{
-			$sql = "UPDATE `_PREFIX_users` SET `username` = '".$_POST['Username']."', `user_email` = '".$_POST['Email']."', `user_signature` = '".$_POST['signature']."'";
-
-			if(strlen($_POST['PassWord']) > 0) $sql .= ", `user_password`='".md5(md5($_POST['PassWord']))."'";
-			$sql .= ", `user_aim` = '".$_POST['aim']."', `user_icq` = '".$_POST['icq']."', `user_msn` ='".$_POST['msn']."', `user_yahoo` ='".$_POST['yahoo']."', `user_usergroup` ='".$_POST['usergroup']."', `user_rank` = '".$_POST['rank']."', `user_level` = '".$_POST['user_level']."'
-					WHERE `user_id` = '".$_GET['user_id']."'";
+			$values = array(":uname" => $_POST['Username'], ":uemail" => $_POST['Email'], ":usign" => $_POST['signature'], 
+			":uaim" => $_POST['aim'], ":uicq" => $_POST['icq'], ":umsn" => $_POST['msn'], ":uyahoo" => $_POST['yahoo'],
+			":ugroup" => $_POST['usergroup'], ":urank" => $_POST['rank'], ":ulevel" => $_POST['user_level'], ":uid" => $_GET['user_id']);
 			
-			$db2->query($sql);
+			$sql = "UPDATE `_PREFIX_users` SET `username`=:uname, `user_email`=:uemail, `user_signature`=:usign";
+
+			if(strlen($_POST['PassWord']) > 0) {
+				$values[":upasswd"] = md5(md5($_POST['PassWord']));
+				$sql .= ", `user_password`=:upasswd";
+			}
+			
+			$sql .= ", `user_aim`=:uaim, `user_icq`=:uicq, `user_msn`=:umsn, `user_yahoo`=:uyahoo, `user_usergroup`=:ugroup, `user_rank`=:urank, `user_level`=:ulevel
+			WHERE `user_id`=:uid";
+			
+			$db2->query($sql, $values);
 			
 			if($db2->getError() == "" || $db2->getError() == null) {
 				info_box($lang['Edit_User'], $lang['User_Updated_Msg'], "main.php");
@@ -261,7 +269,7 @@ else if($_GET['func'] == "delete")
 	}
 	else
 	{
-		$db2->query("DELETE FROM `_PREFIX_users` WHERE `username` = '".$_GET['username']."' LIMIT 1");
+		$db2->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => $_GET['username']));
 		info_box($lang['Delete_User'], $lang['User_Deleted_Msg'], "main.php");
 	}
 }

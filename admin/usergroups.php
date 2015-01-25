@@ -61,114 +61,114 @@ if($_GET['func'] == "permissions")
 
 				if($_POST[$forum_id]['Read'] == "2" && $_POST[$forum_id]['Post'] == "2" && $_POST[$forum_id]['Reply'] == "2" && $_POST[$forum_id]['Poll'] == "2" && $_POST[$forum_id]['Create_Poll'] == "2" && $_POST[$forum_id]['Mod'] == "2")
 				{
-					$db2->query("DELETE FROM `_PREFIX_ug_auth` WHERE `usergroup` = '".$_GET['id']."' && `ug_forum_id` = '$forum_id'");#
+					$values = array(":id" => $_GET['id'], ":fid" => $forum_id);
+					$db2->query("DELETE FROM `_PREFIX_ug_auth` WHERE `usergroup`=:id && `ug_forum_id`=:fid", $values);
 				}
 				else
 				{
-
-					$ug_sql = $db2->query("SELECT * FROM `_PREFIX_ug_auth` WHERE `usergroup` = '".$_GET['id']."' && `ug_forum_id` = '$forum_id'");
-					if(!$db2->fetch())
-					{
-						$db2->query("INSERT INTO `_PREFIX_ug_auth`
-									VALUES('".$_GET['id']."', '$forum_id', '".$_POST[$forum_id]['Read']."', '".$_POST[$forum_id]['Post']."', '".$_POST[$forum_id]['Reply']."', '".$_POST[$forum_id]['Create_Poll']."', '".$_POST[$forum_id]['Poll']."', '".$_POST[$forum_id]['Mod']."')");
-						}
-						else
-						{
-
-							$db2->query("UPDATE `_PREFIX_ug_auth`
-										SET `usergroup` = '".$_GET['id']."', `ug_forum_id` = '$forum_id', `ug_read` = '".$_POST[$forum_id]['Read']."', `ug_post` = '".$_POST[$forum_id]['Post']."', `ug_reply` = '".$_POST[$forum_id]['Reply']."', `ug_create_poll` = '".$_POST[$forum_id]['Create_Poll']."', `ug_poll` = '".$_POST[$forum_id]['Poll']."', `ug_mod` = '".$_POST[$forum_id]['Mod']."'
-										WHERE `usergroup` = '".$_GET['id']."' && `ug_forum_id` = '$forum_id'");
-						}
-					}
-				}
-				info_box($lang['Usergroup_Permissions'], $lang['Usergroup_Perm_Msg'], "usergroups.php?func=permissions");
-
-				}
-				else
-				{
-					$theme->new_file("ug_auth", "ug_auth.tpl");
-					$db2->query("SELECT * FROM `_PREFIX_usergroups` WHERE `id` = '".$_POST['id']."'");
-					while($result = $db2->fetch())
-					{
-						$theme->replace_tags("ug_auth", array(
-							"GROUP_ID" => $result['id'],
-							"GROUP_NAME" => $result['name']
-						));
-					}
-
-					$pdo_forums = $db2->query("SELECT * FROM `_PREFIX_forums` ORDER BY `forum_id` DESC");
+					$values = array(":id" => $_GET['id'], ":fid" => $forum_id, ":fread" => $_POST[$forum_id]['Read'], 
+						":fpost" => $_POST[$forum_id]['Post'], ":freply" => $_POST[$forum_id]['Reply'], ":cpoll" => $_POST[$forum_id]['Create_Poll'],
+						":poll" => $_POST[$forum_id]['Poll'], ":mod" => $_POST[$forum_id]['Mod'], ":idd" => $_GET['id'], ":fidd" => $forum_id);
+						
+					$ug_sql = $db2->query("SELECT * FROM `_PREFIX_ug_auth` WHERE `usergroup`=:id && `ug_forum_id`=:fid", $values);
 					
-					while($result = $pdo_forums->fetch()) {
-						$db2->query("SELECT * FROM `_PREFIX_ug_auth` WHERE `usergroup` = '".$_POST['id']."' && `ug_forum_id` = '".$result['forum_id']."'");
-						if($result_auth = $db2->fetch())
-						{
-
-							$theme->insert_nest("ug_auth", "forum_permissions", array(
-								"FORUM_ID" => $result['forum_id'],
-								"FORUM_NAME" => $result['forum_name'],
-								"READ_TRUE" => ($result_auth['ug_read'] == 1) ? "SELECTED" : "",
-								"READ_FALSE" => ($result_auth['ug_read'] == 0) ? "SELECTED" : "",
-								"READ_DEFAULT" => ($result_auth['ug_read'] == 2) ? "SELECTED" : "",
-								"POST_TRUE" => ($result_auth['ug_post'] == 1) ? "SELECTED" : "",
-								"POST_FALSE" => ($result_auth['ug_post'] == 0) ? "SELECTED" : "",
-								"POST_DEFAULT" => ($result_auth['ug_post'] == 2) ? "SELECTED" : "",
-								"REPLY_TRUE" => ($result_auth['ug_reply'] == 1) ? "SELECTED" : "",
-								"REPLY_FALSE" => ($result_auth['ug_reply'] == 0) ? "SELECTED" : "",
-								"REPLY_DEFAULT" => ($result_auth['ug_reply'] == 2) ? "SELECTED" : "",
-								"POLL_TRUE" => ($result_auth['ug_poll'] == 1) ? "SELECTED" : "",
-								"POLL_FALSE" => ($result_auth['ug_poll'] == 0) ? "SELECTED" : "",
-								"POLL_DEFAULT" => ($result_auth['ug_poll'] == 2) ? "SELECTED" : "",
-								"CREATE_POLL_TRUE" => ($result_auth['ug_create_poll'] == 1) ? "SELECTED" : "",
-								"CREATE_POLL_FALSE" => ($result_auth['ug_create_poll'] == 0) ? "SELECTED" : "",
-								"CREATE_POLL_DEFAULT" => ($result_auth['ug_create_poll'] == 2) ? "SELECTED" : "",
-								"MOD_TRUE" => ($result_auth['ug_mod'] == 1) ? "SELECTED" : "",
-								"MOD_FALSE" => ($result_auth['ug_mod'] == 0) ? "SELECTED" : "",
-								"MOD_DEFAULT" => ($result_auth['ug_mod'] == 2) ? "SELECTED" : ""
-							));
-							$theme->add_nest("ug_auth", "forum_permissions");
-						}
-						else
-						{
-							$theme->insert_nest("ug_auth", "forum_permissions", array(
-								"FORUM_ID" => $result['forum_id'],
-								"FORUM_NAME" => $result['forum_name'],
-								"READ_TRUE" => "",
-								"READ_FALSE" => "",
-								"READ_DEFAULT" => "SELECTED",
-								"POST_TRUE" => "",
-								"POST_FALSE" => "",
-								"POST_DEFAULT" => "SELECTED",
-								"REPLY_TRUE" => "",
-								"REPLY_FALSE" => "",
-								"REPLY_DEFAULT" => "SELECTED",
-								"POLL_TRUE" => "",
-								"POLL_FALSE" =>  "",
-								"POLL_DEFAULT" => "SELECTED",
-								"CREATE_POLL_TRUE" => "",
-								"CREATE_POLL_FALSE" => "",
-								"CREATE_POLL_DEFAULT" => "SELECTED",
-								"MOD_TRUE" => "",
-								"MOD_FALSE" => "",
-								"MOD_DEFAULT" =>"SELECTED"
-							));
-							$theme->add_nest("ug_auth", "forum_permissions");
-						}
+					if(!$db2->fetch()) {
+						$db2->query("INSERT INTO `_PREFIX_ug_auth`
+									VALUES(:id, :fid, :fread, :fpost, :freply, :cpoll, :poll, :mod)", $values);
+					} else {
+						$db2->query("UPDATE `_PREFIX_ug_auth`
+						SET `usergroup`=:id, `ug_forum_id`=:fid, `ug_read`=:fread, `ug_post`=:fpost, `ug_reply`=:freply, `ug_create_poll`=:fcpoll, `ug_poll`=:poll, `ug_mod`=:mod
+						WHERE `usergroup`=:idd && `ug_forum_id`=:fidd", $values);
 					}
-					//
-					// Output the page header
-					//
-					include($root_path . "includes/page_header.php");
-
-					//
-					// Output the main page
-					//
-					$theme->output("ug_auth");
-
-					//
-					// Output the page footer
-					//
-					include($root_path . "includes/page_footer.php");
 				}
+			}
+			info_box($lang['Usergroup_Permissions'], $lang['Usergroup_Perm_Msg'], "usergroups.php?func=permissions");
+
+			}
+			else
+			{
+				$theme->new_file("ug_auth", "ug_auth.tpl");
+				$db2->query("SELECT * FROM `_PREFIX_usergroups` WHERE `id` = '".$_POST['id']."'");
+				while($result = $db2->fetch())
+				{
+					$theme->replace_tags("ug_auth", array(
+					"GROUP_ID" => $result['id'],
+					"GROUP_NAME" => $result['name']
+					));
+				}
+
+				$pdo_forums = $db2->query("SELECT * FROM `_PREFIX_forums` ORDER BY `forum_id` DESC");
+					
+				while($result = $pdo_forums->fetch()) {
+					$db2->query("SELECT * FROM `_PREFIX_ug_auth` WHERE `usergroup` = '".$_POST['id']."' && `ug_forum_id` = '".$result['forum_id']."'");
+					if($result_auth = $db2->fetch())
+					{
+						$theme->insert_nest("ug_auth", "forum_permissions", array(
+							"FORUM_ID" => $result['forum_id'],
+							"FORUM_NAME" => $result['forum_name'],
+							"READ_TRUE" => ($result_auth['ug_read'] == 1) ? "SELECTED" : "",
+							"READ_FALSE" => ($result_auth['ug_read'] == 0) ? "SELECTED" : "",
+							"READ_DEFAULT" => ($result_auth['ug_read'] == 2) ? "SELECTED" : "",
+							"POST_TRUE" => ($result_auth['ug_post'] == 1) ? "SELECTED" : "",
+							"POST_FALSE" => ($result_auth['ug_post'] == 0) ? "SELECTED" : "",
+							"POST_DEFAULT" => ($result_auth['ug_post'] == 2) ? "SELECTED" : "",
+							"REPLY_TRUE" => ($result_auth['ug_reply'] == 1) ? "SELECTED" : "",
+							"REPLY_FALSE" => ($result_auth['ug_reply'] == 0) ? "SELECTED" : "",
+							"REPLY_DEFAULT" => ($result_auth['ug_reply'] == 2) ? "SELECTED" : "",
+							"POLL_TRUE" => ($result_auth['ug_poll'] == 1) ? "SELECTED" : "",
+							"POLL_FALSE" => ($result_auth['ug_poll'] == 0) ? "SELECTED" : "",
+							"POLL_DEFAULT" => ($result_auth['ug_poll'] == 2) ? "SELECTED" : "",
+							"CREATE_POLL_TRUE" => ($result_auth['ug_create_poll'] == 1) ? "SELECTED" : "",
+							"CREATE_POLL_FALSE" => ($result_auth['ug_create_poll'] == 0) ? "SELECTED" : "",
+							"CREATE_POLL_DEFAULT" => ($result_auth['ug_create_poll'] == 2) ? "SELECTED" : "",
+							"MOD_TRUE" => ($result_auth['ug_mod'] == 1) ? "SELECTED" : "",
+							"MOD_FALSE" => ($result_auth['ug_mod'] == 0) ? "SELECTED" : "",
+							"MOD_DEFAULT" => ($result_auth['ug_mod'] == 2) ? "SELECTED" : ""
+						));
+						$theme->add_nest("ug_auth", "forum_permissions");
+					}
+					else
+					{
+						$theme->insert_nest("ug_auth", "forum_permissions", array(
+						"FORUM_ID" => $result['forum_id'],
+						"FORUM_NAME" => $result['forum_name'],
+						"READ_TRUE" => "",
+						"READ_FALSE" => "",
+						"READ_DEFAULT" => "SELECTED",
+						"POST_TRUE" => "",
+						"POST_FALSE" => "",
+						"POST_DEFAULT" => "SELECTED",
+						"REPLY_TRUE" => "",
+						"REPLY_FALSE" => "",
+						"REPLY_DEFAULT" => "SELECTED",
+						"POLL_TRUE" => "",
+						"POLL_FALSE" =>  "",
+						"POLL_DEFAULT" => "SELECTED",
+						"CREATE_POLL_TRUE" => "",
+						"CREATE_POLL_FALSE" => "",
+						"CREATE_POLL_DEFAULT" => "SELECTED",
+						"MOD_TRUE" => "",
+						"MOD_FALSE" => "",
+						"MOD_DEFAULT" =>"SELECTED"
+						));
+						$theme->add_nest("ug_auth", "forum_permissions");
+					}
+				}
+				//
+				// Output the page header
+				//
+				include($root_path . "includes/page_header.php");
+
+				//
+				// Output the main page
+				//
+				$theme->output("ug_auth");
+
+				//
+				// Output the page footer
+				//
+				include($root_path . "includes/page_footer.php");
+			}
         }
 }
 else if($_GET['func'] == "add")
@@ -214,7 +214,8 @@ else if($_GET['func'] == "add")
 		}
 		else
 		{
-			$db2->query("INSERT INTO `_PREFIX_usergroups` (`name`, `desc`) VALUES ('".$_POST['name']."', '".$_POST['desc']."')");
+			$values = array(":uname" => $_POST['name'], ":desc" => $_POST['desc']);
+			$db2->query("INSERT INTO `_PREFIX_usergroups` (`name`, `desc`) VALUES (:uname, :desc)");
 			info_box($lang['Create_Usergroup'], $lang['Usergroup_Created_Msg'], "usergroups.php");
 		}
 	}
@@ -282,13 +283,14 @@ else if($_GET['func'] == "add")
 		}
 		else
 		{
-			$db2->query("UPDATE `_PREFIX_usergroups` SET`name` = '".$_POST['name']."', `desc` = '".$_POST['desc']."' WHERE `id` = '".$_GET['id']."'");
+			$values = array(":name" => $_POST['name'], ":desc" => $_POST['desc'], ":id" => $_GET['id']);
+			$db2->query("UPDATE `_PREFIX_usergroups` SET`name`=:name, `desc`=:desc WHERE `id`=:id");
 			info_box($lang['Edit_Usergroup'], $lang['Usergroup_Updated_Msg'], "usergroups.php");
 		}
 	}
 	else
 	{
-		$db2->query("SELECT * FROM `_PREFIX_usergroups` WHERE `id` = '".$_GET['id']."'");
+		$db2->query("SELECT * FROM `_PREFIX_usergroups` WHERE `id`=:id", array(":id" => $_GET['id']));
 		if($result = $db2->fetch())
 		{
 			$theme->new_file("add_ug", "add_ug.tpl");
@@ -322,9 +324,10 @@ else if($_GET['func'] == "add")
 		if($_POST['new_ug'] != "-1") {
 			if(!isset($_POST['new_ug'])) error_msg($lang['Error'], $lang['Invalid_Usergroup_Id']);
 
-			$db2->query("SELECT `id` FROM `_PREFIX_usergroups` WHERE `id` = '".$_POST['new_ug']."'");
+			$db2->query("SELECT `id` FROM `_PREFIX_usergroups` WHERE `id`=:nug", array(":nug" => $_POST['new_ug']));
 			if($result = $db2->fetch()) {
-				$db2->query("UPDATE `_PREFIX_users` SET `user_usergroup` = '".$result['id']."' WHERE `user_usergroup` = '".$_GET['id']."'");
+				$values = array(":rid" => $result['id'], ":id" => $_GET['id']);
+				$db2->query("UPDATE `_PREFIX_users` SET `user_usergroup`=:rid WHERE `user_usergroup`=:id", $values);
 			}
 			else
 			{
@@ -333,17 +336,17 @@ else if($_GET['func'] == "add")
 		}
 		else
 		{
-			$db2->query("UPDATE `_PREFIX_users` SET `user_usergroup` = '0' WHERE `user_usergroup` = '".$_GET['id']."'");
+			$db2->query("UPDATE `_PREFIX_users` SET `user_usergroup` = '0' WHERE `user_usergroup`=:id", array(":id" => $_GET['id']));
 		}
 
-		$db2->query("DELETE FROM `_PREFIX_usergroups` WHERE `id` = '".$_GET['id']."'");
-		$db2->query("DELETE FROM `_PREFIX_ug_auth` WHERE `usergroup` = '".$_GET['id']."'");
+		$db2->query("DELETE FROM `_PREFIX_usergroups` WHERE `id`=:id", array(":id" => $_GET['id']));
+		$db2->query("DELETE FROM `_PREFIX_ug_auth` WHERE `usergroup`=:id", array(":id" => $_GET['id']));
 		info_box($lang['Delete_Usergroup'], $lang['Usergroup_Deleted_Msg'], "usergroups.php");
 	}
 	else
 	{
 		$theme->new_file("delete_ug", "delete_ug.tpl");
-		$db2->query("SELECT `name` FROM `_PREFIX_usergroups` WHERE `id` = '".$_GET['id']."'");
+		$db2->query("SELECT `name` FROM `_PREFIX_usergroups` WHERE `id`=:id", array(":id" => $_GET['id']));
 		
 		if($result = $db->fetch())
 		{
@@ -356,7 +359,7 @@ else if($_GET['func'] == "add")
 			error_msg($lang['Error'], $lang['Invalid_Usergroup_Id']);
 		}
 
-		$db2->query("SELECT `id`, `name` FROM `_PREFIX_usergroups` WHERE `id` != '".$_GET['id']."'");
+		$db2->query("SELECT `id`, `name` FROM `_PREFIX_usergroups` WHERE `id`!=:id", array(":id" => $_GET['id']));
 		while($result = $db2->fetch())
 		{
 			$theme->insert_nest("delete_ug", "ug_row", array(

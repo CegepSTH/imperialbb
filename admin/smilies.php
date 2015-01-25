@@ -14,14 +14,15 @@ define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "add")
 {
 	if(isset($_POST['Submit']))
 	{
-		$db->query ("INSERT INTO `".$db_prefix."smilies` (`smilie_name`, `smilie_code`, `smilie_url`) VALUES ('$name', '$code', '$url')");
+		$values = array(":name" => $name, ":code" => $code, ":url" => $url);
+		$db2->query("INSERT INTO `_PREFIX_smilies` (`smilie_name`, `smilie_code`, `smilie_url`) VALUES (:name, :code, :url)", $values);
 		info_box($lang['Add_Smily'], $lang['Smily_Created_Msg'], "?module=Admin&act=smilies");
 	}
 	else
@@ -50,13 +51,14 @@ else if($_GET['func'] == "edit")
 	}
 	if(isset($_POST['Submit']))
 	{
-		$db->query("UPDATE `".$db_prefix."smilies` SET `smilie_name` = '".$_POST['name']."', `smilie_code` = '".$_POST['code']."', `smilie_url` = '".$_POST['url']."' WHERE `smilie_id` = '".$_GET['id']."'");
+		$values = array(":sname" => $_POST['name'], ":scode" => $_POST['code'], ":url" => $_POST['url'], ":sid" => $_GET['id']);
+		$db2->query("UPDATE `_PREFIX_smilies` SET `smilie_name`=:sname, `smilie_code`=:scode, `smilie_url`=:url WHERE `smilie_id`=:sid", $values);
 		info_box($lang['Edit_Smily'], $lang['Smily_Updated_Msg'], "?module=Admin&act=smilies");
 	}
 	else
 	{
-		$sql = $db->query ("SELECT * FROM `".$db_prefix."smilies` WHERE `smilie_id`='$id' LIMIT 1");
-		if ($result = $db->fetch_array ($sql))
+		$db2->query ("SELECT * FROM `_PREFIX_smilies` WHERE `smilie_id`=:id LIMIT 1", array(":id" => $id));
+		if ($result = $db2->fetch())
 		{
 			$theme->new_file("edit_smilie", "edit_smilie.tpl");
 			$theme->replace_tags("edit_smilie", array(
@@ -91,7 +93,7 @@ else if($_GET['func'] == "delete")
 		error_msg($lang['Delete_Smily'], $lang['Invalid_Smily_Id']);
 	}
 	if(isset($_GET['confirm'])) {
-		$db->query("DELETE FROM `".$db_prefix."smilies` WHERE `smilie_id`='$id'");
+		$db2->query("DELETE FROM `_PREFIX_smilies` WHERE `smilie_id`=:id", array(":id" => $id));
 		info_box($lang['Delete_Smily'], $lang['Smily_Deleted_Msg'], "smilies.php");
 	}
 	else
@@ -101,10 +103,9 @@ else if($_GET['func'] == "delete")
 }
 else
 {
-
 	$theme->new_file("smilies", "smilies.tpl");
-	$sql = $db->query ("SELECT * FROM `".$db_prefix."smilies`");
-	while ($result = $db->fetch_array($sql))
+	$db2->query ("SELECT * FROM `_PREFIX_smilies`");
+	while($result = $db2->fetch())
 	{
 		$theme->insert_nest("smilies", "smilies_row", array(
 			"ID" => $result['smilie_id'],

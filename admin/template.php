@@ -14,7 +14,7 @@ define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 $language->add_file("admin/template");
 
@@ -83,7 +83,8 @@ if($_GET['func'] == "add")
 			{
 				$usable = "0";
 			}
-			$db->query("INSERT INTO `".$db_prefix."templates` (`template_name`, `template_folder`, `template_usable`) VALUES ('".$_POST['name']."', '".$_POST['folder']."', '".$usable."')");
+			$values = array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable);
+			$db2->query("INSERT INTO `_PREFIX_templates` (`template_name`, `template_folder`, `template_usable`) VALUES (:name, :folder, :usable)", $values);
 
 			info_box($lang['Add_Template'], $lang['Template_Added_Msg'], "template.php");
 		}
@@ -190,7 +191,8 @@ else if($_GET['func'] == "edit")
 			{
 				$usable = "0";
 			}
-			$db->query("UPDATE `".$db_prefix."templates` SET `template_name` = '".$_POST['name']."', `template_folder` = '".$_POST['folder']."', `template_usable` = '".$usable."' WHERE `template_id` = '".$_GET['id']."'");
+			$values = array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable, ":id" => $_GET['id']);
+			$db2->query("UPDATE `_PREFIX_templates` SET `template_name`=:name, `template_folder`=:older, `template_usable`=:usable WHERE `template_id`=:id", $values);
 
 			info_box($lang['Edit_Template'], $lang['Template_Edited_Msg'], "template.php");
 		}
@@ -201,9 +203,9 @@ else if($_GET['func'] == "edit")
 	{
 		$theme->new_file("edit_template", "add_edit_template.tpl");
 
-		$query = $db->query("SELECT `template_id`, `template_name`, `template_folder`, `template_usable` FROM `".$db_prefix."templates` WHERE `template_id` = '".$_GET['id']."'");
+		$db2->query("SELECT `template_id`, `template_name`, `template_folder`, `template_usable` FROM `_PREFIX_templates` WHERE `template_id`=:id", array(":id" => $_GET['id']));
 
-		if($result = $db->fetch_array($query))
+		if($result = $db2->fetch())
 		{
 			$theme->replace_tags("edit_template", array(
 				"ACTION" => $lang['Edit_Template'],
@@ -241,16 +243,17 @@ else if($_GET['func'] == "delete")
 	{
 		error_msg($lang['Error'], $lang['Invalid_template_id']);
 	}
-	$query = $db->query("SELECT count(`template_id`) AS 'count' FROM `".$db_prefix."templates`");
-	$result = $db->fetch_array($query);
+	$db2->query("SELECT count(`template_id`) AS 'count' FROM `_PREFIX_templates`");
+	$result = $db2->fetch();
 	if($result['count'] <= 1) {
 		error_msg($lang['Error'], $lang['Cannot_Delete_Last_Template_Msg']);
 	}
 
 	if(isset($_GET['confirm']) && $_GET['confirm'] == 1)
 	{
-		$db->query("UPDATE `".$db_prefix."users` SET `user_template` = '".$config['default_template']."' WHERE `user_template` = '".$_GET['id']."'");
-		$db->query("DELETE FROM `".$db_prefix."templates` WHERE `template_id` = '".$_GET['id']."'");
+		$values = array(":default" => $config['default_template'], ":id" => $_GET['id']);
+		$db2->query("UPDATE `_PREFIX_users` SET `user_template`=:default WHERE `user_template`=:id");
+		$db2->query("DELETE FROM `_PREFIX_templates` WHERE `template_id`=:id", array(":id" => $_GET['id']));
 
 		info_box($lang['Delete_Template'], $lang['Template_Deleted_Msg'], "template.php");
 	}
@@ -267,9 +270,9 @@ else
 	//
 	$theme->new_file("manage_templates", "manage_templates.tpl");
 
-	$query = $db->query("SELECT `template_id`, `template_name`, `template_folder`, `template_usable` FROM `".$db_prefix."templates`");
+	$db2->query("SELECT `template_id`, `template_name`, `template_folder`, `template_usable` FROM `_PREFIX_templates`");
 
-	while($result = $db->fetch_array($query))
+	while($result = $db2->fetch())
 	{
 		$theme->insert_nest("manage_templates", "template_row", array(
 			"ID" => $result['template_id'],
