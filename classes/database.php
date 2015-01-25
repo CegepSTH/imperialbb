@@ -50,7 +50,7 @@ class Database {
 		}
 		
 		if(!is_string($prefix) || $prefix == null) {
-			$this->m_error = "Database tables prefix are either not string or is null");
+			$this->m_error = "Database tables prefix are either not string or is null";
 			return;
 		}
 		
@@ -100,7 +100,7 @@ class Database {
 		}
 		
 		// Replace the prefix marker. The space is important.
-		str_replace(" _PREFIX_", $this->m_prefix, $query);
+		str_replace("_PREFIX_", $this->m_prefix, $query);
 		
 		try {
 			$this->m_results = null;
