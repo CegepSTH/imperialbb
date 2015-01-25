@@ -66,13 +66,13 @@ class User {
 		
 		if(is_numeric($id_username)) {
 			// Search with id.
-			$db = new Database($database);
-			$db->query("SELECT * FROM ".$db_prefix."users WHERE id=:uid", array(":uid" => $id_username));
+			$db = new Database($database, $db_prefix);
+			$db->query("SELECT * FROM _PREFIX_users WHERE id=:uid", array(":uid" => $id_username));
 			$result = $db->fetch();
 			
 		} else if (is_string($id_username)) {
-			$db = new Database($database);
-			$db->query("SELECT * FROM ".$db_prefix."users WHERE username=:uname", array(":uname" => $id_username));
+			$db = new Database($database, $db_prefix);
+			$db->query("SELECT * FROM _PREFIX_users WHERE username=:uname", array(":uname" => $id_username));
 			$result = $db->fetch();
 		} else {
 			return null;
@@ -586,8 +586,8 @@ class User {
 			return insert();
 		}
 		
-		$db = new Database($database);
-		$query = "UPDATE ".$db_prefix."users 
+		$db = new Database($database, $db_prefix);
+		$query = "UPDATE _PREFIX_users 
 		SET username=:username, user_email=:email, user_date_joined=:datejoined, user_lastvisit=:lastvisit, user_level=:ulevel,
 		user_usergroup=:usergroup, user_signature=:signature, user_rank=:urank, user_aim=:uaim, user_icq=:uicq, user_msn=:umsn,
 		user_yahoo=:uyahoo, user_email_on_pm=:uemailpm, user_template=:utid, user_language=:ulangid, user_timezone=:utimez,
@@ -615,7 +615,7 @@ class User {
 	 * @return True if success false otherwise
 	 */
 	function updatePassword() {
-		$query = "UPDATE ".$db_prefix."users
+		$query = "UPDATE _PREFIX_users
 		SET user_password=:upass, user_new_password=:unewpass
 		WHERE user_id=:uid";
 		
@@ -623,7 +623,7 @@ class User {
 						":upass" 	=> $this->m_password,
 						":unewpass" => $this->m_password);
 						
-		$db = new Database($database);
+		$db = new Database($database, $db_prefix);
 		$db->query($query, $values);
 		
 		return ($db->rowCount() > 0 ? true : false);
@@ -634,9 +634,9 @@ class User {
 	 * @returns True if success, false otherwise.
 	 */
 	private function insert() {
-		$db = new Database($database);
+		$db = new Database($database, $db_prefix);
 		
-		$query = "INSERT INTO ".$db_prefix."users
+		$query = "INSERT INTO _PREFIX_users
 		VALUES ('', :username, :upass, :umail, :udatejoined, :ulastvisit, :ulevel, :usergroup, :usignature, :urank, :uaim, :uicq, 
 		:umsn, :uyahoo, :umailpm, :utemplate, :ulang, :utimezone, :uposts, :uackey, :uloc, :uweb, :uavtype, :uavloc, :uavdim, 
 		:upassresetreq, :unewpass, :ubirth)";
@@ -657,7 +657,7 @@ class User {
 			return false;
 		}
 		
-		$db->query("SELECT user_id FROM ".$db_prefix."users WHERE username=:uname", array(":uname" => $this->m_username));
+		$db->query("SELECT user_id FROM _PREFIX_users WHERE username=:uname", array(":uname" => $this->m_username));
 		$arrayResponse = $db->fetch();
 		
 		$this->m_id = $arrayResponse["user_id"];
