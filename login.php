@@ -49,6 +49,7 @@ if($_GET['func'] == "activate")
 			WHERE `user_id` = :user_id",
 			array(
 				":user_id" => $_GET['user_id']
+			)
 		);
 		info_box($lang['Activation_Successful'], sprintf($lang['Activation_Successful_Msg'], $result['username']), "login.php");
 	}
@@ -158,7 +159,7 @@ else if($_GET['func'] == "activate_new_pass")
 			`user_new_password` = ''
 			 WHERE `user_id` = :user_id",
 			array(
-				":user_id" = $_GET['user_id']
+				":user_id" => $_GET['user_id']
 			)
 		);
 		info_box($lang['Activation_Successful'], $lang['New_Pass_Activation_Successful_Msg'], "login.php");
@@ -196,7 +197,7 @@ else
 				SET `user_id` = :user_id
 				WHERE `ip` = :remote_ip && `session_id` = :session_id",
 				array(
-					":user_id" = $user_result['user_id'],
+					":user_id" => $user_result['user_id'],
 					":remote_ip" => $_SERVER['REMOTE_ADDR'],
 					":session_id" => session_id()
 				)
