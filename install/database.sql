@@ -132,7 +132,7 @@ CREATE TABLE `ibb_forums` (
 -- Dumping data for table `ibb_forums`
 -- 
 
-INSERT INTO `ibb_forums` VALUES (1, 1, 'c', 'Test Forum', 'This is a test forum', 1, 1, 10, 1, 1, 1, 1, 1, 4, 1);
+INSERT INTO `ibb_forums` VALUES (1, 1, 'c', 'Test Forum', 'This is a test forum', 1, 1, 10, 1, 1, 1, 1, 1, 4, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -510,4 +510,4 @@ CREATE TABLE `ibb_users` (
 -- Dumping data for table `ibb_users`
 -- 
 
-INSERT INTO `ibb_users` VALUES (-1, 'Guest', '', '', 0, 1164221881, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '');
+INSERT INTO `ibb_users` VALUES (-1, 'Guest', '', '', 0, 1164221881, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '', '0000-00-00');
