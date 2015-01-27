@@ -14,7 +14,7 @@ define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 $language->add_file("admin/language");
 
@@ -26,18 +26,14 @@ if($_GET['func'] == "add")
 	{
 		$error = "";
 
-		if(!isset($_POST['name']) || empty($_POST['name']))
-		{
+		if(!isset($_POST['name']) || empty($_POST['name'])) {
 			$error .= $lang['No_Name_Entered_Error'] . "<br />";
 		}
-		if(!isset($_POST['folder']) || empty($_POST['folder']))
-		{
+		
+		if(!isset($_POST['folder']) || empty($_POST['folder'])) {
 			$error .= $lang['No_Folder_Entered_Error'];
-		}
-		else
-		{
-			if(!is_dir($root_path . "/language/".$_POST['folder']."/"))
-			{
+		} else {
+			if(!is_dir($root_path . "/language/".$_POST['folder']."/")) {
 				$error .= $lang['Invalid_Folder_Entered_Error'];
 			}
 		}
@@ -61,7 +57,7 @@ if($_GET['func'] == "add")
 			//
 			// Output the page header
 			//
-			include($root_path . "includes/page_header.php");
+			include_once($root_path . "includes/page_header.php");
 
 			//
 			// Output the main page
@@ -71,19 +67,19 @@ if($_GET['func'] == "add")
 			//
 			// Output the page footer
 			//
-			include($root_path . "includes/page_footer.php");
+			include_once($root_path . "includes/page_footer.php");
 		}
 		else
 		{
-			if(isset($_POST['usable']))
-			{
+			if(isset($_POST['usable'])) {
 				$usable = "1";
-			}
-			else
-			{
+			} else {
 				$usable = "0";
 			}
-			$db->query("INSERT INTO `".$db_prefix."languages` (`language_name`, `language_folder`, `language_usable`) VALUES ('".$_POST['name']."', '".$_POST['folder']."', '".$usable."')");
+			
+			$db2->query("INSERT INTO `_PREFIX_languages` (`language_name`, `language_folder`, `language_usable`) 
+			VALUES (:name, :folder, :usable)",
+			array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable));
 
 			info_box($lang['Add_Language'], $lang['Language_Added_Msg'], "language.php");
 		}
@@ -102,7 +98,7 @@ if($_GET['func'] == "add")
 		//
 		// Output the page header
 		//
-		include($root_path . "includes/page_header.php");
+		include_once($root_path . "includes/page_header.php");
 
 		//
 		// Output the main page
@@ -112,7 +108,7 @@ if($_GET['func'] == "add")
 		//
 		// Output the page footer
 		//
-		include($root_path . "includes/page_footer.php");
+		include_once($root_path . "includes/page_footer.php");
 	}
 
 
@@ -123,8 +119,7 @@ else if($_GET['func'] == "download")
 }
 else if($_GET['func'] == "edit")
 {
-	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0))
-	{
+	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
 		error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
 	}
 
@@ -132,18 +127,14 @@ else if($_GET['func'] == "edit")
 	{
 		$error = "";
 
-		if(!isset($_POST['name']) || empty($_POST['name']))
-		{
+		if(!isset($_POST['name']) || empty($_POST['name'])) {
 			$error .= $lang['No_Name_Entered_Error'] . "<br />";
 		}
-		if(!isset($_POST['folder']) || empty($_POST['folder']))
-		{
+		
+		if(!isset($_POST['folder']) || empty($_POST['folder'])) {
 			$error .= $lang['No_Folder_Entered_Error'];
-		}
-		else
-		{
-			if(!is_dir($root_path . "/language/".$_POST['folder']."/"))
-			{
+		} else {
+			if(!is_dir($root_path . "/language/".$_POST['folder']."/")) {
 				$error .= $lang['Invalid_Folder_Entered_Error'];
 			}
 		}
@@ -168,7 +159,7 @@ else if($_GET['func'] == "edit")
 			//
 			// Output the page header
 			//
-			include($root_path . "includes/page_header.php");
+			include_once($root_path . "includes/page_header.php");
 
 			//
 			// Output the main page
@@ -178,33 +169,33 @@ else if($_GET['func'] == "edit")
 			//
 			// Output the page footer
 			//
-			include($root_path . "includes/page_footer.php");
+			include_once($root_path . "includes/page_footer.php");
 		}
 		else
 		{
-			if(isset($_POST['usable']))
-			{
+			if(isset($_POST['usable'])) {
 				$usable = "1";
-			}
-			else
-			{
+			} else {
 				$usable = "0";
 			}
-			$db->query("UPDATE `".$db_prefix."languages` SET `language_name` = '".$_POST['name']."', `language_folder` = '".$_POST['folder']."', `language_usable` = '".$usable."' WHERE `language_id` = '".$_GET['id']."'");
+			
+			$db2->query("UPDATE `_PREFIX_languages` 
+				SET `language_name`=:name, `language_folder`=:folder, `language_usable`=:usable
+				WHERE `language_id`=:lid",
+				array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable, ":lid" => $_GET['id']));
 
 			info_box($lang['Edit_Language'], $lang['Language_Edited_Msg'], "language.php");
 		}
-
-
 	}
 	else
 	{
 		$theme->new_file("edit_language", "add_edit_language.tpl");
 
-		$query = $db->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` FROM `".$db_prefix."languages` WHERE `language_id` = '".$_GET['id']."'");
+		$db2->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` 
+			FROM `_PREFIX_languages` 
+			WHERE `language_id`=:lid", array(":lid" => $_GET['id']));
 
-		if($result = $db->fetch_array($query))
-		{
+		if($result = $db2->fetch()) {
 			$theme->replace_tags("edit_language", array(
 				"ACTION" => $lang['Edit_Language'],
 				"ID" => $result['language_id'],
@@ -212,16 +203,14 @@ else if($_GET['func'] == "edit")
 				"FOLDER" => $result['language_folder'],
 				"USABLE" => ($result['language_usable'] == 1) ? "checked=\"checked\"" : ""
 			));
-		}
-		else
-		{
+		} else {
 			error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
 		}
 
 		//
 		// Output the page header
 		//
-		include($root_path . "includes/page_header.php");
+		include_once($root_path . "includes/page_header.php");
 
 		//
 		// Output the main page
@@ -231,34 +220,34 @@ else if($_GET['func'] == "edit")
 		//
 		// Output the page footer
 		//
-		include($root_path . "includes/page_footer.php");
+		include_once($root_path . "includes/page_footer.php");
 	}
-
 }
 else if($_GET['func'] == "delete")
 {
-	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0))
-	{
+	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
 		error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
 	}
-	$query = $db->query("SELECT count(`language_id`) AS 'count' FROM `".$db_prefix."languages`");
-	$result = $db->fetch_array($query);
+	
+	$db2->query("SELECT count(`language_id`) AS 'count' FROM `_PREFIX_languages`");
+	$result = $db2->fetch();
+	
 	if($result['count'] <= 1) {
 		error_msg($lang['Error'], $lang['Cannot_Delete_Last_Language_Msg']);
 	}
 
-	if(isset($_GET['confirm']) && $_GET['confirm'] == 1)
-	{
-		$db->query("UPDATE `".$db_prefix."users` SET `user_language` = '".$config['default_language']."' WHERE `user_language` = '".$_GET['id']."'");
-		$db->query("DELETE FROM `".$db_prefix."languages` WHERE `language_id` = '".$_GET['id']."'");
+	if(isset($_GET['confirm']) && $_GET['confirm'] == 1) {
+		$db2->query("UPDATE `_PREFIX_users` 
+			SET `user_language`=:def
+			WHERE `user_language`=:lid",
+			array(":def" => $config['default_language'], ":lid" => $_GET['id']));
+			
+		$db2->query("DELETE FROM `_PREFIX_languages` WHERE `language_id`=:lid", array(":lid" => $_GET['id']));
 
 		info_box($lang['Delete_Language'], $lang['Language_Deleted_Msg'], "language.php");
-	}
-	else
-	{
+	} else {
 		confirm_msg($lang['Delete_Language'], $lang['Delete_Language_Confirm_Msg'], "language.php?func=delete&id=".$_GET['id']."&confirm=1", "language.php");
 	}
-
 }
 else
 {
@@ -267,9 +256,9 @@ else
 	//
 	$theme->new_file("manage_languages", "manage_languages.tpl");
 
-	$query = $db->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` FROM `".$db_prefix."languages`");
+	$db2->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` FROM `_PREFIX_languages`");
 
-	while($result = $db->fetch_array($query))
+	while($result = $db2->fetch())
 	{
 		$theme->insert_nest("manage_languages", "language_row", array(
 			"ID" => $result['language_id'],
@@ -283,7 +272,7 @@ else
 	//
 	// Output the page header
 	//
-	include($root_path . "includes/page_header.php");
+	include_once($root_path . "includes/page_header.php");
 
 	//
 	// Output the main page
@@ -293,7 +282,6 @@ else
 	//
 	// Output the page footer
 	//
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 }
-
 ?>
