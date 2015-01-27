@@ -14,7 +14,7 @@ define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 $language->add_file("admin/ranks");
 
@@ -28,34 +28,33 @@ if($_GET['func'] == "add")
 		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
 
 		// Sort the rank orderby
-		if(!isset($_POST['display_rank']))
-		{
+		if(!isset($_POST['display_rank'])) {
 			$rank_orderby = "0";
-		}
-		else
-		{
-			$query = $db->query("SELECT `rank_orderby` FROM `".$db_prefix."ranks` ORDER BY `rank_orderby` DESC LIMIT 1");
-			if($result = $db->fetch_array($query))
-			{
+		} else {
+			$query = $db2->query("SELECT `rank_orderby` FROM `_PREFIX_ranks` ORDER BY `rank_orderby` DESC LIMIT 1");
+			
+			if($result = $db2->fetch()) {
 				$rank_orderby = ($result['rank_orderby'] + 1);
-			}
-			else
-			{
+			} else {
 				$rank_orderby = "1";
 			}
 		}
-        if(isset($_POST['special_rank']))
-        {
+		
+        if(isset($_POST['special_rank'])) {
         	$special_rank = "1";
         	$minimum_posts = "0";
-        }
-        else
-        {
+        } else {
         	$special_rank = "0";
         	$minimum_posts = $_POST['minimum_posts'];
         }
-
-		$db->query("INSERT INTO `".$db_prefix."ranks` (`rank_name`, `rank_color`, `rank_image`, `rank_bold`, `rank_underline`, `rank_italics`, `rank_orderby`, `rank_special`, `rank_minimum_posts`) VALUES ('".$_POST['name']."', '".$_POST['color']."', '".$_POST['image']."', '".$_POST['bold']."', '".$_POST['underline']."', '".$_POST['italics']."', '".$rank_orderby."', '".$special_rank."', '".$minimum_posts."')");
+        
+		$values = array(":name" => $_POST['name'], ":color" => $_POST['color'], ":image" => $_POST['image'], ":bold" => $_POST['bold'],
+			":underline" => $_POST['underline'], ":italics" => $_POST['italics'], ":rorderby" => $rank_orderby, ":srank" => $special_rank, 
+			":minposts" => $special_rank);
+		
+		$db2->query("INSERT INTO `_PREFIX_ranks` (`rank_name`, `rank_color`, `rank_image`, `rank_bold`, `rank_underline`, `rank_italics`, `rank_orderby`, `rank_special`, `rank_minimum_posts`) 
+		VALUES (:name, :color, :image, :bold, :underline, :italics, :rorderby, :srank, :minposts)", $values);
+		
 		info_box($lang['Create_New_Rank'], $lang['Rank_Created_Msg'], "ranks.php");
 	}
 	else
@@ -78,7 +77,7 @@ if($_GET['func'] == "add")
 		//
 		// Output the page header
 		//
-		include($root_path . "includes/page_header.php");
+		include_once($root_path . "includes/page_header.php");
 
 		//
 		// Output the main page
@@ -88,7 +87,7 @@ if($_GET['func'] == "add")
 		//
 		// Output the page footer
 		//
-		include($root_path . "includes/page_footer.php");
+		include_once($root_path . "includes/page_footer.php");
 	}
 }
 else if($_GET['func'] == "edit")
@@ -102,48 +101,46 @@ else if($_GET['func'] == "edit")
         if(!isset($_POST['minimum_posts'])) $_POST['minimum_posts'] = "0";
 
 		// Sort the rank orderby
-		$query = $db->query("SELECT r.`rank_orderby`, p.`rank_orderby` AS 'old_rank_orderby'
-							FROM (`".$db_prefix."ranks` r
-							LEFT JOIN `".$db_prefix."ranks` p ON p.`rank_id` = '".$_GET['id']."')
-							ORDER BY `rank_orderby` DESC LIMIT 1");
-		$result = $db->fetch_array($query);
+		$query = $db2->query("SELECT r.`rank_orderby`, p.`rank_orderby` AS 'old_rank_orderby'
+			FROM (`_PREFIX_ranks` r
+			LEFT JOIN `_PREFIX_ranks` p ON p.`rank_id`=:rid)
+			ORDER BY `rank_orderby` DESC LIMIT 1", array(":rid" => $_GET['id']));
+		$result = $db2->fetch();
 
-		if(!isset($_POST['display_rank']))
-		{
+		if(!isset($_POST['display_rank'])) {
 			$rank_orderby = "0";
 		}
-		else
-		{
-			if($result['old_rank_orderby'] > 0)
-			{
+		else {
+			if($result['old_rank_orderby'] > 0) {
 				$rank_orderby = $result['old_rank_orderby'];
-			}
-			else
-			{
-				if(!empty($result['rank_orderby']))
-				{
+			} else {
+				if(!empty($result['rank_orderby'])) {
 					$rank_orderby = ($result['rank_orderby'] + 1);
-				}
-				else
-				{
+				} else {
 					$rank_orderby = "1";
 				}
 			}
-
 		}
 
-		if($rank_orderby != $result['old_rank_orderby'] && $result['old_rank_orderby'] != 0)
-		{
-			$db->query("UPDATE `".$db_prefix."ranks` SET `rank_orderby` = (`rank_orderby` - 1) WHERE `rank_orderby` > '".$result['old_rank_orderby']."'");
+		if($rank_orderby != $result['old_rank_orderby'] && $result['old_rank_orderby'] != 0) {
+			$db2->query("UPDATE `_PREFIX_ranks` SET `rank_orderby` = (`rank_orderby` - 1) 
+				WHERE `rank_orderby` > :orank", array(":orank" => $result['old_rank_orderby']));
 		}
 
-		$db->query("UPDATE `".$db_prefix."ranks` SET `rank_name` = '".$_POST['name']."', `rank_color` = '".$_POST['color']."', `rank_image` = '".$_POST['image']."', `rank_bold` = '".$_POST['bold']."', `rank_underline` = '".$_POST['underline']."', `rank_italics` = '".$_POST['italics']."', `rank_orderby` = '".$rank_orderby."', `rank_special` = '".$_POST['special_rank']."', `rank_minimum_posts` = '".$_POST['minimum_posts']."' WHERE `rank_id` = '".$_GET['id']."'");
+		$values = array(":name" => $_POST['name'], ":color" => $_POST['color'], ":image" => $_POST['image'], 
+			":bold" => $_POST['bold'], ":underline" => $_POST['underline'], ":italics" => $_POST['italics'],
+			":rorderby" => $rank_orderby, ":rspecial" => $_POST['special_rank'], ":rminposts" => $_POST['minimum_posts'], ":rid" => $_GET['id']);
+		
+		$db2->query("UPDATE `_PREFIX_ranks` SET `rank_name`=:name, `rank_color`=:color, `rank_image`=:image, `rank_bold`=:bold, `rank_underline`=:underline,
+			`rank_italics`=:italics, `rank_orderby`=:rorderby, `rank_special`=:rspecial, `rank_minimum_posts`=:rminposts 
+			WHERE `rank_id`=:rid", $values);
+			
 		info_box($lang['Edit_Rank'], $lang['Rank_Updated_Msg'], "ranks.php");
 	}
 	else
 	{
-		$sql = $db->query ("SELECT * FROM `".$db_prefix."ranks` WHERE `rank_id`='".$_GET['id']."' LIMIT 1");
-		if ($result = $db->fetch_array($sql)) {
+		$sql = $db2->query ("SELECT * FROM `_PREFIX_ranks` WHERE `rank_id`=:rid LIMIT 1", array(":rid" => $_GET['id']));
+		if ($result = $db2->fetch()) {
 			$theme->new_file("edit_rank", "edit_rank.tpl");
 			$theme->replace_tags("edit_rank", array(
 				"ACTION" => $lang['Edit_Rank'],
@@ -160,7 +157,7 @@ else if($_GET['func'] == "edit")
 			//
 			// Output the page header
 			//
-			include($root_path . "includes/page_header.php");
+			include_once($root_path . "includes/page_header.php");
 
 			//
 			// Output the main page
@@ -170,7 +167,7 @@ else if($_GET['func'] == "edit")
 			//
 			// Output the page footer
 			//
-			include($root_path . "includes/page_footer.php");
+			include_once($root_path . "includes/page_footer.php");
 		} else {
 			error_msg($lang['Error'], $lang['Invalid_Rank_Id']);
 		}
@@ -178,63 +175,60 @@ else if($_GET['func'] == "edit")
 }
 else if($_GET['func'] == "delete")
 {
-	$db->query("DELETE FROM `".$db_prefix."ranks` WHERE `rank_id`='".$_GET['id']."'");
+	$db2->query("DELETE FROM `_PREFIX_ranks` WHERE `rank_id`=:rid", array(":rid" => $_GET['id']));
 	info_box($lang['Delete_Rank'], $lang['Rank_Deleted_Msg'], "ranks.php");
-
 }
 else
 {
 	if(isset($_GET['move']))
 	{
-		if(!isset($_GET['id']))
-		{
+		if(!isset($_GET['id'])) {
 			error_msg($lang['Error'], $lang['Invalid_Rank_Id']);
 		}
+		
 		$old_sign = ($_GET['move'] == "up") ? "+" : "-";
 		$new_sign = ($_GET['move'] == "up") ? "-" : "+";
-		$query = $db->query("SELECT r.`rank_id`, p.`rank_id` AS 'old_rank_id'
-							FROM (`".$db_prefix."ranks` r
-							LEFT JOIN `".$db_prefix."ranks` p ON p.`rank_orderby` = (r.`rank_orderby` ".$new_sign." 1) AND p.`rank_orderby` > 0)
-							WHERE r.`rank_id` = '".$_GET['id']."' AND r.`rank_orderby` > 0");
+		$query = $db2->query("SELECT r.`rank_id`, p.`rank_id` AS 'old_rank_id'
+							FROM (`_PREFIX_ranks` r
+							LEFT JOIN `_PREFIX_ranks` p ON p.`rank_orderby` = (r.`rank_orderby` ".$new_sign." 1) AND p.`rank_orderby` > 0)
+							WHERE r.`rank_id`=:rid AND r.`rank_orderby` > 0",
+							array(":rid" => $_GET['id']));
 
-		if($result = $db->fetch_array($query))
-		{
-			if(!(empty($result['rank_id']) || empty($result['old_rank_id'])))
-			{
-				$db->query("UPDATE `".$db_prefix."ranks` SET `rank_orderby` = (`rank_orderby` ".$new_sign." 1) WHERE `rank_id` = '".$result['rank_id']."'");
-				$db->query("UPDATE `".$db_prefix."ranks` SET `rank_orderby` = (`rank_orderby` ".$old_sign." 1) WHERE `rank_id` = '".$result['old_rank_id']."'");
+		if($result = $db2->fetch()) {
+			if(!(empty($result['rank_id']) || empty($result['old_rank_id']))) {
+				$db2->query("UPDATE `_PREFIX_ranks` SET `rank_orderby` = (`rank_orderby` ".$new_sign." 1) WHERE `rank_id`=:rid", 
+					array(":rid" => $result['rank_id']));
+				$db2->query("UPDATE `_PREFIX_ranks` SET `rank_orderby` = (`rank_orderby` ".$old_sign." 1) WHERE `rank_id`=:orid", 
+					array(":orid" => $result['old_rank_id']));
 			}
 		}
 	}
+	
 	$theme->new_file("ranks", "manage_ranks.tpl");
-	$sql = $db->query("SELECT * FROM `".$db_prefix."ranks`
-						ORDER BY `rank_orderby`, `rank_id`");
-	while ($result = $db->fetch_array($sql)) {
+	$db2->query("SELECT * FROM `_PREFIX_ranks`
+		ORDER BY `rank_orderby`, `rank_id`");
+						
+	while ($result = $db2->fetch()) {
 		$rank_style = "color:".$result['rank_color'].";";
-		if($result['rank_bold'] == 1)
-		{
+		
+		if($result['rank_bold'] == 1) {
 			$rank_style .= " font-weight:bold;";
-		}
-		else
-		{
+		} else {
 			$rank_style .= "";
 		}
-		if($result['rank_underline'] == 1)
-		{
+		
+		if($result['rank_underline'] == 1) {
 			$rank_style .= " text-decoration: underline;";
-		}
-		else
-		{
+		} else {
 			$rank_style .= "";
 		}
-		if($result['rank_italics'] == 1)
-		{
+		
+		if($result['rank_italics'] == 1) {
 			$rank_style .= " font-style:italic;";
-		}
-		else
-		{
+		} else {
 			$rank_style .= "";
 		}
+		
 		$rank_style .= "";
 
 		$nest_prefix = ($result['rank_orderby'] > 0) ? "displayed" : "not_displayed";
@@ -250,21 +244,21 @@ else
 			"ITALICS" => ($result['rank_italics'] == "1") ? "CHECKED" : ""
 		));
 		$theme->add_nest("ranks", $nest_prefix . "_rank_row");
-		}
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
+	}
+	//
+	// Output the page header
+	//
+	include_once($root_path . "includes/page_header.php");
 
-		//
-		// Output the main page
-		//
-		$theme->output("ranks");
+	//
+	// Output the main page
+	//
+	$theme->output("ranks");
 
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
+	//
+	// Output the page footer
+	//
+	include_once($root_path . "includes/page_footer.php");
 }
 
 ?>
