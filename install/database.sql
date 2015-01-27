@@ -502,7 +502,7 @@ CREATE TABLE `ibb_users` (
   `user_avatar_dimensions` varchar(11) NOT NULL default '',
   `user_password_reset_request` int(11) NOT NULL default '0',
   `user_new_password` varchar(50) NOT NULL default '',
-  `user_birthday` VARCHAR(10) NOT NULL DEFAULT ''
+  `user_birthday` VARCHAR(10) NOT NULL DEFAULT '',
   PRIMARY KEY  (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 PACK_KEYS=0 AUTO_INCREMENT=1 ;
 
