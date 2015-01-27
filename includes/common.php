@@ -121,35 +121,29 @@ if(defined("IN_ADMIN") && $user['user_level'] < 5)
 $language = new Language();
 
 // Template Check
-if($user['user_id'] < 0)
-{
+if($user['user_id'] < 0) {
 	$user['user_template'] = $config['default_template'];
 }
 
-$sql = "SELECT `template_folder` FROM `_PREFIX_templates` WHERE `template_id` = :user_template'";
+$sql = "SELECT `template_folder` FROM `_PREFIX_templates` WHERE `template_id`=:userTemplate";
 if($user['user_level'] != "5")
 {
 	$sql .= " AND `template_usable` = '1'";
 }
-$sql = $db2->query($sql,
-	array(
-		':user_template' => $user['user_template']
-	)
-);
-if($result = $sql->fetch())
-{
+
+$db2->query($sql, array(":userTemplate" => $user['user_template']));
+
+if($result = $db2->fetch()) {
 	$user['user_template_folder'] = $result['template_folder'];
-}
-else
-{
+} else {
 	if($user['user_id'] > 0)
 	{
 		$db2->query("UPDATE `_PREFIX_users`
 			SET `user_template` = :default_template
-			WHERE `user_id` = :user_id",
+			WHERE `user_id` = :userId",
 			array(
 				':default_template' => $config['default_template'],
-				':user_id' => $user['user_id']
+				':userId' => $user['user_id']
 			)
 		);
 	}
