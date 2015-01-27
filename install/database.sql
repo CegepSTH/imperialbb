@@ -124,6 +124,7 @@ CREATE TABLE `ibb_forums` (
   `forum_create_poll` tinyint(5) NOT NULL default '1',
   `forum_mod` tinyint(5) NOT NULL default '4',
   `forum_orderby` mediumint(8) NOT NULL default '0',
+  `forum_redirect_url` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY  (`forum_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 PACK_KEYS=0 AUTO_INCREMENT=2 ;
 
@@ -131,7 +132,7 @@ CREATE TABLE `ibb_forums` (
 -- Dumping data for table `ibb_forums`
 -- 
 
-INSERT INTO `ibb_forums` VALUES (1, 1, 'c', 'Test Forum', 'This is a test forum', 1, 1, 10, 1, 1, 1, 1, 1, 4, 1);
+INSERT INTO `ibb_forums` VALUES (1, 1, 'c', 'Test Forum', 'This is a test forum', 1, 1, 10, 1, 1, 1, 1, 1, 4, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -501,6 +502,7 @@ CREATE TABLE `ibb_users` (
   `user_avatar_dimensions` varchar(11) NOT NULL default '',
   `user_password_reset_request` int(11) NOT NULL default '0',
   `user_new_password` varchar(50) NOT NULL default '',
+  `user_birthday` VARCHAR(10) NOT NULL DEFAULT '',
   PRIMARY KEY  (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 PACK_KEYS=0 AUTO_INCREMENT=1 ;
 
@@ -508,4 +510,4 @@ CREATE TABLE `ibb_users` (
 -- Dumping data for table `ibb_users`
 -- 
 
-INSERT INTO `ibb_users` VALUES (-1, 'Guest', '', '', 0, 1164221881, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '');
+INSERT INTO `ibb_users` VALUES (-1, 'Guest', '', '', 0, 1164221881, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '', '0000-00-00');
