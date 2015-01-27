@@ -16,7 +16,6 @@ define("IN_ADMIN", 1);
 $root_path = "../";
 require_once($root_path."includes/common.php");
 
-$config['admincp_notepad'] = $config['admincp_notepad'];
 if(isset($_GET['func']) && $_GET['func'] == 'update_notepad') {
 	$values = array(":admnote" => $_POST['admincp_notepad']);
 	$db2->query("UPDATE `_PREFIX_config` 
