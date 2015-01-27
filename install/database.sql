@@ -124,6 +124,7 @@ CREATE TABLE `ibb_forums` (
   `forum_create_poll` tinyint(5) NOT NULL default '1',
   `forum_mod` tinyint(5) NOT NULL default '4',
   `forum_orderby` mediumint(8) NOT NULL default '0',
+  `forum_redirect_url` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY  (`forum_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 PACK_KEYS=0 AUTO_INCREMENT=2 ;
 
@@ -501,6 +502,7 @@ CREATE TABLE `ibb_users` (
   `user_avatar_dimensions` varchar(11) NOT NULL default '',
   `user_password_reset_request` int(11) NOT NULL default '0',
   `user_new_password` varchar(50) NOT NULL default '',
+  `user_birthday` VARCHAR(10) NOT NULL DEFAULT ''
   PRIMARY KEY  (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 PACK_KEYS=0 AUTO_INCREMENT=1 ;
 
