@@ -26,7 +26,6 @@ include($root_path . "includes/common.php");
 $menu=array(
 $lang['General_Admin'] => array(
 	$lang['Configuration'] => "config.php",
-	$lang['Mods'] => "mods.php"
 ),
 
 $lang['Forum_Admin'] => array(
