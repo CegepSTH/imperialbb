@@ -59,6 +59,32 @@ class User {
 		$this->m_id = $id;
 		$this->m_username = $username;
 		$this->m_mail = $mail;
+		$this->init();
+	}
+	
+	/**
+	 *  Inits the user (fix for insert() ) for new user.
+	 */
+	private function init() {
+		$this->setActivationKey('');
+		$this->setAvatarDimensions('');
+		$this->setAvatarLocation('');
+		$this->setAvatarType(0);
+		$this->setBirthday("");
+		$this->setDateJoined(date("D d M Y"));
+		$this->setEmailOnPm(true);
+		$this->setLanguageId(1);
+		$this->setLastVisit(date("D d M Y"));
+		$this->setLevel(0);
+		$this->setLocation('');
+		$this->setMessengers((array("aim" => '', "icq" => '', "msn" => '', "yahoo" => '')));
+		$this->setPostsCount(0);
+		$this->setRankId(0);
+		$this->setSignature("");
+		$this->setTemplateId(1);
+		$this->setTimezone(0);
+		$this->setUsergroupId(0);
+		$this->setWebsite("");	
 	}
 	
 	/**
@@ -101,7 +127,7 @@ class User {
 		$user->setDateJoined($result["user_date_joined"]);
 		$user->setEmailOnPm($result["user_email_on_pm"]);
 		$user->setLanguageId($result["user_language"]);
-		$user->setLastVisit($result["user_last_visit"]);
+		$user->setLastVisit($result["user_lastvisit"]);
 		$user->setLevel($result["user_level"]);
 		$user->setLocation($result["user_location"]);
 		$user->setMessengers((array("aim" => $result["user_aim"], "icq" => $result["user_icq"], "msn" => $result["user_msn"], "yahoo" => $result["user_yahoo"])));
@@ -178,11 +204,7 @@ class User {
 	 * setDateJoined Sets the join date.
 	 * @param $date Numeric format of date.
 	 */
-	function setDateJoined($date) {
-		if(!is_numeric($date)) {
-			return "Date is not a valid number";
-		}
-		
+	function setDateJoined($date) {		
 		$this->m_date_joined = $date;
 	}
 	
@@ -197,11 +219,7 @@ class User {
 	 * setLastVisit Sets the user last visit.
 	 * @param $date Date as integer(11).
 	 */
-	function setLastVisit($date) {
-		if(!is_numeric($date)) {
-			return "Date is not a valid number";
-		}
-		
+	function setLastVisit($date) {		
 		$this->m_last_visit = $date;
 	}
 	
@@ -394,13 +412,13 @@ class User {
 	 * @param $timezone Timezone. Maximum 3 char.
 	 */
 	function setTimezone($timezone) {
-		if(!is_string($timezone)) {
-			return "Timezone is not even a string.";
-		}
+		//if(!is_string($timezone)) {
+			//return "Timezone is not even a string.";
+		//}
 		
-		if(strlen($timezone) > 3) {
-			return "Timezone data must be 3 characters or lower.";
-		}
+		//if(strlen($timezone) > 3) {
+			//return "Timezone data must be 3 characters or lower.";
+		//}
 		
 		$this->m_timezone = $timezone;
 	}
@@ -572,6 +590,8 @@ class User {
 		if(strlen($bday) > 50) {
 			return "Birthday must be under 50 characters.";
 		}
+		
+		$this->m_birthday = $bday;
 	}
 	
 	/**
@@ -583,16 +603,16 @@ class User {
 			return "Password must be a string";
 		}
 		
-		$this->m_password = password_hash($password);
+		$this->m_password = password_hash($password, PASSWORD_BCRYPT);
 	}
 	
 	/**
 	 * update Updates the current user (not the password)
 	 * @returns True if success, false otherwise.
 	 */
-	function update() {
+	function update($gen_key = false) {
 		if($this->m_id < 0) {
-			return insert();
+			return $this->insert($gen_key);
 		}
 		global $database;
 		
@@ -644,24 +664,33 @@ class User {
 	 * insert Inserts the user in the DB.
 	 * @returns True if success, false otherwise.
 	 */
-	private function insert() {
+	private function insert($gen_key = false) {
 		global $database;
 		$db = new Database($database, $database['prefix']);
+		$query = "";
+		$level = 0;
+		
+		if($gen_key) {
+			$level = 2;
+		} else {
+			$level = 3;
+		}
 		
 		$query = "INSERT INTO _PREFIX_users
-		VALUES ('', :username, :upass, :umail, :udatejoined, :ulastvisit, :ulevel, :usergroup, :usignature, :urank, :uaim, :uicq, 
-		:umsn, :uyahoo, :umailpm, :utemplate, :ulang, :utimezone, :uposts, :uackey, :uloc, :uweb, :uavtype, :uavloc, :uavdim, 
-		:upassresetreq, :unewpass, :ubirth)";
-		
+			VALUES ('', :username, :upass, :umail, :udatejoined, :ulastvisit, :ulevel, :usergroup, :usignature, :urank, :uaim, :uicq, 
+			:umsn, :uyahoo, :umailpm, :utemplate, :ulang, :utimezone, :uposts, :uackey, :uloc, :uweb, :uavtype, :uavloc, :uavdim, 
+			:upassresetreq, :unewpass, :ubirth)";
+
 		$values = array(":username" => $this->m_username, ":upass" => $this->m_password, ":umail" => $this->m_mail, 
-						":udatejoined" => $this->m_date_joined, ":ulastvisit" => $this->m_last_visit, ":ulevel" => $this->m_level,
-						":usergroup" => $this->m_usergroup, ":usignature" => $this->m_signature, ":urank" => $this->m_rank, 
-						":uaim" => $this->m_aim, ":uicq" => $this->m_icq, ":umsn" => $this->m_msn, ":uyahoo" => $this->m_yahoo,
-						":umailpm" => (int)$this->m_bEmail_on_pm, ":utemplate" => $this->m_template, ":ulang" => $this->m_language, 
-						":utimezone" => $this->m_timezone, ":uposts" => $this->m_posts, ":uackey" => $this->m_activation_key, 
-						":uloc" => $this->m_location, ":uweb" => $this->m_website, ":uavtype" => $this->m_avatar_type, 
-						":uavloc" => $this->m_avatar_location, ":uavdim" => $this->m_avatar_dimension, ":upassresetreq" => 0,
-						":unewpass" => $this->m_password, ":ubirth" => $this->m_birthday);
+			":udatejoined" => $this->m_date_joined, ":ulastvisit" => $this->m_last_visit, ":ulevel" => $level,
+			":usergroup" => $this->m_usergroup, ":usignature" => $this->m_signature, ":urank" => $this->m_rank, 
+			":uaim" => $this->m_aim, ":uicq" => $this->m_icq, ":umsn" => $this->m_msn, ":uyahoo" => $this->m_yahoo,
+			":umailpm" => (int)$this->m_bEmail_on_pm, ":utemplate" => $this->m_template, ":ulang" => $this->m_language, 
+			":utimezone" => $this->m_timezone, ":uposts" => $this->m_posts, ":uackey" => $this->m_activation_key, 
+			":uloc" => $this->m_location, ":uweb" => $this->m_website, ":uavtype" => $this->m_avatar_type, 
+			":uavloc" => $this->m_avatar_location, ":uavdim" => $this->m_avatar_dimension, ":upassresetreq" => 0,
+			":unewpass" => $this->m_password, ":ubirth" => $this->m_birthday);
+		
 						
 		$db->query($query, $values);
 		
@@ -734,7 +763,7 @@ class User {
 			$db->query("UPDATE `_PREFIX_users`
 				SET `user_level` = '3', `user_activation_key` = ''
 				WHERE `user_id` = :user_id",
-				array(":user_id" => $user_id);
+				array(":user_id" => $user_id));
 				
 			if($db->rowCount() > 0) {
 				return 0;
