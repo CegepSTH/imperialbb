@@ -23,9 +23,9 @@ if(isset($_POST['Submit']))
 	$post_config = array();
 	$db2->query("SELECT `config_name`, `config_value`, `config_type` FROM `_PREFIX_config` WHERE `config_orderby` > 0");
 
-	while($result = $db2->fetch())
-	{
-		if(isset($_POST[$result['config_name']]) && $_POST[$result['config_name']] != $result['config_value'] && ($result['config_type'] != "password" || !empty($_POST[$result['config_name']])))
+	while($result = $db2->fetch()) {
+		if(isset($_POST[$result['config_name']]) && $_POST[$result['config_name']] != $result['config_value'] 
+		&& ($result['config_type'] != "password" || !empty($_POST[$result['config_name']])))
 		{
 			$post_config[$result['config_name']] = $_POST[$result['config_name']];
 		}
@@ -37,7 +37,7 @@ if(isset($_POST['Submit']))
 	}
 
 	foreach($post_config as $name => $value) {
-		$db->query("UPDATE `_PREFIX_config` SET `config_value`=:value WHERE `config_name`=:name", 
+		$db2->query("UPDATE `_PREFIX_config` SET `config_value`=:value WHERE `config_name`=:name", 
 			array(":value" => $value, ":name" => $name));
 	}
     info_box($lang['Configuration_Manager'], $lang['Configuration_Updated_Msg'], "config.php");
@@ -47,22 +47,18 @@ else
 	$theme->new_file("config", "config.tpl", "");
 
 	$db2->query("SELECT `config_name`, `config_value`, `config_type`, `config_category`
-						FROM `_PREFIX_config`
-						WHERE `config_category_orderby` != '0'
-						ORDER BY `config_category_orderby`, `config_orderby`");
+		FROM `_PREFIX_config`
+		WHERE `config_category_orderby` != '0'
+		ORDER BY `config_category_orderby`, `config_orderby`");
 						
 	$current_category = "";
-	while($result = $db2->fetch())
-	{
-		if($current_category == "")
-		{
+	while($result = $db2->fetch()) {
+		if($current_category == "") {
 			$theme->insert_nest("config", "category", array(
 				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : ereg_replace("_", " ", $result['config_category'])
 			));
 			$current_category = $result['config_category'];
-		}
-		else if($result['config_category'] != $current_category)
-		{
+		} else if($result['config_category'] != $current_category) {
 			$theme->add_nest("config", "category");
 			$theme->insert_nest("config", "category", array(
 				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : ereg_replace("_", " ", $result['config_category'])
@@ -85,13 +81,13 @@ else
 				));
 				$theme->add_nest("config", "category/config_option");
 			break;
-			//case "textarea":
-				//$theme->insert_nest("config", "category/config_option", array(
-					//"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
-					//"CONFIG_CONTENT" => "<textarea name=\"" . $result['config_name'] . "\" rows=\"5\" cols=\"27\">" . changehtml($result['config_value']) . "</textarea>"
-				//));
-				//$theme->add_nest("config", "category/config_option");
-			//break;
+			case "textarea":
+				$theme->insert_nest("config", "category/config_option", array(
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_CONTENT" => "<textarea name=\"" . $result['config_name'] . "\" rows=\"5\" cols=\"27\">" . changehtml($result['config_value']) . "</textarea>"
+				));
+				$theme->add_nest("config", "category/config_option");
+			break;
 			case "true/false":
 				$config_true = ($result['config_value'] == 1) ? "checked=\"checked\"" : "";
 				$config_false = ($result['config_value'] == 0) ? "checked=\"checked\"" : "";
@@ -176,7 +172,7 @@ else
 	//
 	// Output the page header
 	//
-	include($root_path . "includes/page_header.php");
+	include_once($root_path . "includes/page_header.php");
 
 	//
 	// Output the main page
@@ -186,6 +182,6 @@ else
 	//
 	// Output the page footer
 	//
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 }
 ?>
