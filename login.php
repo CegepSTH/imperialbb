@@ -183,7 +183,7 @@ else
 					":session_id" => session_id()
 				)
 			);
-			info_box($lang['Login'], sprintf($lang['Successful_Login_Msg'], $user_result['username']), "index.php");
+			info_box($lang['Login'], sprintf($lang['Successful_Login_Msg'], $oUser->getUsername()), "index.php");
 
 		}
 		else
