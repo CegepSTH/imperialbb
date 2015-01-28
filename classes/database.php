@@ -108,7 +108,7 @@ class Database {
 			$ok = $this->m_results->execute($values);
 			
 			if(!$ok) {
-				var_dump($this->m_results->errorInfo());
+				echo var_dump($this->m_results->errorInfo());
 			}
 		} catch (PDOException $ex) {
 			$this->m_error = $ex->getMessage();

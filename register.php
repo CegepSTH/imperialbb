@@ -19,113 +19,87 @@ define("IN_IBB", 1);
 $root_path = "./";
 require_once($root_path . "includes/common.php");
 require_once($root_path . "classes/password.php");
+require_once($root_path . "models/user.php");
 
 $language->add_file("register");
 
 if(isset($_POST['Submit'])) {
 	$error = "";
+	
 	if(strlen($_POST['UserName']) < 2) {
 		$error .= $lang['Username_Too_Short'] . "<br />";
 	} else if(userexists($_POST['UserName']) == 1) {
 		$error .= $lang['Username_Already_Taken'] . "<br />";
 	}
+	
 	if(strlen($_POST['Password']) < 4) {
 		$error .= $lang['Password_Too_Short'] . "<br />";
 	} else if($_POST['Password'] != $_POST['Pass2']) {
 		$error .= $lang['Passwords_Dont_Match'] . "<br />";
 	}
+	
 	if(!preg_match("#(.*?)@(.*?)\.(.*?)#", $_POST['Email'])) {
 		$error .= $lang['Invalid_Email_Address'] . "<br />";
 	}
+	
 	if(strlen($error) > 0) {
 		$theme->new_file("register", "register.tpl", "");
+		
 		$theme->replace_tags("register", array(
 			"USERNAME" => $_POST['UserName'],
 			"EMAIL" => $_POST['Email']
 		));
+		
 		$theme->insert_nest("register", "error", array(
 			"ERRORS" => $error
 		));
+		
 		$theme->add_nest("register", "error");
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
+		//
+		// Output the page header
+		//
+		include_once($root_path . "includes/page_header.php");
 
-	//
-	// Output the main page
-	//
-	$theme->output("register");
+		//
+		// Output the main page
+		//
+		$theme->output("register");
 
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
+		//
+		// Output the page footer
+		//
+		include_once($root_path . "includes/page_footer.php");
 	} else {
 		if($config['register_auth_type'] == 0) {
-			$db2->query("INSERT INTO `_PREFIX_users` (
-				`username`,
-				`user_password`,
-				`user_email`,
-				`user_date_joined`,
-				`user_level`,
-				`user_template`,
-				`user_language`
-				)
-				VALUES(
-				:username,
-				:user_password,
-				:user_email,
-				:user_date_joined,
-				'3',
-				:user_template,
-				:user_language
-				)",
-				array(
-					":username" => $_POST['UserName'],
-//					":user_password" => md5(md5($_POST['Password'])),
-					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
-					":user_email" => $_POST['Email'],
-					":user_date_joined" => date("D d M Y"),
-					":user_template" => $config['default_template'],
-					":user_language" => $config['default_language']
-				)
-			);
+			// No activation key.
+			$oUser = new User(-1, $_POST['UserName'], $_POST['Email']);
+			$oUser->setPassword($_POST['Password']);
+			$oUser->setLanguageId($config['default_template']);
+			$oUser->setTemplateId($config['default_language']);
+			$oUser->setDateJoined(date("D d M Y"));
+			$oUser->setLastVisit(date("D d M Y"));
+			$oUser->setRankId(1);
+			$oUser->update();
+			
 			info_box($lang['Registration'], $lang['Registration_Successful_Msg'], "?act=login");
 		} else {
+			$oUser = new User(-1, $_POST['UserName'], $_POST['Email']);
+			$oUser->setPassword($_POST['Password']);
+			$oUser->setLanguageId($config['default_template']);
+			$oUser->setTemplateId($config['default_language']);
 			$activation_key = generate_activate_key();
-			$db2->query("INSERT INTO `_PREFIX_users` (
-				`username`,
-				`user_password`,
-				`user_email`,
-				`user_date_joined`,
-				`user_level`,
-				`user_activation_key`
-				`user_template`,
-				`user_language`
-				)
-				VALUES(
-				:username,
-				:user_password,
-				:user_email,
-				:user_date_joined,
-				'3',
-				:user_activation_key,
-				:user_template,
-				:user_language
-				)",
-				array(
-					":username" => $_POST['UserName'],
-//					":user_password" => md5(md5($_POST['Password'])),
-					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
-					":user_email" => $_POST['Email'],
-					":user_date_joined" => date("D d M Y"),
-					":user_activation_key" => $activation_key,
-					":user_template" => $config['default_template'],
-					":user_language" => $config['default_language']
-				)
-			);
-			email($lang['Email_New_Account_Subject'], "new_account", array("USER_ID" => $db2->lastInsertId(), "USERNAME" => $_POST['UserName'], "PASSWORD" => $_POST['Password'], "KEY" => $activation_key, "DOMAIN" => $config['url'], "SITE_NAME" => $config['site_name']), $_POST['Email']);
+			$oUser->setActivationKey($activation_key);
+			$oUser->setRankId(1);
+			$oUser->update(true);
+			
+			email($lang['Email_New_Account_Subject'], "new_account", 
+				array("USER_ID" => $db2->lastInsertId(), 
+					"USERNAME" => $_POST['UserName'], 
+					"PASSWORD" => $_POST['Password'], 
+					"KEY" => $activation_key, 
+					"DOMAIN" => $config['url'], 
+					"SITE_NAME" => $config['site_name']), $_POST['Email']);
+					
 			info_box($lang['Registration'], $lang['Activate_Your_Acct_Msg'], "?act=login");
 		}
 	}
