@@ -88,7 +88,7 @@ if($_GET['func'] == "permissions")
 			else
 			{
 				$theme->new_file("ug_auth", "ug_auth.tpl");
-				$db2->query("SELECT * FROM `_PREFIX_usergroups` WHERE `id` = '".$_POST['id']."'");
+				$db2->query("SELECT * FROM `_PREFIX_usergroups` WHERE `id`=:uid", array(":uid" => $_POST['id']));
 				while($result = $db2->fetch())
 				{
 					$theme->replace_tags("ug_auth", array(
@@ -100,7 +100,9 @@ if($_GET['func'] == "permissions")
 				$pdo_forums = $db2->query("SELECT * FROM `_PREFIX_forums` ORDER BY `forum_id` DESC");
 					
 				while($result = $pdo_forums->fetch()) {
-					$db2->query("SELECT * FROM `_PREFIX_ug_auth` WHERE `usergroup` = '".$_POST['id']."' && `ug_forum_id` = '".$result['forum_id']."'");
+					$values = array(":uid" => $_POST['id'], ":fid" => $result['forum_id']);
+					$db2->query("SELECT * FROM `_PREFIX_ug_auth` WHERE `usergroup`=:uid && `ug_forum_id`=:fid", $values);
+					
 					if($result_auth = $db2->fetch())
 					{
 						$theme->insert_nest("ug_auth", "forum_permissions", array(

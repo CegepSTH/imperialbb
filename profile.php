@@ -9,7 +9,7 @@
 || # ---------------------------------------------------------------- # ||
 || # Name: profile.php                                                # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright ï¿½ 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -193,7 +193,11 @@ if($_GET['func'] == "edit")
 		} else {
 			if($config['allow_uploaded_avatar'] && !empty($_FILES['Upload_Avatar']['name'])) {
 				$filename = $user['username']."_".$_FILES['Upload_Avatar']['name'];
-				$filename = eregi_replace(" ", "_", $filename);
+
+//				$filename = eregi_replace(" ", "_", $filename); // DEPRECATED
+				$filename = preg_replace("# #i", "_", $filename);
+
+
   		      	if(copy($_FILES['Upload_Avatar']['tmp_name'], $config['avatar_upload_dir'] . "/" . $filename)) {
   		      		if($user['user_avatar_type'] == "2") {
 						unlink("images/avatars/uploads/".$user['user_avatar_location']);
@@ -503,7 +507,7 @@ if($_GET['func'] == "edit")
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright ï¿½ 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>

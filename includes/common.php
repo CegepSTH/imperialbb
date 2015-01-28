@@ -28,7 +28,7 @@ $page_gen_start = $page_gen_start[0] + $page_gen_start[1];
 session_start();
 
 // Run all the includes
-include($root_path . "includes/config.php");
+require_once($root_path . "includes/config.php");
 
 // If not installed... redirect back/to installer
 if(!defined("INSTALLED") || INSTALLED != 1)
@@ -50,20 +50,20 @@ switch($debug)
 	break;
 }
 
-include($root_path . "classes/db/class_".$database['dbtype'].".php");
+include_once($root_path . "classes/db/class_".$database['dbtype'].".php");
 $db = new ibb_db_engine();
 
-include($root_path . "classes/database.php");
+include_once($root_path . "classes/database.php");
 $db2 = new Database($database, $db_prefix);
 
 unset($database);
 
-include($root_path . "includes/constants.php");
-include($root_path . "includes/init.php");
-include($root_path . "includes/sessions.php");
-include($root_path . "includes/functions.php");
-include($root_path . "classes/class_template.php");
-include($root_path . "classes/class_language.php");
+include_once($root_path . "includes/constants.php");
+include_once($root_path . "includes/init.php");
+include_once($root_path . "includes/sessions.php");
+include_once($root_path . "includes/functions.php");
+include_once($root_path . "classes/class_template.php");
+include_once($root_path . "classes/class_language.php");
 
 $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
 
@@ -121,35 +121,29 @@ if(defined("IN_ADMIN") && $user['user_level'] < 5)
 $language = new Language();
 
 // Template Check
-if($user['user_id'] < 0)
-{
+if($user['user_id'] < 0) {
 	$user['user_template'] = $config['default_template'];
 }
 
-$sql = "SELECT `template_folder` FROM `_PREFIX_templates` WHERE `template_id` = :user_template'";
+$sql = "SELECT `template_folder` FROM `_PREFIX_templates` WHERE `template_id`=:userTemplate";
 if($user['user_level'] != "5")
 {
 	$sql .= " AND `template_usable` = '1'";
 }
-$sql = $db2->query($sql,
-	array(
-		':user_template' => $user['user_template']
-	)
-);
-if($result = $sql->fetch())
-{
+
+$db2->query($sql, array(":userTemplate" => $user['user_template']));
+
+if($result = $db2->fetch()) {
 	$user['user_template_folder'] = $result['template_folder'];
-}
-else
-{
+} else {
 	if($user['user_id'] > 0)
 	{
 		$db2->query("UPDATE `_PREFIX_users`
 			SET `user_template` = :default_template
-			WHERE `user_id` = :user_id",
+			WHERE `user_id` = :userId",
 			array(
 				':default_template' => $config['default_template'],
-				':user_id' => $user['user_id']
+				':userId' => $user['user_id']
 			)
 		);
 	}
@@ -173,7 +167,7 @@ else
 $theme = new Theme();
 
 ### Language and Template files are usable below this point ###
-include($root_path . "classes/class_pagination.php");
+require_once($root_path . "classes/class_pagination.php");
 $pp = new ibb_pagination();
 
 // 1st thing to do is see if the user is banned!

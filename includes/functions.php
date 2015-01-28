@@ -9,7 +9,7 @@
 || # ---------------------------------------------------------------- # ||
 || # Name: functions.php                                              # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright ï¿½ 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -203,9 +203,13 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 
 	if($remove_html)
 	{
-		$text = ereg_replace("<", "&lt;", $text);
-		$text = ereg_replace(">", "&gt;", $text);
-		$text = ereg_replace(chr(34), "&quot;", $text);
+//		$text = ereg_replace("<", "&lt;", $text);	DEPRECATED
+//		$text = ereg_replace(">", "&gt;", $text);
+//		$text = ereg_replace(chr(34), "&quot;", $text);
+
+		$text = preg_replace("#<#", "&lt;", $text);
+		$text = preg_replace("#>#", "&gt;", $text);
+		$text = preg_replace(chr(34), "&quot;", $text);
 	}
 
 	if($insert_smilies)
@@ -289,8 +293,10 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 		$bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
 
 		$text = preg_replace($bb_search, $bb_replace, $text);
-		$text = eregi_replace('
-        ', '<br />', $text);
+//		$text = eregi_replace(' DEPRECATED... Ã‡a fonctionne vraiment de faire un saut de ligne comme Ã§a pour un regex?! The Fuck
+//        ', '<br />', $text);
+
+		$text = preg_replace("#\r\n#i", "<br />", $text); // Je ne sais pas si Ã§a fonctionne...
 	}
 	return $text;
 }
@@ -320,8 +326,11 @@ function bbcode($post, $change_html = true)
     // Change HTML to none HTML //
     if($change_html)
     {
-            $post = eregi_replace("<", "&lt;", $post);
-            $post = eregi_replace(">", "&gt;", $post);
+//		$post = eregi_replace("<", "&lt;", $post); DEPRECATED
+//		$post = eregi_replace(">", "&gt;", $post);
+
+		$post = preg_replace("#<#i", "&lt;", $post);
+		$post = preg_replace("#>#i", "&gt;", $post);
     }
 
     // [b]Bold Text[/b]
@@ -389,7 +398,8 @@ function bbcode($post, $change_html = true)
     $bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
 
     $post = preg_replace($bb_search, $bb_replace, $post);
-    $post = eregi_replace('', '<br>', $post);
+//    $post = eregi_replace('', '<br>', $post); DEPRECATED
+	$post = preg_replace("##i", "<br />", $post); // Je ne comprend pas pourquoi il veut remplacer les "" pour des <br />... mais pourquoi pas
     return $post;
 }
 
@@ -452,9 +462,13 @@ function email($subject, $template, $tags = array(), $to, $from = '')
 //===========================================
 function changehtml($string)
 {
-    $string = ereg_replace("<", "&lt;", $string);
-    $string = ereg_replace(">", "&gt;", $string);
-    $string = ereg_replace(chr(34), "&quot;", $string);
+//    $string = ereg_replace("<", "&lt;", $string); // DEPRECATED
+//    $string = ereg_replace(">", "&gt;", $string);
+//    $string = ereg_replace(chr(34), "&quot;", $string);
+
+	$string = preg_replace("#<#", "&lt;", $string);
+	$string = preg_replace("#>#", "&gt;", $string);
+	$string = preg_replace("#\"#", "&quot;", $string);
     return $string;
 }
 
@@ -774,6 +788,6 @@ function load_forum_stats()
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright ï¿½ 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/

@@ -101,7 +101,7 @@ class Database {
 		
 		// Replace the prefix marker. The space is important.
 		$query = str_replace("_PREFIX_", $this->m_prefix, $query);
-
+		
 		try {
 			$this->m_results = null;
 			$this->m_results = $this->m_db->prepare($query, is_null($values) ? array() : $values);
