@@ -105,11 +105,7 @@ class Database {
 		try {
 			$this->m_results = null;
 			$this->m_results = $this->m_db->prepare($query, is_null($values) ? array() : $values);
-			$ok = $this->m_results->execute($values);
-			
-			if(!$ok) {
-				var_dump($this->m_results->errorInfo());
-			}
+			$this->m_results->execute($values);
 		} catch (PDOException $ex) {
 			$this->m_error = $ex->getMessage();
 			
