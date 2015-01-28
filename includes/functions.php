@@ -136,7 +136,7 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 	if($remove_html) {
 		$text = preg_replace("#<#", "&lt;", $text);
 		$text = preg_replace("#>#", "&gt;", $text);
-		$text = preg_replace(chr(34), "&quot;", $text);
+		$text = preg_replace("#\"#", "&quot;", $text);
 	}
 
 	if($insert_smilies) {
