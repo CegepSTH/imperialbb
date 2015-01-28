@@ -14,9 +14,8 @@
 || #################################################################### ||
 \*======================================================================*/
 
-if(!defined("IN_IBB"))
-{
-        die("Hacking Attempt");
+if(!defined("IN_IBB")) {
+	die("Hacking Attempt");
 }
 
 //===========================================
@@ -32,9 +31,9 @@ function info_box($name, $message, $link)
 		"TITLE"     => $name,
 		"MESSAGE"   => $message
 	));
-	include($root_path . "includes/page_header.php");
+	include_once($root_path . "includes/page_header.php");
 	$theme->output("info_box");
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 	exit();
 }
 
@@ -54,79 +53,11 @@ function error_msg($name, $message)
 		"TITLE"     => $name,
 		"MESSAGE"   => $message
 	));
-	include($root_path. "includes/page_header.php");
+	include_once($root_path. "includes/page_header.php");
 	$theme->output("error_msg");
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 	exit();
 }
-
-/*function error_msg($name = '', $message = '', $link = '', $timeout = 3, $echo = TRUE)
-{
-	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
-
-	if(!isset($theme))
-	{
-		die("<b>$name</b><br /><br />$message");
-	}
-
-	$timeout = $timeout * 1000;
-	$link 	 = str_replace('&amp;', '&', $link);
-
-	if(empty($name))
-	{
-		$name = '';
-	}
-
-	if(empty($message))
-	{
-		$message = '';
-	}
-
-	if(empty($link))
-	{
-		$link = FALSE;
-	}
-	elseif(isset($link) && $link < 0)
-	{
-		if($echo)
-		{
-			echo '<script type="text/javascript">window.setTimeout("history.go('.$link.')", '.$timeout.');</script>';
-		}
-		else
-		{
-			return '<script type="text/javascript">window.setTimeout("history.go('.$link.')", '.$timeout.');</script>';
-		}
-	}
-	else
-	{
-		if($echo)
-		{
-			echo '<script type="text/javascript">window.setTimeout("document.location = \''.$link.'\';", '.$timeout.');</script>';
-		}
-		else
-		{
-			return '<script type="text/javascript">window.setTimeout("document.location = \''.$link.'\';", '.$timeout.');</script>';
-		}
-	}
-
-	$theme->new_file("error_msg", "error_msg.tpl", "");
-	$theme->replace_tags("error_msg", array(
-		"TITLE" => $name,
-		"MESSAGE" => $message
-	));
-
-	// Output the page header
-	include($root_path. "includes/page_header.php");
-
-	// Output the main page
-	$theme->output("error_msg");
-
-	// Output the page footer
-	include($root_path . "includes/page_footer.php");
-
-	// Exit the script
-	exit();
-}*/
 
 //===========================================
 // @Name: function confirm_msg();
@@ -135,6 +66,7 @@ function error_msg($name, $message)
 function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 {
 	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
+	
 	$theme->new_file("confirm_msg", "confirm_msg.tpl");
 	$theme->replace_tags("confirm_msg", array(
 		"TITLE"     => $name,
@@ -142,19 +74,18 @@ function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 		"URL"       => $url,
 		"NO_URL"    => (strlen($no_url) > 0) ? $no_url : "index.php"
 	));
-	if(is_array($values))
-	{
-		foreach($values as $name => $value)
-		{
+	
+	if(is_array($values)) {
+		foreach($values as $name => $value) {
 			$theme->replace_tags("confirm_msg", array(
 				"NAME"  => $name,
 				"VALUE" => $value
 			));
 		}
 	}
-	include($root_path . "includes/page_header.php");
+	include_once($root_path . "includes/page_header.php");
 	$theme->output("confirm_msg");
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 }
 
 //===========================================
@@ -174,21 +105,22 @@ function create_date($format, $stamp)
 function ibb_censor($text)
 {
 	global $config;
-	if(!$config['censor_enabled'] or !$config['censor_words'])
-    {
+	
+	if(!$config['censor_enabled'] or !$config['censor_words']) {
 		return $text;
 	}
+	
 	$censored_words = split(" ",$config['censor_words']);
-	foreach($censored_words as $index => $word)
-    {
+	foreach($censored_words as $index => $word) {
 		$length = strlen($word);
         $replace = '';
-		for($x = 1; $x <= $length; $x++)
-        {
+        
+		for($x = 1; $x <= $length; $x++) {
 			$replace .= $config['censor_replace'];
 		}
 		$text = preg_replace("|".$word."|i",$replace,$text);
 	}
+	
 	return $text;
 }
 
@@ -199,35 +131,27 @@ function ibb_censor($text)
 //===========================================
 function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_html=true, $censor_text=true)
 {
-	global $db2, $db_prefix, $root_path, $lang;
+	global $db2, $root_path, $lang;
 
-	if($remove_html)
-	{
-//		$text = ereg_replace("<", "&lt;", $text);	DEPRECATED
-//		$text = ereg_replace(">", "&gt;", $text);
-//		$text = ereg_replace(chr(34), "&quot;", $text);
-
+	if($remove_html) {
 		$text = preg_replace("#<#", "&lt;", $text);
 		$text = preg_replace("#>#", "&gt;", $text);
 		$text = preg_replace(chr(34), "&quot;", $text);
 	}
 
-	if($insert_smilies)
-	{
-		$sql = $db2->query("SELECT `smilie_code`, `smilie_url` FROM `".$db_prefix."smilies`");
-		while ($row = $sql->fetch())
-        {
+	if($insert_smilies) {
+		$db2->query("SELECT `smilie_code`, `smilie_url` FROM `_PREFIX_smilies`");
+		
+		while ($row = $db2->fetch()) {
 			$text = str_replace($row['smilie_code'],"<img src=\"" . $root_path . "images/smilies/".$row['smilie_url']."\" border=\"0\">", $text);
 		}
 	}
 
-    if($censor_text)
-    {
+    if($censor_text) {
         $text = ibb_censor($text);
     }
 
-	if($insert_bbcode)
-	{
+	if($insert_bbcode) {
 		// [b]Bold Text[/b]
 		$bb_search[] = "#\[b\]((\[(?!/b\])|(\n|.))*?)\[/b\]#is";
 		$bb_replace[] = "<b>\\1</b>";
@@ -293,8 +217,6 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 		$bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
 
 		$text = preg_replace($bb_search, $bb_replace, $text);
-//		$text = eregi_replace(' DEPRECATED... Ça fonctionne vraiment de faire un saut de ligne comme ça pour un regex?! The Fuck
-//        ', '<br />', $text);
 
 		$text = preg_replace("#\r\n#i", "<br />", $text); // Je ne sais pas si ça fonctionne...
 	}
@@ -307,12 +229,13 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 //===========================================
 function insertsmilies($post)
 {
-    global $db2, $db_prefix, $root_path;
-    $sql = $db2->query("SELECT `smilie_code`, `smilie_url` FROM `".$db_prefix."smilies`");
-    while ($row = $sql->fetch())
-    {
+    global $db2, $root_path;
+    
+    $db2->query("SELECT `smilie_code`, `smilie_url` FROM `_PREFIX_smilies`");
+    while ($row = $db2->fetch()) {
         $post = str_replace($row['smilie_code'],"<img src=\"" . $root_path . "images/smilies/".$row['smilie_url']."\" border=\"0\">",$post);
     }
+    
     return $post;
 }
 
@@ -322,13 +245,9 @@ function insertsmilies($post)
 //===========================================
 function bbcode($post, $change_html = true)
 {
-    global $db, $lang;
+    global $lang;
     // Change HTML to none HTML //
-    if($change_html)
-    {
-//		$post = eregi_replace("<", "&lt;", $post); DEPRECATED
-//		$post = eregi_replace(">", "&gt;", $post);
-
+    if($change_html) {
 		$post = preg_replace("#<#i", "&lt;", $post);
 		$post = preg_replace("#>#i", "&gt;", $post);
     }
@@ -349,7 +268,7 @@ function bbcode($post, $change_html = true)
     $bb_search[] = "#\[hr\]#is";
     $bb_replace[] = "<hr />";
 
-// [img]http://www.domain.com[/img]
+	// [img]http://www.domain.com[/img]
     $bb_search[] = "#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#is";
     $bb_replace[] = "<img src=\"\\1\\2\" />";
 
@@ -398,8 +317,8 @@ function bbcode($post, $change_html = true)
     $bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
 
     $post = preg_replace($bb_search, $bb_replace, $post);
-//    $post = eregi_replace('', '<br>', $post); DEPRECATED
-	$post = preg_replace("##i", "<br />", $post); // Je ne comprend pas pourquoi il veut remplacer les "" pour des <br />... mais pourquoi pas
+
+	$post = preg_replace("##i", "<br />", $post); 
     return $post;
 }
 
@@ -409,12 +328,11 @@ function bbcode($post, $change_html = true)
 //===========================================
 function shortentext($text, $length, $remove_bb = true)
 {
-    if($remove_bb)
-    {
+    if($remove_bb) {
         $text = preg_replace("!\[(.*?)\]!is", "", $text);
     }
-    if (strlen($text) > $length)
-    {
+    
+    if (strlen($text) > $length) {
         $text = substr($text,0,$length);
         $text = $text."...";
     }
@@ -427,31 +345,29 @@ function shortentext($text, $length, $remove_bb = true)
 //===========================================
 function email($subject, $template, $tags = array(), $to, $from = '')
 {
-    global $config, $lang, $ldb_prefix, $user, $root_path;
-    if(empty($from))
-    {
+    global $config, $lang, $user, $root_path;
+    
+    if(empty($from)) {
         $from = $config['site_name']."\" <".$config['admin_email'].">";
     }
+    
     $language = ($user['user_id'] > 0) ? $user['user_language_folder'] : $config['language_folder'];
-    if(!file_exists($root_path . "language/$language/email/$template.tpl"))
-    {
+    
+    if(!file_exists($root_path . "language/$language/email/$template.tpl")) {
         $body = $template;
-    }
-    else
-    {
+    } else {
         $template = file_get_contents($root_path . "language/$language/email/$template.tpl");
-        if(count($tags) > 0)
-        {
-            foreach($tags as $tag => $data)
-            {
+        
+        if(count($tags) > 0) {
+            foreach($tags as $tag => $data) {
                 $template = preg_replace("/\{$tag\}/", $data, $template);
             }
         }
         $template = preg_replace("/\{EMAIL_SIG\}/", $lang['Thanks'] . "\n".$config['site_name'], $template);
         $body = $template;
     }
-    if(!mail($to, $subject, $body, "From: ".$from.""))
-    {
+    
+    if(!mail($to, $subject, $body, "From: ".$from."")) {
         error_msg($lang['Error'], $lang['Unable_To_Send_Email']);
     }
 }
@@ -462,10 +378,6 @@ function email($subject, $template, $tags = array(), $to, $from = '')
 //===========================================
 function changehtml($string)
 {
-//    $string = ereg_replace("<", "&lt;", $string); // DEPRECATED
-//    $string = ereg_replace(">", "&gt;", $string);
-//    $string = ereg_replace(chr(34), "&quot;", $string);
-
 	$string = preg_replace("#<#", "&lt;", $string);
 	$string = preg_replace("#>#", "&gt;", $string);
 	$string = preg_replace("#\"#", "&quot;", $string);
@@ -478,21 +390,16 @@ function changehtml($string)
 //===========================================
 function userexists($username)
 {
-    global $db2, $db_prefix;
+    global $db2;
     $result = $db2->query("SELECT *
-		FROM `".$db_prefix."users`
+		FROM `_PREFIX_users`
 		WHERE `username` = :username",
-		array(
-			':username' => $username
-		)
-	);
+		array(':username' => $username ));
+		
     $result2 = $result->fetch();
-    if($result2)
-    {
+    if($result2) {
         return "1";
-    }
-    else
-    {
+    } else {
         return "0";
     }
 }
@@ -506,10 +413,11 @@ function generate_activate_key($totalChar = 15)
 	$salt = "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
 	srand(microtime()*1000000);
 	$activate_key="";
-	for ($i=0;$i<$totalChar;$i++)
-    {
+	
+	for ($i = 0; $i < $totalChar; $i++) {
 		$activate_key = $activate_key . substr ($salt, rand() % strlen($salt), 1);
 	}
+	
 	return $activate_key;
 }
 
@@ -520,18 +428,14 @@ function generate_activate_key($totalChar = 15)
 function fetch_make_options($value, $text, $selval = '', $sel = 1)
 {
 	global $theme, $lang;
+	
 	$optsel = '';
-	if($sel == 1)
-	{
-		if(is_array($selval))
-		{
-			if(in_array($value, $selval))
-			{
+	if($sel == 1) {
+		if(is_array($selval)) {
+			if(in_array($value, $selval)) {
 				$optsel = " selected='selected'";
 			}
-		}
-		elseif($selval == $value)
-		{
+		} elseif($selval == $value) {
 			$optsel = " selected='selected'";
 		}
 	}
@@ -567,45 +471,40 @@ function ifelse($condition, $true='', $false='')
 //===========================================
 function format_membername($member_rank, $member_id, $member_name)
 {
-	global $config, $user, $theme, $lang, $db2, $db_prefix;
+	global $config, $user, $theme, $lang, $db2;
 
 	$format = '';
-	$rsql = $db2->query("SELECT *
-		FROM `".$db_prefix."ranks`
+	$db2->query("SELECT *
+		FROM `_PREFIX_ranks`
 		WHERE `rank_id` = :member_rank",
 		array(
 			':member_rank' => $member_rank
 		)
 	);
-	while($rank = $rsql->fetch())
+	
+	while($rank = $db2->fetch())
 	{
 		$format .= "<a href=\"profile.php?id=".$member_id."\"><span style=\"";
-		if(!empty($rank['rank_color']))
-		{
+		
+		if(!empty($rank['rank_color'])) {
 			$format .= " color: ".$rank['rank_color'].";";
-		}
-		if($rank['rank_bold'] == 1)
-		{
+		} 
+		
+		if($rank['rank_bold'] == 1) {
 			$format .= " font-weight: bold;";
-		}
-		else
-		{
+		} else {
 			$format .= " font-weight: normal;";
 		}
-		if($rank['rank_underline'] == 1)
-		{
+		
+		if($rank['rank_underline'] == 1) {
 			$format .= " text-decoration: underline;";
-		}
-		else
-		{
+		} else {
 			$format .= " text-decoration: none;";
 		}
-		if($rank['rank_italics'] == 1)
-		{
+		
+		if($rank['rank_italics'] == 1) {
 			$format .= " font-style: italic;";
-		}
-		else
-		{
+		} else {
 			$format .= " font-style: normal;";
 		}
 		$format .="\">" . $member_name . "</span></a>";
@@ -619,56 +518,51 @@ function format_membername($member_rank, $member_id, $member_name)
 //===========================================
 function load_forum_stats()
 {
-	global $config, $user, $theme, $lang, $db2, $db_prefix;
+	global $config, $user, $theme, $lang, $db2;
 
 	//Online Listing
-	$onlinesql = $db2->query("SELECT u.* FROM `".$db_prefix."sessions` s LEFT JOIN `".$db_prefix."users` u ON (u.`user_id` = s.`user_id`)");
+	$db2->query("SELECT u.* FROM `_PREFIX_sessions` s LEFT JOIN `_PREFIX_users` u ON (u.`user_id` = s.`user_id`)");
 	$online_list = '';
 	$users_online = 0;
 	$guests_online = 0;
-	while($result = $onlinesql->fetch())
-	{
-		if($result['user_id'] != -1)
-		{
+	
+	while($result = $db2->fetch()) {
+		if($result['user_id'] != -1) {
 			$users_online++;
 			$online_list .= format_membername($result['user_rank'],$result['user_id'],$result['username']).', ';
-		}
-		else
-		{
-				  $guests_online++;
+		} else {
+			$guests_online++;
 		}
 	}
+	
 	$total_online = $users_online + $guests_online;
 	$length = strlen($online_list) - 2;
 	$online_list = substr($online_list, 0, $length);
-	if(strlen($online_list) < 1)
-	{
+	
+	if(strlen($online_list) < 1) {
 			$online_list = "<strong>".$lang['None']."</strong>";
 	}
 
 	//Rank Listing
 	$rank_list = '';
-	$ranksql = $db2->query("SELECT `rank_name`, `rank_color`, `rank_bold`, `rank_underline`, `rank_italics`
-						   FROM `".$db_prefix."ranks`
+	$db2->query("SELECT `rank_name`, `rank_color`, `rank_bold`, `rank_underline`, `rank_italics`
+						   FROM `_PREFIX_ranks`
 						   WHERE `rank_orderby` > '0'
 						   ORDER BY `rank_orderby`"
 	);
-	while($result = $ranksql->fetch())
-	{
+	
+	while($result = $db2->fetch()) {
 		$rank_list .= "[ <span style=\"color: ".$result['rank_color'].";";
 
-		if($result['rank_bold'] == 1)
-		{
+		if($result['rank_bold'] == 1) {
 			$rank_list .= " font-weight: bold;";
 		}
 
-		if($result['rank_underline'] == 1)
-		{
+		if($result['rank_underline'] == 1) {
 			$rank_list .= " text-decoration: underline;";
 		}
 
-		if($result['rank_italics'] == 1)
-		{
+		if($result['rank_italics'] == 1) {
 			$rank_list .= " font-style: italic;";
 		}
 
@@ -680,45 +574,43 @@ function load_forum_stats()
 	$online_today = '';
 	$onlinetoday = 0;
 	$stime = time()-(60*60*24);
-    $todaysql = $db2->query("SELECT * FROM `".$db_prefix."users` WHERE `user_lastvisit` > $stime ORDER BY `user_lastvisit` DESC");
-	while($result = $todaysql->fetch())
-	{
-		if($result['user_id'] != -1)
-		{
+    $db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_lastvisit` > $stime ORDER BY `user_lastvisit` DESC");
+    
+	while($result = $db2->fetch()) {
+		if($result['user_id'] != -1) {
 			$onlinetoday++;
 			$todaylist .= format_membername($result['user_rank'],$result['user_id'],$result['username']).', ';
 		}
 	}
 	$length = strlen($todaylist) - 2;
 	$todaylist = substr($todaylist, 0, $length);
-	if(strlen($todaylist) < 1)
-	{
+	
+	if(strlen($todaylist) < 1) {
 			$todaylist = "<strong>".$lang['None']."</strong>";
 	}
+	
 	$online_today = sprintf($lang['stats_online_today'], number_format($onlinetoday));
 
 	//Forums Newest Member
 	$newestmember = '';
 	$newest_member = '';
-	$newestsql = $db2->query("SELECT * FROM `".$db_prefix."users` ORDER BY `user_id` DESC LIMIT 1");
-	$lastmember = $newestsql->fetch();
-	if(!$lastmember['username'])
-	{
-
+	$db2->query("SELECT * FROM `_PREFIX_users` ORDER BY `user_id` DESC LIMIT 1");
+	$lastmember = $db2->fetch();
+	
+	if(!$lastmember['username']) {
 		$newestmember = "<strong>".$lang['None']."</strong>";
-	}
-	else
-	{
+	} else {
 		$newestmember = format_membername($lastmember['user_rank'],$lastmember['user_id'],$lastmember['username']);
 	}
+	
 	$newest_member = sprintf($lang['stats_newest_member'], $newestmember);
 
 	//Forums total members
 	$totalusers = '';
 	$total_users = '';
-	$usertotalsql = $db2->query("SELECT COUNT(*) AS 'total_members' FROM `".$db_prefix."users` WHERE `user_id` > 0");
-	if($res = $usertotalsql->fetch())
-	{
+	$db2->query("SELECT COUNT(*) AS 'total_members' FROM `_PREFIX_users` WHERE `user_id` > 0");
+	
+	if($res = $db2->fetch()) {
 		$totalusers = $res['total_members'];
 	}
 	$total_users = sprintf($lang['stats_total_members'], number_format($totalusers));
@@ -727,16 +619,18 @@ function load_forum_stats()
 	$totaltopics = '';
 	$totalposts  = '';
 	$total_topics_posts = '';
-	$topictotalsql = $db2->query("SELECT COUNT(*) AS 'total_topics' FROM `".$db_prefix."topics`");
-	if($result = $topictotalsql->fetch())
-	{
+	$db2->query("SELECT COUNT(*) AS 'total_topics' FROM `_PREFIX_topics`");
+	
+	if($result = $db2->fetch()) {
 		$totaltopics = $result['total_topics'];
 	}
-	$posttotalsql = $db2->query("SELECT COUNT(*) AS 'total_posts' FROM `".$db_prefix."posts`");
-	if($result = $posttotalsql->fetch())
-	{
+	
+	$db2->query("SELECT COUNT(*) AS 'total_posts' FROM `_PREFIX_posts`");
+	
+	if($result = $db2->fetch()) {
 		$totalposts = $result['total_posts'];
 	}
+	
 	$total_topics_posts = sprintf($lang['stats_total_poststopics'], number_format($totalposts), number_format($totaltopics));
 
 	//Forums Member Birthdays
@@ -745,27 +639,26 @@ function load_forum_stats()
 	$bdaytime = time();
 	$currentdate = create_date('m-d', $bdaytime);
 	$currentyear = intval(create_date('Y', $bdaytime));
-	$birth = $db2->query("SELECT * FROM `".$db_prefix."users` WHERE `user_birthday` LIKE '%-$currentdate' ORDER BY `username` ASC");
+	$db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_birthday` LIKE '%-$currentdate' ORDER BY `username` ASC");
 	$bdaybit = '';
 	$sep = '';
-	while($bday = $db2->fetch())
-	{
+	
+	while($bday = $db2->fetch()) {
 		$birthyear = intval(substr($bday['user_birthday'], 0, 4));
 		$age = $currentyear - $birthyear;
-		if($age < 1 || $age > 200)
-		{
+		
+		if($age < 1 || $age > 200) {
 			$age = '';
-		}
-		else
-		{
+		} else {
 			$age = '&nbsp;( '.$age.' )';
 		}
+		
 		$bdaybit .= $sep.format_membername($bday['user_rank'],$bday['user_id'],$bday['username']).$age;
 		$bdaycount++;
 		$sep = ', ';
 	}
-	if($bdaycount > 0)
-	{
+	
+	if($bdaycount > 0) {
 		$theme->add_nest("board_home", "forumstats_birthdays");
 	}
 
