@@ -24,8 +24,8 @@ if(isset($_POST['Submit']))
 	$db2->query("SELECT `config_name`, `config_value`, `config_type` FROM `_PREFIX_config` WHERE `config_orderby` > 0");
 
 	while($result = $db2->fetch()) {
-		if(isset($_POST[$result['config_name']]) && $_POST[$result['config_name']] != $result['config_value'] 
-		&& ($result['config_type'] != "password" || !empty($_POST[$result['config_name']])))
+		
+		if(isset($_POST[$result['config_name']]) && $_POST[$result['config_name']] != $result['config_value'] && ($result['config_type'] != "password" || !empty($_POST[$result['config_name']])))
 		{
 			$post_config[$result['config_name']] = $_POST[$result['config_name']];
 		}
@@ -46,13 +46,15 @@ else
 {
 	$theme->new_file("config", "config.tpl", "");
 
-	$db2->query("SELECT `config_name`, `config_value`, `config_type`, `config_category`
+	$db_in = $db2->query("SELECT `config_name`, `config_value`, `config_type`, `config_category` 
 		FROM `_PREFIX_config`
 		WHERE `config_category_orderby` != '0'
 		ORDER BY `config_category_orderby`, `config_orderby`");
 						
 	$current_category = "";
-	while($result = $db2->fetch()) {
+
+	while($result = $db_in->fetch()) {
+		
 		if($current_category == "") {
 			$theme->insert_nest("config", "category", array(
 				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : ereg_replace("_", " ", $result['config_category'])
@@ -101,8 +103,7 @@ else
 			case "dropdown:timezone":
 				$config_content =  "\n  <select name=\"" . $result['config_name'] . "\">";
 
-				foreach($lang['tz'] as $id => $value)
-				{
+				foreach($lang['tz'] as $id => $value) {
 					$selected = ($id == $result['config_value']) ? "selected=\"selected\"" : "";
 					$config_content .= "\n    <option value=\"" . $id . "\" $selected>" . $value . "</option>";
 				}
@@ -117,9 +118,8 @@ else
 			case "dropdown:template":
 				$config_content =  "\n  <select name=\"" . $result['config_name'] . "\">";
 
-				$template_query = $db->query("SELECT `template_id`, `template_name` FROM `".$db_prefix."templates` WHERE `template_usable` = '1'");
-				while($template_result = $db->fetch_array($template_query))
-				{
+				$db2->query("SELECT `template_id`, `template_name` FROM `_PREFIX_templates` WHERE `template_usable` = '1'");
+				while($template_result = $db2->fetch()) {
 					$selected = ($template_result['template_id'] == $result['config_value']) ? "selected=\"selected\"" : "";
 					$config_content .= "\n    <option value=\"" . $template_result['template_id'] . "\" $selected>" . $template_result['template_name'] . "</option>";
 				}
@@ -134,9 +134,8 @@ else
 			case "dropdown:language":
 				$config_content =  "\n  <select name=\"" . $result['config_name'] . "\">";
 
-				$language_query = $db->query("SELECT `language_id`, `language_name` FROM `".$db_prefix."languages` WHERE `language_usable` = '1'");
-				while($language_result = $db->fetch_array($language_query))
-				{
+				$db2->query("SELECT `language_id`, `language_name` FROM `_PREFIX_languages` WHERE `language_usable` = '1'");
+				while($language_result = $db2->fetch()) {
 					$selected = ($language_result['language_id'] == $result['config_value']) ? "selected=\"selected\"" : "";
 					$config_content .= "\n    <option value=\"" . $language_result['language_id'] . "\" $selected>" . $language_result['language_name'] . "</option>";
 				}
