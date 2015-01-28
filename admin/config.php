@@ -57,13 +57,14 @@ else
 		
 		if($current_category == "") {
 			$theme->insert_nest("config", "category", array(
-				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : ereg_replace("_", " ", $result['config_category'])
+				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : preg_replace("#_#", " ", $result['config_category'])
 			));
 			$current_category = $result['config_category'];
 		} else if($result['config_category'] != $current_category) {
 			$theme->add_nest("config", "category");
 			$theme->insert_nest("config", "category", array(
-				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : ereg_replace("_", " ", $result['config_category'])
+				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : preg_replace("#_#", " ", $result['config_category'])
+
 			));
 			$current_category = $result['config_category'];
 		}
@@ -71,21 +72,21 @@ else
 		switch($result['config_type']) {
 			case "textbox":
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . changehtml($result['config_value']) . "\" size=\"35\" />"
 				));
 				$theme->add_nest("config", "category/config_option");
 			break;
 			case "password":
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => "<input type=\"password\" name=\"" . $result['config_name'] . "\" size=\"35\" />"
 				));
 				$theme->add_nest("config", "category/config_option");
 			break;
 			case "textarea":
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => "<textarea name=\"" . $result['config_name'] . "\" rows=\"5\" cols=\"27\">" . changehtml($result['config_value']) . "</textarea>"
 				));
 				$theme->add_nest("config", "category/config_option");
@@ -95,7 +96,7 @@ else
 				$config_false = ($result['config_value'] == 0) ? "checked=\"checked\"" : "";
 
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => "" . $lang['True'] . "<input type=\"radio\" name=\"" . $result['config_name'] . "\" value=\"1\" $config_true />&nbsp;&nbsp;" . $lang['False'] . "<input type=\"radio\" name=\"" . $result['config_name'] . "\" value=\"0\" $config_false />"
 				));
 				$theme->add_nest("config", "category/config_option");
@@ -111,7 +112,7 @@ else
 				$config_content .= "\n  </select>";
 
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => $config_content
 				));
 			break;
@@ -127,7 +128,7 @@ else
 				$config_content .= "\n  </select>";
 
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => $config_content
 				));
 			break;
@@ -143,7 +144,7 @@ else
 				$config_content .= "\n  </select>";
 
 				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : ereg_replace("_", " ", $result['config_name']),
+					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
 					"CONFIG_CONTENT" => $config_content
 				));
 			break;
