@@ -106,7 +106,7 @@ function ibb_censor($text)
 {
 	global $config;
 	
-	if(!$config['censor_enabled'] or !$config['censor_words']) {
+	if(!$config['censor_enabled'] || !$config['censor_words']) {
 		return $text;
 	}
 	
@@ -481,7 +481,7 @@ function format_membername($member_rank, $member_id, $member_name)
 			':member_rank' => $member_rank
 		)
 	);
-	
+	echo $member_id." ".$member_rank."<br>";
 	while($rank = $db2->fetch())
 	{
 		$format .= "<a href=\"profile.php?id=".$member_id."\"><span style=\"";

@@ -46,11 +46,10 @@ $theme->replace_tags("page_footer", array(
     "PHPTIME" => sprintf($lang['phptime'], $phptime, $percentphp),
 ));
 // Wrap up the the DB stuff
-$db2->freeData();
 
 // Output the footer
 $theme->output("page_footer");
-
+unset($db2);
 
 /*======================================================================*\
 || #################################################################### ||

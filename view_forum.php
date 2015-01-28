@@ -224,7 +224,7 @@ if($forum = $db_forum->fetch())
 	$db2->query("SELECT * FROM `_PREFIX_topics` WHERE `topic_forum_id`=:fid", array(":fid" => $fid));
     $topic_count = $db2->rowCount();
 
-    $pagination      = $pp->paginate($topic_count,$config['topics_per_page']);
+    $pagination = $pp->paginate($topic_count, $config['topics_per_page']);
     
 	$theme->replace_tags("view_forum", array(
 		"PAGINATION" => $pagination,
@@ -276,15 +276,17 @@ if($forum = $db_forum->fetch())
 		$new_posts = false;
 		if($user['user_id'] > 0) {
 			$marked_read = (isset($_COOKIE['marked_read'])) ? unserialize($_COOKIE['marked_read']) : array();
-			if($user['user_lastvisit'] < $topic['post_timestamp'] && ((!isset($marked_read['0']) || $marked_read['0'] < $topic['post_timestamp']) && (!isset($marked_read[$fid]) || $marked_read[$fid] < $topic['post_timestamp'])))
+			if($user['user_lastvisit'] < $topic['post_timestamp'] && ((!isset($marked_read['0']) 
+				|| $marked_read['0'] < $topic['post_timestamp']) && (!isset($marked_read[$fid]) 
+				|| $marked_read[$fid] < $topic['post_timestamp'])))
 			{
 				$track_topics = (isset($_COOKIE['read_topics'])) ? unserialize($_COOKIE['read_topics']) : "";
 				if(!empty($track_topics) && isset($track_topics[$topic['topic_id']])) {
 					if($track_topics[$topic['topic_id']] < $topic['post_timestamp']) {
-						$new_posts = TRUE;
+						$new_posts = true;
 					}
 				} else {
-					$new_posts = TRUE;
+					$new_posts = true;
 				}
 			}
 		}

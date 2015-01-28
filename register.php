@@ -76,35 +76,11 @@ if(isset($_POST['Submit'])) {
 			$oUser->setPassword($_POST['Password']);
 			$oUser->setLanguageId($config['default_template']);
 			$oUser->setTemplateId($config['default_language']);
+			$oUser->setDateJoined(date("D d M Y"));
+			$oUser->setLastVisit(date("D d M Y"));
+			$oUser->setRankId(1);
 			$oUser->update();
-			/*
-			$db2->query("INSERT INTO `_PREFIX_users` (
-				`username`,
-				`user_password`,
-				`user_email`,
-				`user_date_joined`,
-				`user_level`,
-				`user_template`,
-				`user_language`
-				)
-				VALUES(
-				:username,
-				:user_password,
-				:user_email,
-				:user_date_joined,
-				'3',
-				:user_template,
-				:user_language
-				)",
-				array(
-					":username" => $_POST['UserName'],
-					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
-					":user_email" => $_POST['Email'],
-					":user_date_joined" => date("D d M Y"),
-					":user_template" => $config['default_template'],
-					":user_language" => $config['default_language']
-				)
-			); */
+			
 			info_box($lang['Registration'], $lang['Registration_Successful_Msg'], "?act=login");
 		} else {
 			$oUser = new User(-1, $_POST['UserName'], $_POST['Email']);
@@ -113,38 +89,9 @@ if(isset($_POST['Submit'])) {
 			$oUser->setTemplateId($config['default_language']);
 			$activation_key = generate_activate_key();
 			$oUser->setActivationKey($activation_key);
+			$oUser->setRankId(1);
 			$oUser->update(true);
-			/*
-			$db2->query("INSERT INTO `_PREFIX_users` (
-				`username`,
-				`user_password`,
-				`user_email`,
-				`user_date_joined`,
-				`user_level`,
-				`user_activation_key`
-				`user_template`,
-				`user_language`
-				)
-				VALUES(
-				:username,
-				:user_password,
-				:user_email,
-				:user_date_joined,
-				'2',
-				:user_activation_key,
-				:user_template,
-				:user_language
-				)",
-				array(
-					":username" => $_POST['UserName'],
-					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
-					":user_email" => $_POST['Email'],
-					":user_date_joined" => date("D d M Y"),
-					":user_activation_key" => $activation_key,
-					":user_template" => $config['default_template'],
-					":user_language" => $config['default_language']
-				)
-			); */
+			
 			email($lang['Email_New_Account_Subject'], "new_account", 
 				array("USER_ID" => $db2->lastInsertId(), 
 					"USERNAME" => $_POST['UserName'], 
