@@ -125,7 +125,7 @@ if(isset($_POST['Submit'])) {
 					":user_language" => $config['default_language']
 				)
 			);
-			email($lang['Email_New_Account_Subject'], "new_account", array("USER_ID" => $db->insert_id(), "USERNAME" => $_POST['UserName'], "PASSWORD" => $_POST['Password'], "KEY" => $activation_key, "DOMAIN" => $config['url'], "SITE_NAME" => $config['site_name']), $_POST['Email']);
+			email($lang['Email_New_Account_Subject'], "new_account", array("USER_ID" => $db2->lastInsertId(), "USERNAME" => $_POST['UserName'], "PASSWORD" => $_POST['Password'], "KEY" => $activation_key, "DOMAIN" => $config['url'], "SITE_NAME" => $config['site_name']), $_POST['Email']);
 			info_box($lang['Registration'], $lang['Activate_Your_Acct_Msg'], "?act=login");
 		}
 	}

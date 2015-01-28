@@ -187,10 +187,10 @@ else
 			LIMIT 1",
 			array(
 				":username" => $_POST['UserName'],
-//				":password" =>  md5(md5($_POST['PassWord'])),
 				":password" => password_hash($_POST['PassWord'], PASSWORD_BCRYPT),
 			)
 		);
+
 		if($user_result = $user_sql->fetch())
 		{
 			setcookie("UserName", $user_result['username'], time()+604800);

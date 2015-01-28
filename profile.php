@@ -17,7 +17,7 @@
 define("IN_IBB", 1);
 
 $root_path = "./";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 $language->add_file("profile");
 
@@ -200,9 +200,7 @@ if($_GET['func'] == "edit")
 			if($config['allow_uploaded_avatar'] && !empty($_FILES['Upload_Avatar']['name'])) {
 				$filename = $user['username']."_".$_FILES['Upload_Avatar']['name'];
 
-//				$filename = eregi_replace(" ", "_", $filename); // DEPRECATED
 				$filename = preg_replace("# #i", "_", $filename);
-
 
   		      	if(copy($_FILES['Upload_Avatar']['tmp_name'], $config['avatar_upload_dir'] . "/" . $filename)) {
   		      		if($user['user_avatar_type'] == "2") {
