@@ -14,35 +14,32 @@
 || #################################################################### ||
 \*======================================================================*/
 
-if(!defined("IN_IBB"))
-{
+if(!defined("IN_IBB")) {
 	die("Hacking Attempt");
 }
 
-if(!defined('PHPVERSION'))
-{
+if(!defined('PHPVERSION')) {
 	define('PHPVERSION',intval(str_replace('.','',PHP_VERSION)));
 }
 
 function unescape_string($string)
 {
-	if(!get_magic_quotes_gpc())
-	{
+	if(!get_magic_quotes_gpc()) {
 		return stripslashes($string);
 	}
 }
 
 function sanitize_string($string)
 {
-	global $db;
-	if(get_magic_quotes_gpc())
-	{
-		$string = stripslashes($string);
-	}
-	if(!is_numeric($string))
-	{
-		$string = $db->escape_string($string);
-	}
+	//global $db2;
+	//if(get_magic_quotes_gpc())
+	//{
+		//$string = stripslashes($string);
+	//}
+	//if(!is_numeric($string))
+	//{
+		//$string = $db2->escape_string($string);
+	//}
 	return $string;
 }
 
