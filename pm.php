@@ -73,17 +73,17 @@ if($_GET['func'] == "send")
 
 				// Add the emoticon chooser to the page
 				$theme->insert_nest("send_pm", "smilies");
-		 		$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
+		 		$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
 		 		$smilie_no = 1;
 				$smilie_count = 1;
 				$smilie_url = array();
-				while($emotion = $db->fetch_array($emotion_query))
+				while($smilie = $smilie_query->fetch())
 				{
 					// Check if the smilie has already been displayed
  	      			if(!in_array($emotion['smilie_url'], $smilie_url))
  	     	 		{
  	      			// Add smilie to the array
- 	      				$smilie_url[] = $emotion['smilie_url'];
+ 	      				$smilie_url[] = $smilie['smilie_url'];
 
  	      				if($smilie_no == 1)
  	      				{
@@ -91,9 +91,9 @@ if($_GET['func'] == "send")
  	      				}
 
  	      				$theme->insert_nest("send_pm", "smilies/emoticon_row/emoticon_cell", array(
- 	      					"EMOTICON_CODE" => $emotion['smilie_code'],
- 	      					"EMOTICON_URL" => $emotion['smilie_url'],
- 	      					"EMOTICON_TITLE" => $emotion['smilie_name']
+ 	      					"EMOTICON_CODE" => $smilie['smilie_code'],
+ 	      					"EMOTICON_URL" => $smilie['smilie_url'],
+ 	      					"EMOTICON_TITLE" => $smilie['smilie_name']
  	      				));
  	      				$theme->add_nest("send_pm", "smilies/emoticon_row/emoticon_cell");
  	      				if($smilie_no >= 5)
@@ -137,14 +137,37 @@ if($_GET['func'] == "send")
 		}
 		else
 		{
-			$sql = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `username` = '".$_POST['username']."'");
-			if($result = $db->fetch_array($sql))
+			$sql = $db2->query("SELECT *
+				FROM `_PREFIX_users`
+				WHERE `username` = :username",
+				array(
+					":username" => $_POST['username']
+				)
+			);
+			if($result = $sql->fetch())
 			{
 				if($_POST['action'] == "pm")
 				{
-					$db->query("INSERT INTO `".$db_prefix."pm`
-								VALUES ('', '".$_POST['title']."', '".$_POST['body']."', '".$result['user_id']."', '".$user['user_id']."', '1', '1', '".time()."')");
-					$pm_id = $db->insert_id();
+					$db2->query("INSERT INTO `".$db_prefix."pm`
+						VALUES (
+						'',
+						:title,
+						:body,
+						:receiver,
+						:sender,
+						'1',
+						'1',
+						:pm_time
+						)",
+						array(
+							":title" => $_POST['title'],
+							":body" => $_POST['body'],
+							":receiver" => $result['user_id'],
+							":sender" => $user['user_id'],
+							":pm_time" => time()
+						)
+					);
+					$pm_id = $db2->lastInsertId();
 					if($result['user_email_on_pm'] == "1") {
 						email($lang['Email_PM_Recieved_Subject'], "pm_recieved", array(
 							"USERNAME" => $result['username'],
@@ -201,17 +224,17 @@ if($_GET['func'] == "send")
 
 			// Add the emoticon chooser to the page
 			$theme->insert_nest("send_pm", "smilies");
-	 	      	$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
-	 	      	$smilie_no = 1;
+	 	    $smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+	 	    $smilie_no = 1;
 			$smilie_count = 1;
 			$smilie_url = array();
-			while($emotion = $db->fetch_array($emotion_query))
+			while($smilie = $smilie_query->fetch())
 			{
 				// Check if the smilie has already been displayed
-       			if(!in_array($emotion['smilie_url'], $smilie_url))
+       			if(!in_array($smilie['smilie_url'], $smilie_url))
       	 		{
-       			// Add smilie to the array
-       				$smilie_url[] = $emotion['smilie_url'];
+	       			// Add smilie to the array
+       				$smilie_url[] = $smilie['smilie_url'];
 
        				if($smilie_no == 1)
        				{
@@ -219,9 +242,9 @@ if($_GET['func'] == "send")
        				}
 
        				$theme->insert_nest("send_pm", "smilies/emoticon_row/emoticon_cell", array(
-       					"EMOTICON_CODE" => $emotion['smilie_code'],
-       					"EMOTICON_URL" => $emotion['smilie_url'],
-       					"EMOTICON_TITLE" => $emotion['smilie_name']
+       					"EMOTICON_CODE" => $smilie['smilie_code'],
+       					"EMOTICON_URL" => $smilie['smilie_url'],
+       					"EMOTICON_TITLE" => $smilie['smilie_name']
        				));
        				$theme->add_nest("send_pm", "smilies/emoticon_row/emoticon_cell");
        				if($smilie_no >= 5)
@@ -262,24 +285,50 @@ if($_GET['func'] == "send")
 else if($_GET['func'] == "delete")
 {
 	if(!isset($_GET['id'])) error_msg("Error", "Error no PM id specified!");
-	$sql = $db->query("SELECT * FROM `".$db_prefix."pm` WHERE `pm_id` = '".$_GET['id']."' AND (`pm_send_to` = '".$user['user_id']."' || `pm_sent_from` = '".$user['user_id']."')");
-	if($result = $db->fetch_array($sql))
+	$sql = $db2->query("SELECT *
+		FROM `_PREFIX_pm`
+		WHERE `pm_id` = :id
+			AND (`pm_send_to` = :as_receiver || `pm_sent_from` = :as_sender)",
+		array(
+			":id" => $_GET['id'],
+			":as_receiver" => $user['user_id'],
+			":as_sender" => $user['user_id']
+		)
+	);
+	if($result = $sql->fetch())
 	{
 		if($result['pm_type'] == "1")
 		{
 			if($result['pm_send_to'] == $user['user_id'] && $result['pm_sent_from'] == $user['user_id'])
 			{
-				$db->query("DELETE FROM `".$db_prefix."pm` WHERE `pm_id` = '".$_GET['id']."'");
+				$db2->query("DELETE FROM `_PREFIX_pm`
+					WHERE `pm_id` = :pm_id",
+					array(
+						":pm_id " => $_GET['id']
+					)
+				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
 			}
 			else if($result['pm_send_to'] == $user['user_id'])
 			{
-				$db->query("UPDATE `".$db_prefix."pm` SET `pm_type` = '3' WHERE `pm_id` = '".$_GET['id']."'");
+				$db2->query("UPDATE `_PREFIX_pm`
+					SET `pm_type` = '3'
+					WHERE `pm_id` = :pm_id",
+					array(
+						":pm_id " => $_GET['id']
+					)
+				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
 			}
 			else if($result['pm_sent_from'] == $user['user_id'])
 			{
-				$db->query("UPDATE `".$db_prefix."pm` SET `pm_type` = '2' WHERE `pm_id`='".$_GET['id']."'");
+				$db2->query("UPDATE `_PREFIX_pm`
+					SET `pm_type` = '2'
+					WHERE `pm_id` = :pm_id",
+					array(
+						":pm_id " => $_GET['id']
+					)
+				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
 			}
 			else
@@ -291,7 +340,12 @@ else if($_GET['func'] == "delete")
 		{
 			if($result['pm_send_to'] == $user['user_id'])
 			{
-				$db->query("DELETE FROM `".$db_prefix."pm` WHERE `pm_id` = '".$_GET['id']."'");
+				$db2->query("DELETE FROM `_PREFIX_pm`
+					WHERE `pm_id` = :pm_id",
+					array(
+						":pm_id " => $_GET['id']
+					)
+				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
 			}
 			else
@@ -303,7 +357,12 @@ else if($_GET['func'] == "delete")
 		{
 			if($result['pm_sent_from'] == $user['user_id'])
 			{
-				$db->query("DELETE FROM `".$db_prefix."pm` WHERE `pm_id` = '".$_GET['id']."'");
+				$db2->query("DELETE FROM `_PREFIX_pm`
+					WHERE `pm_id` = :pm_id",
+					array(
+						":pm_id " => $_GET['id']
+					)
+				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
 			}
 			else
@@ -320,8 +379,18 @@ else if($_GET['func'] == "delete")
 }
 else if($_GET['func'] == "edit")
 {
-	$sql = $db->query("SELECT * FROM `".$db_prefix."pm` WHERE `pm_id` = '".$_GET['id']."' AND `pm_sent_from` = '".$user['user_id']."' && `pm_type` = '1'");
-	if($result = $db->fetch_array($sql)) {       	$language->add_file("posting");
+	$sql = $db2->query("SELECT *
+		FROM `_PREFIX_pm`
+		WHERE `pm_id` = pm_id AND
+			`pm_sent_from` = :user_id AND
+			`pm_type` = '1'",
+		array(
+			":pm_id" => $_GET['id'],
+			":user_id" => $user['user_id']
+		)
+	);
+	if($result = $sql->fetch()) {
+		$language->add_file("posting");
 
        	if(!isset($_GET['id'])) error_msg($lang['Error'], $lang['Invalid_PM_Id']);
        	if(isset($_POST['Submit'])) {
@@ -354,17 +423,17 @@ else if($_GET['func'] == "edit")
 
        				// Add the emoticon chooser to the page
        				$theme->insert_nest("edit_pm", "smilies");
-       		 	      	$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
-       		 	      	$smilie_no = 1;
+       		 	    $smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+       		 	   	$smilie_no = 1;
        				$smilie_count = 1;
        				$smilie_url = array();
-       				while($emotion = $db->fetch_array($emotion_query))
+       				while($emotion = $smilie_query->fetch())
        				{
        					// Check if the smilie has already been displayed
-       	      			if(!in_array($emotion['smilie_url'], $smilie_url))
+       	      			if(!in_array($smilie['smilie_url'], $smilie_url))
        	     	 		{
-       	      			// Add smilie to the array
-       	      				$smilie_url[] = $emotion['smilie_url'];
+	       	      			// Add smilie to the array
+       	      				$smilie_url[] = $smilie['smilie_url'];
 
        	      				if($smilie_no == 1)
        	      				{
@@ -372,9 +441,9 @@ else if($_GET['func'] == "edit")
        	      				}
 
        	      				$theme->insert_nest("edit_pm", "smilies/emoticon_row/emoticon_cell", array(
-       	      					"EMOTICON_CODE" => $emotion['smilie_code'],
-       	      					"EMOTICON_URL" => $emotion['smilie_url'],
-       	      					"EMOTICON_TITLE" => $emotion['smilie_name']
+       	      					"EMOTICON_CODE" => $smilie['smilie_code'],
+       	      					"EMOTICON_URL" => $smilie['smilie_url'],
+       	      					"EMOTICON_TITLE" => $smilie['smilie_name']
        	      				));
        	      				$theme->add_nest("edit_pm", "smilies/emoticon_row/emoticon_cell");
        	      				if($smilie_no >= 5)
@@ -390,7 +459,7 @@ else if($_GET['func'] == "edit")
        	      				if($smilie_count > 20)
        	      				{
        	      					break;
-      	       					}
+      	       				}
        	       			}
        				}
        				$theme->add_nest("edit_pm", "smilies");
@@ -418,14 +487,32 @@ else if($_GET['func'] == "edit")
        		}
        		else
        		{
-       			$db->query("UPDATE `".$db_prefix."pm` SET `pm_title` = '".$_POST['title']."', `pm_body` = '".$_POST['body']."' WHERE `pm_id` = '".$_GET['id']."'");
+       			$db2->query("UPDATE `_PREFIX_pm`
+					SET `pm_title` = :title
+					`pm_body` = :body
+					WHERE `pm_id` = :pm_id",
+					array(
+						":title" => $_POST['title'],
+						":body" => $_POST['body'],
+						":pm_id" => $_GET['id']
+					)
+				);
        			info_box($lang['PM_Manager'], $lang['PM_Edited'], "?pm.php");
        		}
        	}
        	else
        	{
-       		$sql = $db->query("SELECT * FROM `".$db_prefix."pm` WHERE `pm_id` = '".$_GET['id']."' && `pm_sent_from` = '".$user['user_id']."' && `pm_type` = '1'");
-       		if($result = $db->fetch_array($sql))
+       		$sql = $db2->query("SELECT *
+				FROM `_PREFIX_pm`
+				WHERE `pm_id` = :pm_id &&
+					`pm_sent_from` = :sender &&
+					`pm_type` = '1'",
+				array(
+					":pm_id" => $_GET['id'],
+					":sender" => $user['user_id']
+				)
+			);
+       		if($result = $sql->fetch())
        		{
        			$theme->new_file("edit_pm", "send_pm.tpl");
        			$theme->replace_tags("edit_pm", array(
@@ -445,42 +532,42 @@ else if($_GET['func'] == "edit")
 
        				// Add the emoticon chooser to the page
        				$theme->insert_nest("edit_pm", "smilies");
-       		 	      	$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
-       		 	      	$smilie_no = 1;
+       		 	    $smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+       		 	    $smilie_no = 1;
        				$smilie_count = 1;
        				$smilie_url = array();
-       				while($emotion = $db->fetch_array($emotion_query))
+       				while($smilie = $smilie_query->fetch())
        				{
        					// Check if the smilie has already been displayed
-        	      			if(!in_array($emotion['smilie_url'], $smilie_url))
-        	     	 			{
+        	      		if(!in_array($smilie['smilie_url'], $smilie_url))
+        	     		{
         	      			// Add smilie to the array
-        	      				$smilie_url[] = $emotion['smilie_url'];
+        	      			$smilie_url[] = $smilie['smilie_url'];
 
-        	      				if($smilie_no == 1)
-        	      				{
-        	      					$theme->insert_nest("edit_pm", "smilies/emoticon_row");
-        	      				}
+        	      			if($smilie_no == 1)
+        	      			{
+        	      				$theme->insert_nest("edit_pm", "smilies/emoticon_row");
+        	      			}
 
-        	      				$theme->insert_nest("edit_pm", "smilies/emoticon_row/emoticon_cell", array(
-        	      					"EMOTICON_CODE" => $emotion['smilie_code'],
-        	      					"EMOTICON_URL" => $emotion['smilie_url'],
-        	      					"EMOTICON_TITLE" => $emotion['smilie_name']
-        	      				));
-        	      				$theme->add_nest("edit_pm", "smilies/emoticon_row/emoticon_cell");
-        	      				if($smilie_no >= 5)
-        	      				{
-       							$theme->add_nest("edit_pm", "smilies/emoticon_row");
-        	      					$smilie_no = 1;
-        	      				}
-        	      				else
-        	      				{
-        	      					$smilie_no++;
-        	      				}
-        	      				$smilie_count++;
-        	      				if($smilie_count > 20)
-        	      				{
-        	      					break;
+        	      			$theme->insert_nest("edit_pm", "smilies/emoticon_row/emoticon_cell", array(
+        	      				"EMOTICON_CODE" => $smilie['smilie_code'],
+        	      				"EMOTICON_URL" => $smilie['smilie_url'],
+        	      				"EMOTICON_TITLE" => $smilie['smilie_name']
+        	      			));
+        	      			$theme->add_nest("edit_pm", "smilies/emoticon_row/emoticon_cell");
+        	      			if($smilie_no >= 5)
+        	      			{
+       						$theme->add_nest("edit_pm", "smilies/emoticon_row");
+        	      				$smilie_no = 1;
+        	      			}
+        	      			else
+        	      			{
+        	      				$smilie_no++;
+        	      			}
+        	      			$smilie_count++;
+        	      			if($smilie_count > 20)
+        	      			{
+        	      				break;
        	       				}
        	       			}
        				}
@@ -515,13 +602,34 @@ else if($_GET['func'] == "edit")
 }
 else if(isset($_GET['id']) && $_GET['id'] > 0)
 {
-	$sql = $db->query("SELECT pm.*, u.`user_id`, u.`username`, u.`user_avatar_type`, u.`user_avatar_location`, u.`user_rank`, u.`user_date_joined`, u.`user_signature`, u.`user_posts`, u.`user_location`, r.`rank_name`, r.`rank_image`
-	FROM ((`".$db_prefix."pm` pm
-	LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = pm.`pm_sent_from`)
-	LEFT JOIN `".$db_prefix."ranks` r ON r.`rank_id` = u.`user_rank`)
-	WHERE `pm_id` = '".$_GET['id']."' && ((`pm_send_to` = '".$user['user_id']."' && (`pm_type`='1' || `pm_type`='2')) || (`pm_sent_from` = '".$user['user_id']."' && (`pm_type`='1' || `pm_type`='3'))) LIMIT 1");
+	$sql = $db2->query("SELECT pm.*,
+		u.`user_id`,
+		u.`username`,
+		u.`user_avatar_type`,
+		u.`user_avatar_location`,
+		u.`user_rank`,
+		u.`user_date_joined`,
+		u.`user_signature`,
+		u.`user_posts`,
+		u.`user_location`,
+		r.`rank_name`,
+		r.`rank_image`
+		FROM ((`_PREFIX_pm` pm
+		LEFT JOIN `_PREFIX_users` u ON u.`user_id` = pm.`pm_sent_from`)
+		LEFT JOIN `_PREFIX_ranks` r ON r.`rank_id` = u.`user_rank`)
+		WHERE `pm_id` = :pm_id && (
+			(`pm_send_to` = :as_receiver && (`pm_type`='1' || `pm_type`='2')) ||
+			(`pm_sent_from` = :as_sender && (`pm_type`='1' || `pm_type`='3'))
+		)
+		LIMIT 1",
+		array(
+			":pm_id" => $_GET['id'],
+			":as_receiver" => $user['user_id'],
+			":as_sender" => $user['user_id']
+		)
+	);
 
-	if($result = $db->fetch_array($sql))
+	if($result = $sql->fetch())
 	{
 		$theme->new_file("view_pm", "view_pm.tpl");
 
@@ -580,7 +688,13 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 		if($result['pm_unread'] == "1")
 		{
 			if(!($result['pm_send_to'] != $user['user_id'] && $result['pm_sent_from'] == $user['user_id'])) {
-				$db->query("UPDATE `".$db_prefix."pm` SET `pm_unread` = '0' WHERE `pm_id` = '".$_GET['id']."'");
+				$db2->query("UPDATE `_PREFIX_pm`
+					SET `pm_unread` = '0'
+					WHERE `pm_id` = :pm_id",
+					array(
+						":pm_id" => $_GET['id']
+					)
+				);
 			}
 		}
 
@@ -611,32 +725,44 @@ else
 
 	if($_GET['func'] == "sentbox")
 	{
-		$where_query = "WHERE `pm_sent_from` = '"  . $user['user_id'] .  "' && (`pm_type` = '1' || `pm_type` = '3') && `pm_unread` = '1'";
-	} else if($_GET['func'] == "outbox")
+		$where_query = "WHERE `pm_sent_from` = :user_id && (`pm_type` = '1' || `pm_type` = '3') && `pm_unread` = '1'";
+	}
+	else if($_GET['func'] == "outbox")
 	{
-		$where_query = "WHERE `pm_sent_from` = '"  . $user['user_id'] .  "' && (`pm_type` = '1' || `pm_type` = '3') && `pm_unread` = '0'";
+		$where_query = "WHERE `pm_sent_from` = :user_id && (`pm_type` = '1' || `pm_type` = '3') && `pm_unread` = '0'";
 	}
 	else
 	{
-		$where_query = "WHERE `pm_send_to` = '"  . $user['user_id'] .  "' && (`pm_type` = '1' || `pm_type` = '2')";
+		$where_query = "WHERE `pm_send_to` = :user_id && (`pm_type` = '1' || `pm_type` = '2')";
 	}
 
-	$count_sql = $db->query("SELECT count(`pm_id`) AS `pm_count` FROM `".$db_prefix."pm` ".$where_query."");
-	$count_array = $db->fetch_array($count_sql);
+	$count_sql = $db2->query("SELECT count(`pm_id`) AS `pm_count`
+		FROM `_PREFIX_pm` ".$where_query."",
+		array(
+			":user_id" => $user['user_id']
+		)
+	);
+	$count_array = $count_sql->fetch();
 	$pagination = $pp->paginate($count_array['pm_count'], $config['pm_per_page']);
 	
 	$theme->replace_tags("manage_pm", array(
 		"PAGINATION" => $pagination
 	));
 
-	$pm_query = $db->query("SELECT pm.*, u.`username`
-				FROM (`".$db_prefix."pm` pm
-				LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = pm.`pm_sent_from`)
-				$where_query
-				ORDER BY pm.`pm_date` LIMIT ".$pp->limit."");
+	$pm_query = $db2->query("SELECT pm.*,
+		u.`username`
+		FROM (`".$db_prefix."pm` pm
+		LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = pm.`pm_sent_from`)
+		$where_query
+		ORDER BY pm.`pm_date`
+		LIMIT ".$pp->limit."",
+		array(
+			":user_id" => $user['user_id']
+		)
+	);
 
 	$pm_count = 0;
-	while($pm = $db->fetch_array($pm_query))
+	while($pm = $pm_query->fetch())
 	{
 		$theme->insert_nest("manage_pm", "pm_row", array(
 			"ID" => $pm['pm_id'],
