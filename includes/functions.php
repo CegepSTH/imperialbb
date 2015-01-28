@@ -468,7 +468,7 @@ function changehtml($string)
 
 	$string = preg_replace("#<#", "&lt;", $string);
 	$string = preg_replace("#>#", "&gt;", $string);
-	$string = preg_replace(chr(34), "&quot;", $string);
+	$string = preg_replace("#\"#", "&quot;", $string);
     return $string;
 }
 
