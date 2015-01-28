@@ -27,8 +27,17 @@ if($_GET['func'] == "newtopic")
 {
 
 	if(!isset($_GET['fid'])) error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
-	$forum_sql = $db->query("SELECT f.`forum_name`, f.`forum_reply`, f.`forum_post`, g.`ug_post` FROM (`".$db_prefix."forums` f LEFT JOIN `".$db_prefix."ug_auth` g ON g.`ug_forum_id` = f.`forum_id` AND g.`usergroup` = '".$user['user_usergroup']."') WHERE `forum_id` = '".$_GET['fid']."'");
-	if($forum_result = $db->fetch_array($forum_sql))
+	$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_reply`, f.`forum_post`, g.`ug_post`
+		FROM (`_PREFIX_forums` f
+			LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
+			AND g.`usergroup` = :user_group)
+		WHERE `forum_id` = :fid",
+		array(
+			":user_group" => $user['user_usergroup'],
+			":fid" => $_GET['fid']
+		)
+	);
+	if($forum_result = $forum_sql->fetch())
 	{
 
 		if(!(($forum_result['forum_post'] <= $user['user_level'] && $forum_result['ug_post'] == 0) || $forum_result['ug_post'] == 1))
@@ -110,8 +119,17 @@ if($_GET['func'] == "newtopic")
 			));
 			$theme->add_nest("newtopic", "error");
 
-			$forum_sql = $db->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll` FROM (`".$db_prefix."forums` f LEFT JOIN `".$db_prefix."ug_auth` g ON g.`ug_forum_id` = f.`forum_id` AND g.`usergroup` = '".$user['user_usergroup']."') WHERE `forum_id` = '".$_GET['fid']."'");
-			if($forum_result = $db->fetch_array($forum_sql))
+			$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
+				FROM (`_PREFIX_forums` f
+					LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
+					AND g.`usergroup` = :user_group)
+				WHERE `forum_id` = :fid",
+				array(
+					":user_group" => $user['user_usergroup'],
+					":fid" => $_GET['fid']
+				)
+			);
+			if($forum_result = $forum_sql->fetch())
 			{
 				if((($forum_result['forum_poll'] <= $user['user_level'] && $forum_result['ug_poll'] == 0) || $forum_result['ug_poll'] == 1))
 				{
@@ -149,19 +167,19 @@ if($_GET['func'] == "newtopic")
 				$theme->insert_nest("newtopic", "disable_smilies");
 				$theme->add_nest("newtopic", "disable_smilies");
 
-				// Add the emoticon chooser to the page
+				// Add the smilie chooser to the page
 				$theme->insert_nest("newtopic", "smilies");
- 	 	      	$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
+ 	 	      	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
  	 	      	$smilie_no = 1;
 				$smilie_count = 1;
 				$smilie_url = array();
-				while($emotion = $db->fetch_array($emotion_query))
+				while($smilie = $smilie_query->fetch())
 				{
 					// Check if the smilie has already been displayed
-        			if(!in_array($emotion['smilie_url'], $smilie_url))
+        			if(!in_array($smilie['smilie_url'], $smilie_url))
        	 			{
         			// Add smilie to the array
-        				$smilie_url[] = $emotion['smilie_url'];
+        				$smilie_url[] = $smilie['smilie_url'];
 
         				if($smilie_no == 1)
         				{
@@ -169,9 +187,9 @@ if($_GET['func'] == "newtopic")
         				}
 
         				$theme->insert_nest("newtopic", "smilies/emoticon_row/emoticon_cell", array(
-        					"EMOTICON_CODE" => $emotion['smilie_code'],
-        					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $emotion['smilie_url'],
-        					"EMOTICON_TITLE" => $emotion['smilie_name']
+        					"EMOTICON_CODE" => $smilie['smilie_code'],
+        					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
+        					"EMOTICON_TITLE" => $smilie['smilie_name']
         				));
         				$theme->add_nest("newtopic", "smilies/emoticon_row/emoticon_cell");
         				if($smilie_no >= 5)
@@ -248,49 +266,166 @@ if($_GET['func'] == "newtopic")
 			}
             $auth_poll = true;
 			if(!empty($_POST['poll_title'])) {
-				$forum_sql = $db->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll` FROM (`".$db_prefix."forums` f LEFT JOIN `".$db_prefix."ug_auth` g ON g.`ug_forum_id` = f.`forum_id` AND g.`usergroup` = '".$user['user_usergroup']."') WHERE `forum_id` = '".$_GET['fid']."'");
-				if(!$forum_result = $db->fetch_array($forum_sql))
-				{					$_POST['poll_title'] == "";
+				$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
+					FROM (`_PREFIX_forums` f
+					LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
+					AND g.`usergroup` = :user_group)
+					WHERE `forum_id` = :fid",
+					array(
+						":user_group" => $user['user_usergroup'],
+						":fid" => $_GET['fid']
+					)
+				);
+				if(!$forum_result = $forum_sql->fetch())
+				{
+					$_POST['poll_title'] == "";
 					$auth_poll = false;
 				}
 			}
 			// Insert topic info
-			$db->query("INSERT INTO `".$db_prefix."topics`
-						(`topic_forum_id`, `topic_title`, `topic_poll_title`, `topic_user_id`, `topic_time`)
-						VALUES ('".$_GET['fid']."', '".$_POST['title']."', '".$_POST['poll_title']."', '".$user['user_id']."', '".time()."')");
+			$db2->query("INSERT INTO `_PREFIX_topics` (
+				`topic_forum_id`,
+				`topic_title`,
+				`topic_poll_title`,
+				`topic_user_id`,
+				`topic_time`
+				)
+				VALUES (
+				:fid,
+				:title,
+				:poll_title,
+				:user_id,
+				:time
+				)",
+				array(
+					":fid" => $_GET['fid'],
+					":title" => $_POST['title'],
+					":poll_title" => $_POST['poll_title'],
+					":user_id" => $user['user_id'],
+					":time" => time()
+				)
+			);
 
-			$tid = $db->insert_id();
+			$tid = $db2->lastInsertId();
 			// Insert post info
-			$db->query("INSERT INTO `".$db_prefix."posts`
-						(`post_topic_id`, `post_user_id`, `post_text`, `post_timestamp`, `post_disable_html`, `post_disable_bbcode`, `post_disable_smilies`, `post_attach_signature`)
-						VALUES ('$tid', '".$_SESSION['user_id']."', '".$_POST['body']."', '".time()."', '".$_POST['disable_html']."', '".$_POST['disable_bbcode']."', '".$_POST['disable_smilies']."', '".$_POST['attach_signature']."')");
-			$pid = $db->insert_id();
+			$db2->query("INSERT INTO `_PREFIX_posts` (
+				`post_topic_id`,
+				`post_user_id`,
+				`post_text`,
+				`post_timestamp`,
+				`post_disable_html`,
+				`post_disable_bbcode`,
+				`post_disable_smilies`,
+				`post_attach_signature`
+				)
+				VALUES (
+				:tid,
+				:user_id,
+				:post_body,
+				:post_time,
+				:disable_html,
+				:disable_bbcode,
+				:disable_smilies,
+				:attach_signature
+				)",
+				array(
+					":tid" => $tid,
+					":user_id" => $_SESSION['user_id'],
+					":post_body" => $_POST['body'],
+					":post_time" => time(),
+					":disable_html" => $_POST['disable_html'],
+					":disable_bbcode" => $_POST['disable_bbcode'],
+					":disable_smilies" => $_POST['disable_smilies'],
+					":attach_signature" => $_POST['attach_signature']
+				)
+			);
+			$pid = $db2->lastInsertId();
 
-   			if($auth_poll == true) {   				$poll_choice_id = 1;
-				foreach($_POST['pollchoice'] as $poll_choice) {					if(!empty($poll_choice)) {						$db->query("INSERT INTO `".$db_prefix."pollvotes` (`poll_topic_id`, `poll_choice_id`, `poll_choice_name`) VALUES ('".$tid."', '".$poll_choice_id."', '".$poll_choice."')");
+   			if($auth_poll == true) {
+				$poll_choice_id = 1;
+				foreach($_POST['pollchoice'] as $poll_choice) {
+					if(!empty($poll_choice)) {
+						$db2->query("INSERT INTO `_PREFIX_pollvotes` (
+							`poll_topic_id`,
+							`poll_choice_id`,
+							`poll_choice_name`
+							)
+							VALUES (
+							:tid,
+							:poll_choice_id,
+							:poll_choice
+							)",
+							array(
+								":tid" => $tid,
+								":poll_choice_id" => $poll_choice_id,
+								":poll_choice" => $poll_choice
+							)
+						);
 						$poll_choice_id++;
 					}
 				}
 			}
 			// Update forum info
-			$sql = $db->query("SELECT * FROM `".$db_prefix."forums` WHERE `forum_id` = '".$_GET['fid']."' LIMIT 1");
-			if($row = $db->fetch_array($sql))
+			$sql = $db2->query("SELECT * FROM `_PREFIX_forums`
+				WHERE `forum_id` = :fid
+				LIMIT 1",
+				array(
+					":fid" => $_GET['fid']
+				)
+			);
+			if($row = $sql->fetch())
 			{
 				$new_topics = $row['forum_topics'] + 1;
 				$new_posts = $row['forum_posts'] + 1;
-				$db->query("UPDATE `".$db_prefix."forums` SET `forum_topics` = '$new_topics',
-						`forum_posts` = '$new_posts',
-						`forum_last_post` = '$pid'
-						WHERE `forum_id` = '".$_GET['fid']."'");
+				$db2->query("UPDATE `_PREFIX_forums`
+					SET `forum_topics` = :new_topics,
+					`forum_posts` = :new_posts,
+					`forum_last_post` = :pid
+					WHERE `forum_id` = :fid",
+					array(
+						":new_topics" => $new_topics,
+						":new_posts" => $new_posts,
+						":pid" => $pid,
+						":fid" => $_GET['fid']
+					)
+				);
 			}
 
-			$db->query("UPDATE `".$db_prefix."topics` SET `topic_first_post` = '$pid', `topic_last_post` = '$pid'
-						WHERE `topic_id` = '$tid'");
+			$db2->query("UPDATE `_PREFIX_topics`
+				SET `topic_first_post` = :pid1,
+				`topic_last_post` = :pid2
+				WHERE `topic_id` = :tid",
+				array(
+					":pid1" => $pid,
+					":pid2" => $pid,
+					":tid" => $tid
+				)
+			);
 
 			if($user['user_id'] > 0)
 			{
-				$db->query("UPDATE `".$db_prefix."users` SET `user_posts` = '" . ($user['user_posts'] + 1) . "' WHERE `user_id` = '" . $user['user_id'] . "'");
-				if(isset($_POST['subscribe_to_topic'])) {					$db->query("INSERT INTO `".$db_prefix."topic_subscriptions` (`topic_subscription_user_id`, `topic_subscription_topic_id`) VALUES ('".$user['user_id']."', '".$tid."')");
+				$db2->query("UPDATE `_PREFIX_users`
+					SET `user_posts` = :user_posts
+					WHERE `user_id` = :user_id",
+					array(
+						":user_posts" => ($user['user_posts'] + 1),
+						":user_id" => $user['user_id']
+					)
+				);
+				if(isset($_POST['subscribe_to_topic'])) {
+					$db2->query("INSERT INTO `_PREFIX_topic_subscriptions` (
+						`topic_subscription_user_id`,
+						`topic_subscription_topic_id`
+						)
+						VALUES (
+						:user_id,
+						:tid
+						)",
+						array(
+							":user_id" => $user['user_id'],
+							":tid" => $tid
+						)
+					);
 				}
 			}
 			info_box($lang['New_Topic'], $lang['New_Post_Msg'], "view_topic.php?tid=$tid");
@@ -320,7 +455,8 @@ if($_GET['func'] == "newtopic")
     	$theme->switch_nest("newtopic", "navbar", true);
     	$theme->add_nest("newtopic", "navbar");
 
-		if($config['html_enabled'] == true) {			$theme->insert_nest("newtopic", "disable_html");
+		if($config['html_enabled'] == true) {
+			$theme->insert_nest("newtopic", "disable_html");
 			$theme->add_nest("newtopic", "disable_html");
 		}
 		if($config['bbcode_enabled'] == true) {
@@ -337,45 +473,62 @@ if($_GET['func'] == "newtopic")
 
 			// Add the emoticon chooser to the page
 			$theme->insert_nest("newtopic", "smilies");
-        	$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
+        	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
         	$smilie_no = 1;
         	$smilie_count = 1;
         	$smilie_url = array();
-        	while($emotion = $db->fetch_array($emotion_query))
-        	{       		 	// Check if the smilie has already been displayed
-        		if(!in_array($emotion['smilie_url'], $smilie_url))
-       	 		{        			// Add smilie to the array        			$smilie_url[] = $emotion['smilie_url'];
+        	while($smilie = $smilie_query->fetch())
+        	{
+				// Check if the smilie has already been displayed
+        		if(!in_array($smilie['smilie_url'], $smilie_url))
+       	 		{
+					// Add smilie to the array
+					$smilie_url[] = $smilie['smilie_url'];
+
         			if($smilie_no == 1)
         			{
         				$theme->insert_nest("newtopic", "smilies/emoticon_row");
         			}
 
         			$theme->insert_nest("newtopic", "smilies/emoticon_row/emoticon_cell", array(
-        				"EMOTICON_CODE" => $emotion['smilie_code'],
-        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $emotion['smilie_url'],
-        				"EMOTICON_TITLE" => $emotion['smilie_name']
+        				"EMOTICON_CODE" => $smilie['smilie_code'],
+        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
+        				"EMOTICON_TITLE" => $smilie['smilie_name']
         			));
         			$theme->add_nest("newtopic", "smilies/emoticon_row/emoticon_cell");
         			if($smilie_no >= 5)
-        			{        				$theme->add_nest("newtopic", "smilies/emoticon_row");
+        			{
+						$theme->add_nest("newtopic", "smilies/emoticon_row");
         				$smilie_no = 1;
         			}
         			else
-        			{        				$smilie_no++;
+        			{
+						$smilie_no++;
         			}
         			$smilie_count++;
         			if($smilie_count > 20)
-        			{        				break;
+        			{
+						break;
         			}
         		}
        		}
        		$theme->add_nest("newtopic", "smilies");
  		}
-		$forum_sql = $db->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll` FROM (`".$db_prefix."forums` f LEFT JOIN `".$db_prefix."ug_auth` g ON g.`ug_forum_id` = f.`forum_id` AND g.`usergroup` = '".$user['user_usergroup']."') WHERE `forum_id` = '".$_GET['fid']."'");
-		if($forum_result = $db->fetch_array($forum_sql))
+		$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
+			FROM (`_PREFIX_forums` f
+				LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
+				AND g.`usergroup` = :user_group)
+			WHERE `forum_id` = :fid",
+			array(
+				":user_group" => $user['user_usergroup'],
+				":fid" => $_GET['fid']
+			)
+		);
+		if($forum_result = $forum_sql->fetch())
 		{
 			if((($forum_result['forum_poll'] <= $user['user_level'] && $forum_result['ug_poll'] == 0) || $forum_result['ug_poll'] == 1))
-			{				if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;
+			{
+				if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;
 				$theme->insert_nest("newtopic", "poll", array(
 					"POLL_TITLE" => (isset($_POST['poll_title'])) ? $_POST['poll_title'] : "",
 					"POLL_ADD_CHOICE_URL" => "posting.php?func=newtopic&fid=" . $_GET['fid'] . "&poll_choices=" . ($_GET['poll_choices'] + 1 ) . ""
@@ -413,13 +566,26 @@ else if($_GET['func'] == "reply")
 {
 	if(!isset($_GET['tid'])) error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
 
-	$forum_sql = $db->query("SELECT f.`forum_id`, f.`forum_name`, f.`forum_reply`, f.`forum_mod`, t.`topic_id`, t.`topic_title`, t.`topic_status`, g.`ug_reply`, g.`ug_mod`
-				   FROM (((`".$db_prefix."forums` f
-				   LEFT JOIN `".$db_prefix."topics` t ON t.`topic_id` = '".$_GET['tid']."')
-				   LEFT JOIN `".$db_prefix."posts` p ON p.`post_id` = t.`topic_first_post`)
-				   LEFT JOIN `".$db_prefix."ug_auth` g ON g.`ug_forum_id` = f.`forum_id` AND g.`usergroup` = '".$user['user_usergroup']."')
-				   WHERE f.`forum_id` = t.`topic_forum_id`");
-	if($forum_result = $db->fetch_array($forum_sql))
+	$forum_sql = $db2->query("SELECT f.`forum_id`,
+		f.`forum_name`,
+		f.`forum_reply`,
+		f.`forum_mod`,
+		t.`topic_id`,
+		t.`topic_title`,
+		t.`topic_status`,
+		g.`ug_reply`,
+		g.`ug_mod`
+		FROM (((`_PREFIX_forums` f
+		LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = :tid)
+		LEFT JOIN `_PREFIX_posts` p ON p.`post_id` = t.`topic_first_post`)
+		LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id` AND g.`usergroup` = :user_group)
+		WHERE f.`forum_id` = t.`topic_forum_id`",
+		array(
+			":tid" => $_GET['tid'],
+			":user_group" => $user['user_usergroup']
+		)
+	);
+	if($forum_result = $forum_sql->fetch())
 	{
 		$auth_type = ($forum_result['topic_status'] == "1") ? "mod" : "reply";
 		if(!(($forum_result['forum_' . $auth_type] <= $user['user_level'] && $forum_result['ug_' . $auth_type] == 0) || $forum_result['ug_' . $auth_type] == 1))
@@ -463,12 +629,16 @@ else if($_GET['func'] == "reply")
 		if(isset($_GET['quote']) && is_numeric($_GET['quote']))
 		{
 
-			$quote_query = $db->query("SELECT p.`post_text`, u.`username`
-								FROM `".$db_prefix."posts` p, `".$db_prefix."users` u
-								WHERE p.`post_id` = '".$_GET['quote']."' AND u.`user_id` = p.`post_user_id`
-								LIMIT 1");
+			$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
+				FROM `_PREFIX_posts` p, `_PREFIX_users` u
+				WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
+				LIMIT 1",
+				array(
+					":pid" => $_GET['quote']
+				)
+			);
 
-			if($quote = $db->fetch_array($quote_query))
+			if($quote = $db2->fetch())
 			{
 				$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
 			}
@@ -523,19 +693,19 @@ else if($_GET['func'] == "reply")
 				$theme->insert_nest("reply", "disable_smilies");
 				$theme->add_nest("reply", "disable_smilies");
 
-				// Add the emoticon chooser to the page
+				// Add the smilie chooser to the page
 				$theme->insert_nest("reply", "smilies");
-        		$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
-        		$smilie_no = 1;
-        		$smilie_count = 1;
-        		$smilie_url = array();
-        		while($emotion = $db->fetch_array($emotion_query))
-        		{
-       		 		// Check if the smilie has already been displayed
-        			if(!in_array($emotion['smilie_url'], $smilie_url))
+ 	 	      	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+ 	 	      	$smilie_no = 1;
+				$smilie_count = 1;
+				$smilie_url = array();
+				while($smilie = $smilie_query->fetch())
+				{
+					// Check if the smilie has already been displayed
+        			if(!in_array($smilie['smilie_url'], $smilie_url))
        	 			{
-        				// Add smilie to the array
-        				$smilie_url[] = $emotion['smilie_url'];
+        			// Add smilie to the array
+        				$smilie_url[] = $smilie['smilie_url'];
 
         				if($smilie_no == 1)
         				{
@@ -543,9 +713,9 @@ else if($_GET['func'] == "reply")
         				}
 
         				$theme->insert_nest("reply", "smilies/emoticon_row/emoticon_cell", array(
-        					"EMOTICON_CODE" => $emotion['smilie_code'],
-        					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $emotion['smilie_url'],
-        					"EMOTICON_TITLE" => $emotion['smilie_name']
+        					"EMOTICON_CODE" => $smilie['smilie_code'],
+        					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
+        					"EMOTICON_TITLE" => $smilie['smilie_name']
         				));
         				$theme->add_nest("reply", "smilies/emoticon_row/emoticon_cell");
         				if($smilie_no >= 5)
@@ -585,8 +755,15 @@ else if($_GET['func'] == "reply")
 		{
 			 if(!isset($_POST['title'])) $_POST['title'] = "";
 			 // Insert topic info
-			 $topic_sql = $db->query("SELECT * FROM `".$db_prefix."topics` WHERE `topic_id` = '".$_GET['tid']."' LIMIT 1");
-			 $topic_info = $db->fetch_array($topic_sql);
+			 $topic_sql = $db2->query("SELECT *
+			 	FROM `_PREFIX_topics`
+				WHERE `topic_id` = :tid
+				LIMIT 1",
+				array(
+					":tid" => $_GET['tid']
+				)
+			);
+			 $topic_info = $topic_sql->fetch();
 			 $new_replies = $topic_info['topic_replies'] + 1;
 
 			 if($user['user_id'] > 0)
@@ -596,7 +773,8 @@ else if($_GET['func'] == "reply")
 				  if(!empty($track_topics[$_GET['tid']]))
 				  {
 					   $set_new_posts = true;
-				  } else if(count($track_topics) <  200)
+				  }
+				  else if(count($track_topics) < 200)
 				  {
 					   $set_new_posts = true;
 				  }
@@ -608,30 +786,75 @@ else if($_GET['func'] == "reply")
 			 }
 
 			 // Insert post info
-			 $db->query("INSERT INTO `".$db_prefix."posts` (`post_topic_id`, `post_user_id`, `post_text`, `post_timestamp`)
-						VALUES('".$_GET['tid']."', '".$user['user_id']."', '".$_POST['body']."', '".time()."')");
+			 $db2->query("INSERT INTO `_PREFIX_posts` (
+			 	`post_topic_id`,
+				`post_user_id`,
+				`post_text`,
+				`post_timestamp`
+				)
+				VALUES (
+				:tid,
+				:user_id,
+				:post_body,
+				:post_time
+				)",
+				array(
+					":tid" => $_GET['tid'],
+					":user_id" => $user['user_id'],
+					":post_body" => $_POST['body'],
+					":post_time" => time()
+				)
+			);
 
-			 $post_id = $db->insert_id();
+			 $post_id = $db2->lastInsertId();
 
-			 $db->query("UPDATE `".$db_prefix."topics` SET `topic_replies` = '$new_replies',
-					`topic_time` = '".time()."',
-					`topic_last_post` = '$post_id'
-					WHERE `topic_id` = '".$_GET['tid']."'");
+			 $db2->query("UPDATE `_PREFIX_topics`
+				SET `topic_replies` = :reply_count,
+				`topic_time` = :last_reply_time,
+				`topic_last_post` = :last_tid,
+				WHERE `topic_id` = :tid",
+				array(
+					":reply_count" => $new_replies,
+					":last_reply_time" => time(),
+					":last_tid" => $tid,
+					":tid" => $_GET['tid']
+				)
+			);
 
 			 // Update forum info
-			 $sql = $db->query("SELECT * FROM `".$db_prefix."forums` WHERE `forum_id` = '".$topic_info['topic_forum_id']."' LIMIT 1");
-			 if($row = $db->fetch_array($sql))
+			 $sql = $db2->query("SELECT *
+			 	FROM `_PREFIX_forums`
+				WHERE `forum_id` = :fid
+				LIMIT 1",
+				array(
+					":fid" => $topic_info['topic_forum_id']
+				)
+			);
+			 if($row = $sql->fetch())
 			 {
 				  $new_posts = $row['forum_posts'] + 1;
-				  $db->query("UPDATE `".$db_prefix."forums` SET
-						`forum_posts` = '$new_posts',
-						`forum_last_post` = '$post_id'
-						WHERE `forum_id` = '".$topic_info['topic_forum_id']."'");
+				  $db2->query("UPDATE `_PREFIX_forums`
+				  	SET `forum_posts` = :post_count,
+					`forum_last_post` = :last_pid
+					WHERE `forum_id` = :fid",
+					array(
+						":post_count" => $new_posts,
+						":last_pid" => $post_id,
+						":fid" => $topic_info['topic_forum_id']
+					)
+				  );
 			 }
 
 			  if($user['user_id'] > 0)
 			  {
-				   $db->query("UPDATE `".$db_prefix."users` SET `user_posts` = '" . ($user['user_posts'] + 1) . "' WHERE `user_id` = '" . $user['user_id'] . "'");
+				   $db2->query("UPDATE `_PREFIX_users`
+			           SET `user_posts` = :user_post_count
+					   WHERE `user_id` = :user_id",
+					   array(
+					       ":user_post_count" => ($user['user_posts'] + 1),
+						   ":user_id" => $user['user_id']
+					   )
+				   );
 			  }
 			  info_box($lang['Reply'], $lang['New_Post_Msg'], "view_topic.php?tid=".$_GET['tid']."");
 		}
@@ -672,48 +895,48 @@ else if($_GET['func'] == "reply")
 			$theme->insert_nest("reply", "disable_smilies");
 			$theme->add_nest("reply", "disable_smilies");
 
-			// Add the emoticon chooser to the page
+			// Add the smilie chooser to the page
 			$theme->insert_nest("reply", "smilies");
-       		$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
-       		$smilie_no = 1;
-       		$smilie_count = 1;
-       		$smilie_url = array();
-       		while($emotion = $db->fetch_array($emotion_query))
-       		{
-      		 		// Check if the smilie has already been displayed
-       			if(!in_array($emotion['smilie_url'], $smilie_url))
-      	 			{
-       				// Add smilie to the array
-       				$smilie_url[] = $emotion['smilie_url'];
+ 		   	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+ 	 	  	$smilie_no = 1;
+			$smilie_count = 1;
+			$smilie_url = array();
+			while($smilie = $smilie_query->fetch())
+			{
+				// Check if the smilie has already been displayed
+        		if(!in_array($smilie['smilie_url'], $smilie_url))
+       	 		{
+        			// Add smilie to the array
+        			$smilie_url[] = $smilie['smilie_url'];
 
-       				if($smilie_no == 1)
-       				{
-       					$theme->insert_nest("reply", "smilies/emoticon_row");
-       				}
+        			if($smilie_no == 1)
+        			{
+        				$theme->insert_nest("reply", "smilies/emoticon_row");
+        			}
 
-       				$theme->insert_nest("reply", "smilies/emoticon_row/emoticon_cell", array(
-       					"EMOTICON_CODE" => $emotion['smilie_code'],
-       					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $emotion['smilie_url'],
-       					"EMOTICON_TITLE" => $emotion['smilie_name']
-       				));
-       				$theme->add_nest("reply", "smilies/emoticon_row/emoticon_cell");
-       				if($smilie_no >= 5)
-       				{
-       					$theme->add_nest("reply", "smilies/emoticon_row");
-       					$smilie_no = 1;
-       				}
-       				else
-       				{
-       					$smilie_no++;
-       				}
-       				$smilie_count++;
-       				if($smilie_count > 20)
-       				{
-       					break;
-       				}
-       			}
-   			}
-      		$theme->add_nest("reply", "smilies");
+        			$theme->insert_nest("reply", "smilies/emoticon_row/emoticon_cell", array(
+        				"EMOTICON_CODE" => $smilie['smilie_code'],
+        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
+        				"EMOTICON_TITLE" => $smilie['smilie_name']
+        			));
+        			$theme->add_nest("reply", "smilies/emoticon_row/emoticon_cell");
+        			if($smilie_no >= 5)
+        			{
+        				$theme->add_nest("reply", "smilies/emoticon_row");
+        				$smilie_no = 1;
+        			}
+        			else
+        			{
+        				$smilie_no++;
+        			}
+        			$smilie_count++;
+        			if($smilie_count > 20)
+        			{
+        				break;
+        			}
+        		}
+       		}
+       		$theme->add_nest("reply", "smilies");
 		}
 
 		//
@@ -736,14 +959,19 @@ else if($_GET['func'] == "edit")
 {
 
 	if(!isset($_GET['pid']) || !is_numeric($_GET['pid'])) error_msg($lang['Error'], $lang['Invalid_Post_Id']);
-	$query = $db->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
-							FROM (((`".$db_prefix."posts` p
-							LEFT JOIN `".$db_prefix."topics` t ON t.`topic_id` = p.`post_topic_id`)
-							LEFT JOIN `".$db_prefix."forums` f ON f.`forum_id` = t.`topic_forum_id`)
-							LEFT JOIN `".$db_prefix."ug_auth` g ON g.`usergroup` = '".$user['user_usergroup']."' AND g.`ug_forum_id` = f.`forum_id`)
-							WHERE p.`post_id` = '".$_GET['pid']."'");
+	$query = $db22->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
+		FROM (((`_PREFIX_posts` p
+		LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
+		LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
+		LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup` = :user_group AND g.`ug_forum_id` = f.`forum_id`)
+		WHERE p.`post_id` = :pid",
+		array(
+			":user_group" => $user['user_usergroup'],
+			":pid" => $_GET['pid']
+		)
+	);
 
-	if($result = $db->fetch_array($query))
+	if($result = $query->fetch())
 	{
 		if(!((($result['forum_mod'] <= $user['user_level'] && $result['ug_mod'] == 0) || $result['ug_mod'] == 1) || ($result['post_user_id'] == $user['user_id'] && $user['user_id'] > 0)))
 		{			if($user['user_id'] > 0) {
@@ -804,48 +1032,48 @@ else if($_GET['func'] == "edit")
       				$theme->insert_nest("edit", "disable_smilies");
       				$theme->add_nest("edit", "disable_smilies");
 
-      				// Add the emoticon chooser to the page
-      				$theme->insert_nest("edit", "smilies");
-             			$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
-             			$smilie_no = 1;
-             			$smilie_count = 1;
-             			$smilie_url = array();
-             			while($emotion = $db->fetch_array($emotion_query))
-             			{
-            		 		// Check if the smilie has already been displayed
-             				if(!in_array($emotion['smilie_url'], $smilie_url))
-            	 				{
-             					// Add smilie to the array
-             					$smilie_url[] = $emotion['smilie_url'];
-
-             					if($smilie_no == 1)
-             					{
-             						$theme->insert_nest("edit", "smilies/emoticon_row");
-             					}
-
-             					$theme->insert_nest("edit", "smilies/emoticon_row/emoticon_cell", array(
-             						"EMOTICON_CODE" => $emotion['smilie_code'],
-             						"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $emotion['smilie_url'],
-             						"EMOTICON_TITLE" => $emotion['smilie_name']
-             					));
-             					$theme->add_nest("edit", "smilies/emoticon_row/emoticon_cell");
-             					if($smilie_no >= 5)
-             					{
-             						$theme->add_nest("edit", "smilies/emoticon_row");
-             						$smilie_no = 1;
-             					}
-             					else
-             					{
-             						$smilie_no++;
-             					}
-             					$smilie_count++;
-             					if($smilie_count > 20)
-             					{
-             						break;
-             					}
-             				}
-         				}
-            			$theme->add_nest("edit", "smilies");
+					// Add the emoticon chooser to the page
+					$theme->insert_nest("edit", "smilies");
+		        	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+		        	$smilie_no = 1;
+		        	$smilie_count = 1;
+		        	$smilie_url = array();
+		        	while($smilie = $smilie_query->fetch())
+		        	{
+						// Check if the smilie has already been displayed
+		        		if(!in_array($smilie['smilie_url'], $smilie_url))
+		       	 		{
+							// Add smilie to the array
+							$smilie_url[] = $smilie['smilie_url'];
+		
+		        			if($smilie_no == 1)
+		        			{
+		        				$theme->insert_nest("edit", "smilies/emoticon_row");
+		        			}
+		
+		        			$theme->insert_nest("edit", "smilies/emoticon_row/emoticon_cell", array(
+		        				"EMOTICON_CODE" => $smilie['smilie_code'],
+		        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
+		        				"EMOTICON_TITLE" => $smilie['smilie_name']
+		        			));
+		        			$theme->add_nest("edit", "smilies/emoticon_row/emoticon_cell");
+		        			if($smilie_no >= 5)
+		        			{
+								$theme->add_nest("edit", "smilies/emoticon_row");
+		        				$smilie_no = 1;
+		        			}
+		        			else
+		        			{
+								$smilie_no++;
+		        			}
+		        			$smilie_count++;
+		        			if($smilie_count > 20)
+		        			{
+								break;
+		        			}
+		        		}
+		       		}
+   		    		$theme->add_nest("edit", "smilies");
       			}
       			//
       			// Output the page header
@@ -867,15 +1095,31 @@ else if($_GET['func'] == "edit")
       			if(!isset($_POST['title'])) $_POST['title'] = "";
 
       			// Insert post info
-      			$db->query("UPDATE `".$db_prefix."posts` SET
-      						`post_text` = '".$_POST['body']."'
-      						WHERE `post_id` = '".$_GET['pid']."'");
+      			$db2->query("UPDATE `_PREFIX_posts`
+					SET `post_text` = :post_body
+					WHERE `post_id` = :pid",
+					array(
+						":post_body" => $_POST['body'],
+						":pid" => $_GET['pid']
+					)
+				);
 
-      			$query = $db->query("SELECT `post_topic_id` FROM `".$db_prefix."posts` WHERE `post_id` = '".$_GET['pid']."'");
-      			$result = $db->fetch_array($query);
+      			$query = $db2->query("SELECT `post_topic_id`
+					FROM `_PREFIX_posts`
+					WHERE `post_id` = :pid",
+					array(
+						":pid" => $_GET['pid']
+					)
+				);
+      			$result = $query->fetch();
 
-      			$db->query("UPDATE `".$db_prefix."topics` SET `topic_time` = '".time()."'
-      						WHERE `topic_id` = '".$result['post_topic_id']."'");
+      			$db2->query("UPDATE `".$db_prefix."topics`
+					SET `topic_time` = '".time()."'
+					WHERE `topic_id` = :tid",
+					array(
+						":tid" => $result['post_topic_id']
+					)
+				);
 
       			info_box($lang['Edit_Post'], $lang['Post_Edited_Msg'], "view_topic.php?tid=".$result['post_topic_id']."");
       		}
@@ -917,17 +1161,17 @@ else if($_GET['func'] == "edit")
 
    				// Add the emoticon chooser to the page
    				$theme->insert_nest("edit", "smilies");
-          			$emotion_query = $db->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `".$db_prefix."smilies`");
+          			$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
           			$smilie_no = 1;
           			$smilie_count = 1;
           			$smilie_url = array();
-          			while($emotion = $db->fetch_array($emotion_query))
+          			while($smilie = $smilie_query->fetch())
           			{
          		 		// Check if the smilie has already been displayed
-          				if(!in_array($emotion['smilie_url'], $smilie_url))
+          				if(!in_array($smilie['smilie_url'], $smilie_url))
          	 				{
           					// Add smilie to the array
-          					$smilie_url[] = $emotion['smilie_url'];
+          					$smilie_url[] = $smilie['smilie_url'];
 
           					if($smilie_no == 1)
           					{
@@ -935,9 +1179,9 @@ else if($_GET['func'] == "edit")
           					}
 
           					$theme->insert_nest("edit", "smilies/emoticon_row/emoticon_cell", array(
-          						"EMOTICON_CODE" => $emotion['smilie_code'],
-          						"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $emotion['smilie_url'],
-          						"EMOTICON_TITLE" => $emotion['smilie_name']
+          						"EMOTICON_CODE" => $smilie['smilie_code'],
+          						"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
+          						"EMOTICON_TITLE" => $smilie['smilie_name']
           					));
           					$theme->add_nest("edit", "smilies/emoticon_row/emoticon_cell");
           					if($smilie_no >= 5)

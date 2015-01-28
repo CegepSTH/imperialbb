@@ -195,7 +195,21 @@ class Database {
 		
 		return $this->m_results->rowCount();
 	}
-	
+
+	/**
+	 * lastInsertId Gets the id of the last inserted row.
+	 * @returns The id of the last inserted row, or -1 if an error occurred.
+	 */
+	function lastInsertId() {
+		if(is_null($this->m_db)) {
+			$this->m_error = "No database set.";
+			return -1;
+		}
+
+		$lastId = $this->m_db->lastInsertId();
+		return intval($lastId);
+	}
+
 	/** 
 	 * getError Returns the last error if any.
      * Returns the last error message.
