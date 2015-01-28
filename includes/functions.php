@@ -481,7 +481,7 @@ function format_membername($member_rank, $member_id, $member_name)
 			':member_rank' => $member_rank
 		)
 	);
-	echo $member_id." ".$member_rank."<br>";
+
 	while($rank = $db2->fetch())
 	{
 		$format .= "<a href=\"profile.php?id=".$member_id."\"><span style=\"";
