@@ -15,8 +15,7 @@
 \*======================================================================*/
 
 // Define a constant
-if(!defined("IN_IBB"))
-{
+if(!defined("IN_IBB")) {
 	die("Hacking Attempt");
 }
 
@@ -50,10 +49,7 @@ switch($debug)
 	break;
 }
 
-include_once($root_path . "classes/db/class_".$database['dbtype'].".php");
-$db = new ibb_db_engine();
-
-include_once($root_path . "classes/database.php");
+require_once($root_path . "classes/database.php");
 $db2 = new Database($database, $db_prefix);
 
 unset($database);

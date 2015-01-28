@@ -79,7 +79,7 @@
 <table width="100%" align="center">
  <tr>
   <td width="125"><a href="posting.php?func=newtopic&fid={FID}"><img src="{T.TEMPLATE_PATH}/images/new_topic.gif" border="0" title="{L.New_Topic}" alt="{L.New_Topic}" /></a></td>
-  <td align="left"><a href="index.php">{C.site_name}</a><!-- BEGIN menu_bottom_forum --> » <a href="view_forum.php?fid={MENU_FORUM_ID}">{MENU_FORUM_NAME}</a><!-- END menu_bottom_forum --> » <b>{FORUM_NAME}</b></td>
+  <td align="left"><a href="index.php">{C.site_name}</a><!-- BEGIN menu_bottom_forum --> Â» <a href="view_forum.php?fid={MENU_FORUM_ID}">{MENU_FORUM_NAME}</a><!-- END menu_bottom_forum --> Â» <b>{FORUM_NAME}</b></td>
   <td align="right" valign="top">{PAGINATION}</td>
  </tr>
 </table>

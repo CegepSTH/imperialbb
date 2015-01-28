@@ -14,27 +14,25 @@
 || #################################################################### ||
 \*======================================================================*/
 
-if(!defined('IN_IBB'))
-{
+if(!defined('IN_IBB')) {
 	die('Hacking Attempt');
 }
+
 $theme ->new_file("page_header", "page_header.tpl");
-if(!isset($page_title))
-{
+if(!isset($page_title)) {
     $page_title = $config['site_name'];
-}
-if($config['board_offline'])
-{
+} 
+
+if($config['board_offline']) {
 	$page_title .= "  (" . $lang['Offline'] . ")";
 }
-if($user['user_level'] == 5)
-{
-        $admin_link = '<a href="admin/">'.$lang['Administration_Panel'].'</a>';
-}
-else
-{
+
+if($user['user_level'] == 5) {
+	$admin_link = '<a href="admin/">'.$lang['Administration_Panel'].'</a>';
+} else {
         $admin_link = '';
 }
+
 $theme->replace_tags("page_header", array(
 	"TITLE"      => $page_title,
 	"SITE_NAME"  => $config['site_name'],
