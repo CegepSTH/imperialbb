@@ -304,7 +304,7 @@ else if($_GET['func'] == "delete")
 				$db2->query("DELETE FROM `_PREFIX_pm`
 					WHERE `pm_id` = :pm_id",
 					array(
-						":pm_id " => $_GET['id']
+						":pm_id" => $_GET['id']
 					)
 				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
@@ -315,7 +315,7 @@ else if($_GET['func'] == "delete")
 					SET `pm_type` = '3'
 					WHERE `pm_id` = :pm_id",
 					array(
-						":pm_id " => $_GET['id']
+						":pm_id" => $_GET['id']
 					)
 				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
@@ -326,7 +326,7 @@ else if($_GET['func'] == "delete")
 					SET `pm_type` = '2'
 					WHERE `pm_id` = :pm_id",
 					array(
-						":pm_id " => $_GET['id']
+						":pm_id" => intval($_GET['id'])
 					)
 				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
@@ -343,7 +343,7 @@ else if($_GET['func'] == "delete")
 				$db2->query("DELETE FROM `_PREFIX_pm`
 					WHERE `pm_id` = :pm_id",
 					array(
-						":pm_id " => $_GET['id']
+						":pm_id" => $_GET['id']
 					)
 				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
@@ -360,7 +360,7 @@ else if($_GET['func'] == "delete")
 				$db2->query("DELETE FROM `_PREFIX_pm`
 					WHERE `pm_id` = :pm_id",
 					array(
-						":pm_id " => $_GET['id']
+						":pm_id" => $_GET['id']
 					)
 				);
 				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
@@ -381,7 +381,7 @@ else if($_GET['func'] == "edit")
 {
 	$sql = $db2->query("SELECT *
 		FROM `_PREFIX_pm`
-		WHERE `pm_id` = pm_id AND
+		WHERE `pm_id` = :pm_id AND
 			`pm_sent_from` = :user_id AND
 			`pm_type` = '1'",
 		array(
@@ -488,7 +488,7 @@ else if($_GET['func'] == "edit")
        		else
        		{
        			$db2->query("UPDATE `_PREFIX_pm`
-					SET `pm_title` = :title
+					SET `pm_title` = :title,
 					`pm_body` = :body
 					WHERE `pm_id` = :pm_id",
 					array(
