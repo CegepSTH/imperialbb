@@ -52,7 +52,7 @@ switch($debug)
 require_once($root_path . "classes/database.php");
 $db2 = new Database($database, $db_prefix);
 
-unset($database);
+//unset($database);
 
 include_once($root_path . "includes/constants.php");
 include_once($root_path . "includes/init.php");

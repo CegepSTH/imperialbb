@@ -20,6 +20,7 @@ $root_path = "./";
 $ignore_offline = true;
 require_once($root_path . "includes/common.php");
 require_once($root_path . "classes/password.php");
+include_once($root_path . "models/user.php");
 
 $language->add_file("login");
 
@@ -175,7 +176,6 @@ else if($_GET['func'] == "activate_new_pass")
 }
 else
 {
-
 	if($user['user_id'] > 0)
 	{
 		error_msg($lang['Error'], sprintf($lang['Already_Logged_in'], $user['username'], "<a href=\"login.php?func=logout\">", "</a>"), "index.php");
@@ -190,17 +190,21 @@ else
 				":password" => password_hash($_POST['PassWord'], PASSWORD_BCRYPT),
 			)
 		);
+		//die($_POST['PassWord']);
+		$user_id = User::check($_POST['UserName'], $_POST['PassWord']);
+		$oUser = User::findUser($user_id);
 
-		if($user_result = $user_sql->fetch())
+		if($user_id > -1)
 		{
-			setcookie("UserName", $user_result['username'], time()+604800);
-			setcookie("Password", $user_result['user_password'], time()+604800);
-			$_SESSION['user_id'] = $user_result['user_id'];
+			
+			setcookie("UserName", $oUser->getUsername(), time()+604800);
+			setcookie("Password", "What happens after midnight stays secret :^)", time()+604800);
+			$_SESSION['user_id'] = $oUser->getId();
 			$db2->query("UPDATE `_PREFIX_sessions`
 				SET `user_id` = :user_id
 				WHERE `ip` = :remote_ip && `session_id` = :session_id",
 				array(
-					":user_id" => $user_result['user_id'],
+					":user_id" => $oUser->getId(),
 					":remote_ip" => $_SERVER['REMOTE_ADDR'],
 					":session_id" => session_id()
 				)

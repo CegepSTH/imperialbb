@@ -45,10 +45,12 @@ $theme->replace_tags("page_footer", array(
     "SQLTIME" => sprintf($lang['sqltime'], 0, $percentsql),
     "PHPTIME" => sprintf($lang['phptime'], $phptime, $percentphp),
 ));
-// Output the footer
-$theme->output("page_footer");
 // Wrap up the the DB stuff
 $db2->freeData();
+
+// Output the footer
+$theme->output("page_footer");
+
 
 /*======================================================================*\
 || #################################################################### ||

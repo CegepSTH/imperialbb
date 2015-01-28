@@ -1,8 +1,12 @@
 <?php
-require_once("../includes/config.php");
-require_once("../classes/database.php");
-require_once("../includes/functions.php");
-require_once("../classes/password.php");
+if(!isset($root_path)) {
+$root_path = "./";
+}
+
+require_once($root_path."includes/config.php");
+require_once($root_path."classes/database.php");
+require_once($root_path."includes/functions.php");
+require_once($root_path."classes/password.php");
 
 /**
  * class User
@@ -63,29 +67,33 @@ class User {
 	 * @returns User class if success, null otherwise.
 	 */
 	static function findUser($id_username) {
-		$result = null;
+		$result = array();
+		global $database;
+		
+		$db = new Database($database, $database['prefix']);
 		
 		if(is_numeric($id_username)) {
 			// Search with id.
-			$db = new Database($database, $db_prefix);
-			$db->query("SELECT * FROM _PREFIX_users WHERE id=:uid", array(":uid" => $id_username));
+			$db->query("SELECT * FROM _PREFIX_users WHERE user_id=:uid", array(":uid" => intval($id_username)));
 			$result = $db->fetch();
-			
-		} else if (is_string($id_username)) {
-			$db = new Database($database, $db_prefix);
+		} 
+		elseif (is_string($id_username)) {
+			//$db = new Database($database, $database['prefix']);
 			$db->query("SELECT * FROM _PREFIX_users WHERE username=:uname", array(":uname" => $id_username));
 			$result = $db->fetch();
-		} else {
+		} 
+		else 
+		{
 			return null;
 		}
 		
 		if(is_null($result)) {
 			return null;
 		}
-		
+
 		// If we're here, it means we got a user in array.
-		$user = new User($result["user_id"], $result["username"], $result["user_email"]);
-		$user->setActivation($result["user_activation_key"]);
+		$user = new User(intval($result["user_id"]), "".$result["username"], $result["user_email"]);
+		$user->setActivationKey($result["user_activation_key"]);
 		$user->setAvatarDimensions($result["user_avatar_dimensions"]);
 		$user->setAvatarLocation($result["user_avatar_location"]);
 		$user->setAvatarType($result["user_avatar_type"]);
@@ -96,7 +104,7 @@ class User {
 		$user->setLastVisit($result["user_last_visit"]);
 		$user->setLevel($result["user_level"]);
 		$user->setLocation($result["user_location"]);
-		$user->setMessengers(array("aim" => $result["user_aim"], "icq" => $result["user_icq"], "msn" => $result["user_msn"], "yahoo" => $result["user_yahoo"]));
+		$user->setMessengers((array("aim" => $result["user_aim"], "icq" => $result["user_icq"], "msn" => $result["user_msn"], "yahoo" => $result["user_yahoo"])));
 		$user->setPostsCount($result["user_posts"]);
 		$user->setRankId($result["user_rank"]);
 		$user->setSignature($result["user_signature"]);
@@ -302,7 +310,7 @@ class User {
 		if(isset($ims["msn"])) {
 			$this->m_msn = $ims["msn"];
 		}
-		if(isset($ims["icq"]) {
+		if(isset($ims["icq"])) {
 			$this->m_icq = $ims["icq"];
 		}
 		if(isset($ims["yahoo"])) {
@@ -410,7 +418,7 @@ class User {
 	 * @param $count Posts count.
 	 */
 	function setPostsCount($count) {
-		if(!is_numeric($count)) {
+		if (!is_numeric($count)) {
 			return "Posts count is not numeric.";
 		}
 		
@@ -586,8 +594,9 @@ class User {
 		if($this->m_id < 0) {
 			return insert();
 		}
+		global $database;
 		
-		$db = new Database($database, $db_prefix);
+		$db = new Database($database, $database['prefix']);
 		$query = "UPDATE _PREFIX_users 
 		SET username=:username, user_email=:email, user_date_joined=:datejoined, user_lastvisit=:lastvisit, user_level=:ulevel,
 		user_usergroup=:usergroup, user_signature=:signature, user_rank=:urank, user_aim=:uaim, user_icq=:uicq, user_msn=:umsn,
@@ -616,6 +625,7 @@ class User {
 	 * @return True if success false otherwise
 	 */
 	function updatePassword() {
+		global $database;
 		$query = "UPDATE _PREFIX_users
 		SET user_password=:upass, user_new_password=:unewpass
 		WHERE user_id=:uid";
@@ -624,7 +634,7 @@ class User {
 						":upass" 	=> $this->m_password,
 						":unewpass" => $this->m_password);
 						
-		$db = new Database($database, $db_prefix);
+		$db = new Database($database, $database['prefix']);
 		$db->query($query, $values);
 		
 		return ($db->rowCount() > 0 ? true : false);
@@ -635,7 +645,8 @@ class User {
 	 * @returns True if success, false otherwise.
 	 */
 	private function insert() {
-		$db = new Database($database, $db_prefix);
+		global $database;
+		$db = new Database($database, $database['prefix']);
 		
 		$query = "INSERT INTO _PREFIX_users
 		VALUES ('', :username, :upass, :umail, :udatejoined, :ulastvisit, :ulevel, :usergroup, :usignature, :urank, :uaim, :uicq, 
@@ -671,20 +682,25 @@ class User {
 	 * 
 	 * @returns True if valid, false otherwise.
 	 */
-	function static check($username, $password) {
+	static function check($username, $password) {
 		if(!is_string($username) || !is_string($password)) {
 			return "Username or password must be a string.";
 		}
+		global $database;
 		
-		$db = new Database($database, $db_prefix);
+		$db = new Database($database, $database['prefix']);
 		
-		$query = "SELECT user_password FROM _PREFIX_users WHERE username=:uname LIMIT 1";
+		$query = "SELECT user_password, user_id FROM _PREFIX_users WHERE username=:uname";
 		$values = array(":uname" => $username);
-		
+
 		$db->query($query, $values);
 		$result = $db->fetch();
 		
-		return password_verify($password, $result['user_password']);
+		if(password_verify($password, $result['user_password'])) {
+			return intval($result['user_id']);
+		} else {
+			return -1;
+		}
 	}
 }
 

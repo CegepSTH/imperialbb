@@ -50,7 +50,7 @@ if(isset($_POST['Submit'])) {
 	//
 	// Output the page header
 	//
-	include($root_path . "includes/page_header.php");
+	include_once($root_path . "includes/page_header.php");
 
 	//
 	// Output the main page
@@ -60,7 +60,7 @@ if(isset($_POST['Submit'])) {
 	//
 	// Output the page footer
 	//
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 	} else {
 		if($config['register_auth_type'] == 0) {
 			$db2->query("INSERT INTO `_PREFIX_users` (
