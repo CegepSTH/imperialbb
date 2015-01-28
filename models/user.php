@@ -2,6 +2,7 @@
 require_once("../includes/config.php");
 require_once("../classes/database.php");
 require_once("../includes/functions.php");
+require_once("../classes/password.php");
 
 /**
  * class User
@@ -574,7 +575,7 @@ class User {
 			return "Password must be a string";
 		}
 		
-		$this->m_password = md5(md5($password));
+		$this->m_password = password_hash($password);
 	}
 	
 	/**
@@ -663,6 +664,27 @@ class User {
 		$this->m_id = $arrayResponse["user_id"];
 		
 		return true;
+	}
+	
+	/**
+	 * check Checks if the user's credentials are valid.
+	 * 
+	 * @returns True if valid, false otherwise.
+	 */
+	function static check($username, $password) {
+		if(!is_string($username) || !is_string($password)) {
+			return "Username or password must be a string.";
+		}
+		
+		$db = new Database($database, $db_prefix);
+		
+		$query = "SELECT user_password FROM _PREFIX_users WHERE username=:uname LIMIT 1";
+		$values = array(":uname" => $username);
+		
+		$db->query($query, $values);
+		$result = $db->fetch();
+		
+		return password_verify($password, $result['user_password']);
 	}
 }
 
