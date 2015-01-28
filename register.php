@@ -9,7 +9,7 @@
 || # ---------------------------------------------------------------- # ||
 || # Name: register.php                                               # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright ï¿½ 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -17,7 +17,8 @@
 define("IN_IBB", 1);
 
 $root_path = "./";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
+require_once($root_path . "classes/password.php");
 
 $language->add_file("register");
 
@@ -82,7 +83,8 @@ if(isset($_POST['Submit'])) {
 				)",
 				array(
 					":username" => $_POST['UserName'],
-					":user_password" => md5(md5($_POST['Password'])),
+//					":user_password" => md5(md5($_POST['Password'])),
+					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
 					":user_email" => $_POST['Email'],
 					":user_date_joined" => date("D d M Y"),
 					":user_template" => $config['default_template'],
@@ -114,7 +116,8 @@ if(isset($_POST['Submit'])) {
 				)",
 				array(
 					":username" => $_POST['UserName'],
-					":user_password" => md5(md5($_POST['Password'])),
+//					":user_password" => md5(md5($_POST['Password'])),
+					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
 					":user_email" => $_POST['Email'],
 					":user_date_joined" => date("D d M Y"),
 					":user_activation_key" => $activation_key,
@@ -122,7 +125,7 @@ if(isset($_POST['Submit'])) {
 					":user_language" => $config['default_language']
 				)
 			);
-			email($lang['Email_New_Account_Subject'], "new_account", array("USER_ID" => $db->insert_id(), "USERNAME" => $_POST['UserName'], "PASSWORD" => $_POST['Password'], "KEY" => $activation_key, "DOMAIN" => $config['url'], "SITE_NAME" => $config['site_name']), $_POST['Email']);
+			email($lang['Email_New_Account_Subject'], "new_account", array("USER_ID" => $db2->lastInsertId(), "USERNAME" => $_POST['UserName'], "PASSWORD" => $_POST['Password'], "KEY" => $activation_key, "DOMAIN" => $config['url'], "SITE_NAME" => $config['site_name']), $_POST['Email']);
 			info_box($lang['Registration'], $lang['Activate_Your_Acct_Msg'], "?act=login");
 		}
 	}
@@ -178,7 +181,7 @@ if(isset($_POST['Submit'])) {
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright ï¿½ 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>

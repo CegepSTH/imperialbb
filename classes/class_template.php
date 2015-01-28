@@ -85,8 +85,6 @@ class Theme
 	{
 		if(file_exists($filename))
 		{
-//			$this->theme[$template_name]['value'] = eregi_replace("{" . $tag . "}", $this->parse($filename), $this->theme[$template_name]['value']); DEPRECATED
-
 			// J'imagine que c'est la manière de procéder lorsqu'il y a de la concaténation php dans un regex...
 			$this->theme[$template_name]['value'] = preg_replace("#{" . $tag . "}#i", $this->parse($filename), $this->theme[$template_name]['value']);
 		}
@@ -123,7 +121,6 @@ class Theme
 					{
 						foreach ($tags as $tag => $data)
 						{
-//							$nest_value = eregi_replace("{" . $tag . "}", $data, $nest_value); DEPRECATED
 							$nest_value = preg_replace("#{" . $tag . "}#i", $data, $nest_value);
 						}
 					}
@@ -236,7 +233,6 @@ class Theme
 					{
 						foreach ($tags as $tag => $data)
 						{
-//							$nest_value = eregi_replace("{" . $tag . "}", $data, $nest_value); DEPRECATED
 							$nest_value = preg_replace("#{" . $tag . "}#i", $data, $nest_value);
 						}
 					}

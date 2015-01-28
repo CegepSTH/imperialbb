@@ -9,7 +9,7 @@
 || # ---------------------------------------------------------------- # ||
 || # Name: login.php                                       # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright ï¿½ 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -18,7 +18,8 @@ define("IN_IBB", 1);
 
 $root_path = "./";
 $ignore_offline = true;
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
+require_once($root_path . "classes/password.php");
 
 $language->add_file("login");
 
@@ -97,7 +98,8 @@ else if($_GET['func'] == "forgotten_pass")
 				WHERE `user_id` = :user_id",
 				array(
 					":key" => $key,
-					":password" => md5(md5($password)),
+//					":password" => md5(md5($password)),
+					":Password" => password_hash($password, PASSWORD_BCRYPT),
 					":current_time" => time(),
 					":user_id" => $result['id']
 				)
@@ -185,9 +187,10 @@ else
 			LIMIT 1",
 			array(
 				":username" => $_POST['UserName'],
-				":password" =>  md5(md5($_POST['PassWord'])),
+				":password" => password_hash($_POST['PassWord'], PASSWORD_BCRYPT),
 			)
 		);
+
 		if($user_result = $user_sql->fetch())
 		{
 			setcookie("UserName", $user_result['username'], time()+604800);
@@ -234,7 +237,7 @@ else
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright ï¿½ 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>
