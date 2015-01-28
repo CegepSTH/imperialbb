@@ -32,8 +32,14 @@ if($_GET['func'] == "edit")
 	{
 		$error = "";
 		if(strlen($_POST['PassWord']) > 0) {
-			$sql = $db->query("SELECT `user_id` FROM `".$db_prefix."users` WHERE `user_id` = '".$user['user_id']."' AND `user_password` = '".md5(md5($_POST['OldPass']))."'");
-			if(!$db->fetch_array($sql)) {
+			$sql = $db2->query("SELECT `user_id` FROM `_PREFIX_users`
+				WHERE `user_id` = :uid AND `user_password` = :hashed_password",
+				array(
+					":uid" => $user['user_id'],
+					":hashed_password" => md5(md5($_POST['OldPass']))
+				)
+			);
+			if(!$sql->fetch()) {
 				$error .= $lang['Incorrect_Old_Password'] . "<br />";
 			}
 			if(strlen($_POST['PassWord']) < 4) {
@@ -63,13 +69,13 @@ if($_GET['func'] == "edit")
 
 		if(isset($_POST['template']))
 		{
-			$template_sql = "SELECT `template_id`, `template_name` FROM `".$db_prefix."templates` WHERE `template_id` = '".$_POST['template']."'";
+			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates` WHERE `template_id` = :template_id";
 			if($user['user_level'] < 5)
 			{
 				$template_sql .= " AND `template_usable` = '1'";
 			}
-			$template_query = $db->query($template_sql);
-			if(!$template_result = $db->fetch_array($template_query))
+			$template_query = $db2->query($template_sql, array(":template_id" => $_POST['template']));
+			if(!$template_result = $template_query->fetch())
 			{
 				$error .= $lang['Invalid_Template_Selected'];
 			}
@@ -80,13 +86,13 @@ if($_GET['func'] == "edit")
 		}
 
 		if(isset($_POST['language'])) {
-			$language_sql = "SELECT `language_id`, `language_name` FROM `".$db_prefix."languages` WHERE `language_id` = '".$_POST['language']."'";
+			$language_sql = "SELECT `language_id`, `language_name` FROM `_PREFIX_languages` WHERE `language_id` = :language_id";
 			if($user['user_level'] < 5)
 			{
 				$language_sql .= " AND `language_usable` = '1'";
 			}
-			$language_query = $db->query($language_sql);
-			if(!$language_result = $db->fetch_array($language_query))
+			$language_query = $db2->query($language_sql, array(":language_id" => $_POST['language']));
+			if(!$language_result = $language_query->fetch())
 			{
 				$error .= $lang['Invalid_Language_Selected'];
 			}
@@ -130,13 +136,13 @@ if($_GET['func'] == "edit")
 			$template_count = 0;
 			$theme->insert_nest("edit_profile", "template_select");
 
-			$template_sql = "SELECT `template_id`, `template_name` FROM `".$db_prefix."templates`";
+			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates`";
 			if($user['user_user_level'] < 5)
 			{
 				$template_sql .= " WHERE `template_usable` = '1'";
 			}
-			$template_query = $db->query($template_sql);
-			while($template_result = $db->fetch_array($template_query)) {
+			$template_query = $db2->query($template_sql);
+			while($template_result = $template_query->fetch()) {
 				$theme->insert_nest("edit_profile", "template_select/template_select_option", array(
 					"TEMPLATE_ID" => $template_result['template_id'],
 					"TEMPLATE_NAME" => $template_result['template_name'],
@@ -156,12 +162,12 @@ if($_GET['func'] == "edit")
 			$language_count = 0;
 			$theme->insert_nest("edit_profile", "language_select");
 
-			$language_sql = "SELECT `language_id`, `language_name` FROM `".$db_prefix."languages`";
+			$language_sql = "SELECT `language_id`, `language_name` FROM `_PREFIX_languages`";
 			if($user['user_level'] < 5) {
 				$language_sql .= " WHERE `language_usable` = '1'";
 			}
-			$language_query = $db->query($language_sql);
-			while($language_result = $db->fetch_array($language_query))
+			$language_query = $db2->query($language_sql);
+			while($language_result = $language_query->fetch())
 			{
 				$theme->insert_nest("edit_profile", "language_select/language_select_option", array(
 					"LANGUAGE_ID" => $language_result['language_id'],
@@ -202,7 +208,17 @@ if($_GET['func'] == "edit")
   		      		if($user['user_avatar_type'] == "2") {
 						unlink("images/avatars/uploads/".$user['user_avatar_location']);
 					}
-					$db->query ("UPDATE `".$db_prefix."users` SET `user_avatar_type` = '".UPLOADED_AVATAR."', `user_avatar_location`='$filename', `user_avatar_dimensions`='".$image_size[0]."x".$image_size[1]."' WHERE `user_id`='".$user['user_id']."'");
+					$db2->query("UPDATE `_PREFIX_users`
+						SET `user_avatar_type` = '".UPLOADED_AVATAR."',
+						`user_avatar_location` = :filename,
+						`user_avatar_dimensions` = :dimensions
+						WHERE `user_id` = :user_id",
+						array(
+							":filename" => $filename,
+							":dimensions" => $image_size[0]."x".$image_size[1],
+							":user_id" => $user['user_id']
+						)
+					);
 				} else {
 					error_msg($lang['Error'], $lang['Unable_To_Change_Avatar_Msg']);
 				}
@@ -210,15 +226,40 @@ if($_GET['func'] == "edit")
 				if($user['user_avatar_type'] == "2") {
 					unlink("images/avatars/uploads/".$user['user_avatar_location']."");
 				}
-				$db->query("UPDATE `".$db_prefix."users` SET `user_avatar_type` = '".NO_AVATAR."', `user_avatar_location` = '' WHERE `user_id` = '".$user['user_id']."'");
+				$db2->query("UPDATE `_PREFIX_users`
+					SET `user_avatar_type` = '".NO_AVATAR."',
+					`user_avatar_location` = ''
+					WHERE `user_id` = :user_id",
+					array(
+						":user_id" => $user['user_id']
+					)
+				);
 			} else if($config['allow_remote_avatar'] && !empty($_POST['Remote_Avatar_URL'])) {
 				if($user['user_avatar_type'] == "2") {
 					unlink("images/avatars/uploads/".$user['user_avatar_location']."");
 				}
-				$db->query("UPDATE `".$db_prefix."users` SET `user_avatar_type` = '".REMOTE_AVATAR."', `user_avatar_location` = '".$_POST['Remote_Avatar_URL']."' WHERE `user_id` = '".$user['user_id']."'");
+				$db2->query("UPDATE `_PREFIX_users`
+					SET `user_avatar_type` = '".REMOTE_AVATAR."',
+					`user_avatar_location` = :avatar_url
+					WHERE `user_id` = :user_id",
+					array(
+						":avatar_url" => $_POST['Remote_Avatar_URL'],
+						":user_id" => $user['user_id']
+					)
+				);
 			}
-			$sql = "UPDATE `".$db_prefix."users` SET `user_email` = '".$_POST['Email']."', `user_signature` = '".$_POST['signature']."', ";
-			if(strlen($_POST['PassWord']) > 0) $sql .= "`user_password` = '".md5(md5($_POST['PassWord']))."', ";
+			$sql = "UPDATE `".$db_prefix."users`
+				SET `user_email` = :email,
+				`user_signature` = :signature, ";
+			$params = array(
+				":email" => $_POST['Email'],
+				":signature" => $_POST['signature']
+			);
+			if(strlen($_POST['PassWord']) > 0)
+			{
+				$sql .= "`user_password` = :hashed_password, ";
+				$params[":hashed_password"] = md5(md5($_POST['PassWord']));
+			}
 
 			if(isset($_POST['day']))
             {
@@ -243,13 +284,43 @@ if($_GET['func'] == "edit")
             }
 			$birthdate = htmlspecialchars($birthday);
 
-			$sql .= "`user_aim` = '".$_POST['aim']."', `user_icq` = '".$_POST['icq']."', `user_msn` = '".$_POST['msn']."', `user_yahoo` = '".$_POST['yahoo']."', `user_email_on_pm` = '".$_POST['email_on_pm']."', `user_location` = '".$_POST['location']."', `user_website` = '".$_POST['website']."', `user_template` = '".$_POST['template']."', `user_language` = '".$_POST['language']."', `user_birthday` = '".$birthdate."' WHERE `user_id` = '".$_SESSION['user_id']."'";
-			$db->query($sql);
+			$sql .= "`user_aim` = :aim,
+			`user_icq` = :icq,
+			`user_msn` = :msn,
+			`user_yahoo` = :yahoo,
+			`user_email_on_pm` = :email_on_pm,
+			`user_location` = :location,
+			`user_website` = :website,
+			`user_template` = :template,
+			`user_language` = :language,
+			`user_birthday` = :birthday
+			WHERE `user_id` = :user_id";
+
+			$params[":aim"] = $_POST['aim'];
+			$params[":icq"] = $_POST['icq'];
+			$params[":msn"] = $_POST['msn'];
+			$params[":yahoo"] = $_POST['yahoo'];
+			$params[":email_on_pm"] = $_POST['email_on_pm'];
+			$params[":location"] = $_POST['location'];
+			$params[":website"] = $_POST['website'];
+			$params[":template"] = $_POST['template'];
+			$params[":language"] = $_POST['language'];
+			$params[":birthday"] = $birthdate;
+
+			$params[":user_id"] = $_SESSION['user_id'];
+
+			$db2->query($sql, $params);
 			info_box($lang['Edit_Profile'], $lang['Profile_Updated'], "index.php");
 		}
 	} else {
-		$sql = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `user_id` = '".$user['user_id']."'");
-		if($result = $db->fetch_array($sql)) {
+		$sql = $db2->query("SELECT *
+			FROM `_PREFIX_users`
+			WHERE `user_id` = :user_id",
+			array(
+				":user_id" => $user['user_id']
+			)
+		);
+		if($result = $sql->fetch()) {
 			$theme->new_file("edit_profile", "edit_profile.tpl", "");
 			$theme->replace_tags("edit_profile", array(
 				"EMAIL" => $result['user_email'],
@@ -312,13 +383,13 @@ if($_GET['func'] == "edit")
 			$template_count = 0;
 			$theme->insert_nest("edit_profile", "template_select");
 
-			$template_sql = "SELECT `template_id`, `template_name` FROM `".$db_prefix."templates`";
+			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates`";
 			if($user['user_level'] < 5)
 			{
 				$template_sql .= " WHERE `template_usable` = '1'";
 			}
-			$template_query = $db->query($template_sql);
-			while($template_result = $db->fetch_array($template_query)) {
+			$template_query = $db2->query($template_sql);
+			while($template_result = $template_query->fetch()) {
 				$theme->insert_nest("edit_profile", "template_select/template_select_option", array(
 					"TEMPLATE_ID" => $template_result['template_id'],
 					"TEMPLATE_NAME" => $template_result['template_name'],
@@ -338,12 +409,12 @@ if($_GET['func'] == "edit")
 			$language_count = 0;
 			$theme->insert_nest("edit_profile", "language_select");
 
-			$language_sql = "SELECT `language_id`, `language_name` FROM `".$db_prefix."languages`";
+			$language_sql = "SELECT `language_id`, `language_name` FROM `_PREFIX_languages`";
 			if($user['user_level'] < 5) {
 				$language_sql .= " WHERE `language_usable` = '1'";
 			}
-			$language_query = $db->query($language_sql);
-			while($language_result = $db->fetch_array($language_query))
+			$language_query = $db2->query($language_sql);
+			while($language_result = $language_query->fetch())
 			{
 				$theme->insert_nest("edit_profile", "language_select/language_select_option", array(
 					"LANGUAGE_ID" => $language_result['language_id'],
@@ -379,13 +450,16 @@ if($_GET['func'] == "edit")
     {
         error_msg($lang['Error'], $lang['Invalid_User_Id']);
     }
-	$sql = $db->query("SELECT u.*, r.`rank_name`
-						FROM (`".$db_prefix."users` u
-						LEFT JOIN `".$db_prefix."ranks` r ON r.`rank_id` = u.`user_rank`)
-						WHERE `user_id` = '".intval($_GET['id'])."'"
+	$sql = $db2->query("SELECT u.*, r.`rank_name`
+		FROM (`_PREFIX_users` u
+		LEFT JOIN `_PREFIX_ranks` r ON r.`rank_id` = u.`user_rank`)
+		WHERE `user_id` = :user_id",
+		array(
+			":user_id" => intval($_GET['id'])
+		)
     );
 
-	if($result = $db->fetch_array($sql))
+	if($result = $sql->fetch())
     {
 		$theme->new_file("view_profile", "view_profile.tpl", "");
 		$theme->replace_tags("view_profile", array(
@@ -481,8 +555,14 @@ if($_GET['func'] == "edit")
     	// ===========================
     	// Profile Online Status
     	// ===========================
-    	$online_sql = $db->query("SELECT * FROM `".$db_prefix."sessions` WHERE `user_id` = '".intval($_GET['id'])."'");
-    	if($db->fetch_array($online_sql))
+    	$online_sql = $db2->query("SELECT *
+			FROM `_PREFIX_sessions`
+			WHERE `user_id` = :user_id",
+			array(
+				":user_id" => intval($_GET['id'])
+			)
+		);
+    	if($online_sql->fetch())
     	{
     		$theme->switch_nest("view_profile", "online", true);
     	}
