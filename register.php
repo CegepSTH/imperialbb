@@ -18,7 +18,7 @@ define("IN_IBB", 1);
 
 $root_path = "./";
 require_once($root_path . "includes/common.php");
-require_once($root_path . "includes/password.php");
+require_once($root_path . "classes/password.php");
 
 $language->add_file("register");
 
