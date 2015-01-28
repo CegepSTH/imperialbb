@@ -9,7 +9,7 @@
 || # ---------------------------------------------------------------- # ||
 || # Name: register.php                                               # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright ï¿½ 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -18,6 +18,7 @@ define("IN_IBB", 1);
 
 $root_path = "./";
 include($root_path . "includes/common.php");
+include($root_path . "includes/password.php");
 
 $language->add_file("register");
 
@@ -82,7 +83,8 @@ if(isset($_POST['Submit'])) {
 				)",
 				array(
 					":username" => $_POST['UserName'],
-					":user_password" => md5(md5($_POST['Password'])),
+//					":user_password" => md5(md5($_POST['Password'])),
+					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
 					":user_email" => $_POST['Email'],
 					":user_date_joined" => date("D d M Y"),
 					":user_template" => $config['default_template'],
@@ -114,7 +116,8 @@ if(isset($_POST['Submit'])) {
 				)",
 				array(
 					":username" => $_POST['UserName'],
-					":user_password" => md5(md5($_POST['Password'])),
+//					":user_password" => md5(md5($_POST['Password'])),
+					":user_password" => password_hash($_POST['Password'], PASSWORD_BCRYPT),
 					":user_email" => $_POST['Email'],
 					":user_date_joined" => date("D d M Y"),
 					":user_activation_key" => $activation_key,
@@ -178,7 +181,7 @@ if(isset($_POST['Submit'])) {
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright ï¿½ 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>
