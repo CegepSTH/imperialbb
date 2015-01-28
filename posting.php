@@ -959,7 +959,7 @@ else if($_GET['func'] == "edit")
 {
 
 	if(!isset($_GET['pid']) || !is_numeric($_GET['pid'])) error_msg($lang['Error'], $lang['Invalid_Post_Id']);
-	$query = $db22->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
+	$query = $db2->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
 		FROM (((`_PREFIX_posts` p
 		LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
 		LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)

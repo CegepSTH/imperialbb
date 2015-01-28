@@ -20,10 +20,10 @@ include($root_path . "includes/common.php");
 $language->add_file("members");
 $theme->new_file("memberslist", "memberslist.tpl");
 
-$member_count_query = $db->query("SELECT count(`user_id`) AS 'member_count' FROM `".$db_prefix."users`");
+$member_count_query = $db2->query("SELECT count(`user_id`) AS 'member_count' FROM `_PREFIX_users`");
 
-$member_count_result = $db->fetch_array($member_count_query);
-$member_count = ($member_count_result['member_count'] - 1);
+$member_count_result = $member_count_query->fetch();
+$member_count = (intval($member_count_result['member_count']) - 1);
 
 $pagination = $pp->paginate($member_count, $config['members_per_page']);
 
@@ -31,8 +31,14 @@ $theme->replace_tags("memberslist", array(
 	"PAGINATION" => $pagination
 ));
 
-$sql = $db->query("SELECT * FROM `".$db_prefix."users` WHERE `user_id` > '0' ORDER BY `user_id` ASC LIMIT ".$pp->limit."");
-while($result = $db->fetch_array($sql)) 
+$sql = $db2->query("SELECT *
+	FROM `_PREFIX_users`
+	WHERE `user_id` > '0'
+	ORDER BY `user_id` ASC
+	LIMIT " . $pp->limit . ""
+);
+
+while($result = $sql->fetch()) 
 {
     $membername = '';
     $membername = format_membername($result['user_rank'],$result['user_id'],$result['username']);
