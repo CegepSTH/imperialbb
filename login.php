@@ -31,32 +31,17 @@ if($_GET['func'] == "activate")
 {
 	if(!isset($_GET['user_id'])) error_msg($lang['Error'], $lang['Activation_Error_Msg']);
 	if(!isset($_GET['key'])) error_msg($lang['Error'], $lang['Activation_Error_Msg']);
-	$sql = $db2->query("SELECT * FROM `_PREFIX_users`
-		WHERE `user_id` = :user_id && `user_activation_key` = :user_activation_key
-		LIMIT 1",
-		array(
-			":user_id" => $_GET['user_id'],
-			":user_activation_key" => $_GET['key']
-		)
-	);
-	if($result = $sql->fetch())
-	{
-		if($result['user_level'] != 2)
-		{
-			error_msg($lang['Activation_Error'], $lang['Already_Activated_Msg']);
-		}
-		$db2->query("UPDATE `_PREFIX_users`
-			SET `user_level` = '3',
-			`user_activation_key` = ''
-			WHERE `user_id` = :user_id",
-			array(
-				":user_id" => $_GET['user_id']
-			)
-		);
-		info_box($lang['Activation_Successful'], sprintf($lang['Activation_Successful_Msg'], $result['username']), "login.php");
-	}
-	else
-	{
+	
+	$activationStatus = User::activate(intval($_GET['user_id']), $_GET['key']);
+	
+	// If done properly, show message.
+	if($activationStatus == 0) {
+		info_box($lang['Activation_Successful'], 
+			sprintf($lang['Activation_Successful_Msg'], 
+			$result['username']), "login.php");
+	} elseif ($activationStatus == 1) {
+		error_msg($lang['Activation_Error'], $lang['Already_Activated_Msg']);
+	} else {
 		error_msg($lang['Activation_Error'], $lang['Activation_Error_Msg']);
 	}
 }
@@ -66,12 +51,11 @@ else if($_GET['func'] == "logout")
 	setcookie("Password");
 	$_SESSION['user_id'] = -1;
 	session_regenerate_id();
+	
 	$db2->query("DELETE FROM `_PREFIX_sessions`
 		WHERE `ip` = :remote_ip",
-		array(
-			":remote_ip" => $_SERVER['REMOTE_ADDR']
-		)
-	);
+		array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
+	
 	info_box($lang['Logout'], $lang['Logged_Out_Msg'], "index.php");
 }
 else if($_GET['func'] == "forgotten_pass")
@@ -99,7 +83,6 @@ else if($_GET['func'] == "forgotten_pass")
 				WHERE `user_id` = :user_id",
 				array(
 					":key" => $key,
-//					":password" => md5(md5($password)),
 					":Password" => password_hash($password, PASSWORD_BCRYPT),
 					":current_time" => time(),
 					":user_id" => $result['id']
@@ -127,7 +110,7 @@ else if($_GET['func'] == "forgotten_pass")
 		//
 		// Output the page header
 		//
-		include($root_path . "includes/page_header.php");
+		include_once($root_path . "includes/page_header.php");
 
 		//
 		// Output the main page
@@ -137,7 +120,7 @@ else if($_GET['func'] == "forgotten_pass")
 		//
 		// Output the page footer
 		//
-		include($root_path . "includes/page_footer.php");
+		include_once($root_path . "includes/page_footer.php");
 	}
 
 }
@@ -182,24 +165,15 @@ else
 	}
 	if(isset($_POST['Submit']))
 	{
-		$user_sql = $db2->query("SELECT * FROM `_PREFIX_users`
-			WHERE `username` = :username && `user_password` = :password
-			LIMIT 1",
-			array(
-				":username" => $_POST['UserName'],
-				":password" => password_hash($_POST['PassWord'], PASSWORD_BCRYPT),
-			)
-		);
-		//die($_POST['PassWord']);
 		$user_id = User::check($_POST['UserName'], $_POST['PassWord']);
 		$oUser = User::findUser($user_id);
 
 		if($user_id > -1)
 		{
-			
 			setcookie("UserName", $oUser->getUsername(), time()+604800);
 			setcookie("Password", "What happens after midnight stays secret :^)", time()+604800);
 			$_SESSION['user_id'] = $oUser->getId();
+			
 			$db2->query("UPDATE `_PREFIX_sessions`
 				SET `user_id` = :user_id
 				WHERE `ip` = :remote_ip && `session_id` = :session_id",
@@ -225,7 +199,7 @@ else
 		//
 		// Output the page header
 		//
-		include($root_path . "includes/page_header.php");
+		include_once($root_path . "includes/page_header.php");
 
 		//
 		// Output the main page
@@ -235,7 +209,7 @@ else
 		//
 		// Output the page footer
 		//
-		include($root_path . "includes/page_footer.php");
+		include_once($root_path . "includes/page_footer.php");
 	}
 }
 

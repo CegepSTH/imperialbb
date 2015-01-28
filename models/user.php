@@ -702,6 +702,49 @@ class User {
 			return -1;
 		}
 	}
+	
+	/**
+	 * Activates the user.
+	 * 
+	 * @returns Status integer. 0: is "done", 1: is "already done", 
+	 * 3: is "wrong key" 4: wrong parameters.
+	 */
+	static function activate($user_id, $key) {
+		if(!is_string($key) || !is_numeric($user_id)) {
+			return "activate() Wrong parameters types. [int, string]";
+		}
+		
+		global $database;
+		
+		$db = new Database($database, $database['prefix']);
+		
+		$query = "SELECT * FROM `_PREFIX_users`
+			WHERE `user_id` = :user_id AND `user_activation_key` = :user_activation_key
+			LIMIT 1";
+		$values = array(":uname" => $username);
+
+		$db->query($query, $values);
+		
+		if($result = $db->fetch()) {			
+			if($result['user_level'] != 2) {
+				return 1;
+			}
+		
+			// Activates user.
+			$db->query("UPDATE `_PREFIX_users`
+				SET `user_level` = '3', `user_activation_key` = ''
+				WHERE `user_id` = :user_id",
+				array(":user_id" => $user_id);
+				
+			if($db->rowCount() > 0) {
+				return 0;
+			} else {
+				return "activate() unknown error";
+			}
+		} else {
+			return 3;
+		}
+	}
 }
 
 ?>
