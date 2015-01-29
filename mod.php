@@ -249,7 +249,13 @@ else if($_GET['func'] == "lock")
 	}
 
 	if(empty($tid)) error_msg("Critical Error", "Invalid topic ID specified");
-	$db2->query("UPDATE `_PREFIX_topics` SET `topic_status` = '1' WHERE `topic_id`=:tid", $tid);#
+	$db2->query("UPDATE `_PREFIX_topics`
+		SET `topic_status` = '1'
+		WHERE `topic_id`=:tid",
+		array(
+			":tid" => $tid
+		)
+	);
 
 	info_box($lang['Lock_Topic'], $lang['Topic_Locked_Msg'], "view_topic.php?tid=$tid");
 }
