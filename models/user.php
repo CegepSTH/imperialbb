@@ -800,6 +800,24 @@ class User {
 			return 3;
 		}
 	}
+	
+	/**
+	 * Deletes a user.
+	 * 
+	 * @param Either an id or a username.
+	 * @returns True if success, else returns an error message.
+	 */ 
+	static function delete($id_username) {
+		$db = new Database($database, $database['prefix']);
+		
+		if(is_string($id_username)) {
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => $id_username));
+		} else {
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `user_id`=:uid LIMIT 1", array(":uid" => $id_username));
+		}
+		
+		return ($db->rowCount() > 0);
+	}
 }
 
 ?>
