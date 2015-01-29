@@ -16,7 +16,7 @@ if(!defined("IN_IBB")) {
 // ------------------------
 // Global Header Settings
 // ------------------------
-$lang['head_charset'] = "ISO-8850-1";
+$lang['head_charset'] = "utf-8";
 $lang['head_langdir'] = "ltr";
 $lang['head_htmlang'] = "en";
 
