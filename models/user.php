@@ -152,6 +152,7 @@ class User {
 		$user->setUsergroupId(intval($result["user_usergroup"]));
 		$user->setWebsite($result["user_website"]);		
 		
+		self::$m_lastUser = $user;
 		return $user;
 	}
 	
@@ -629,21 +630,37 @@ class User {
 		$query = "UPDATE _PREFIX_users 
 		SET username=:username, user_email=:email, user_date_joined=:datejoined, user_lastvisit=:lastvisit, user_level=:ulevel,
 		user_usergroup=:usergroup, user_signature=:signature, user_rank=:urank, user_aim=:uaim, user_icq=:uicq, user_msn=:umsn,
-		user_yahoo=:uyahoo, user_email_on_pm=:uemailpm, user_template=:utid, user_language=:ulangid, user_timezone=:utimez,
+		user_yahoo=:uyahoo, user_email_on_pm=:umailpm, user_template=:utid, user_language=:ulangid, user_timezone=:utimez,
 		user_posts=:uposts, user_activation_key=:uakey, user_location=:uloc, user_website=:uweb, user_avatar_type=:uavtype,
 		user_avatar_location=:uavloc, user_avatar_dimensions=:uavdim, user_birthday=:ubirth
 		WHERE user_id=:uid";
 		
-		$values = array(":uid" => $this->m_id, 					":username" => $this->m_username, 		":email" => $this->m_mail,
-						":datejoined" => $this->m_date_joined, 	":lastvisit" => $this->m_last_visit, 	":ulevel" => $this->m_level,
-						":usergroup" => $this->m_usergroup, 	":signature" => $this->m_signature, 	":urank" => $this->m_rank,
-						":uaim" => $this->m_aim, 				":uicq" => $this->m_icq, 				":umsn" => $this->m_msn,
-						":uyahoo" => $this->m_yahoo, 			":umailpm" => (int)$this->m_bEmail_on_pm, ":utid" => $this->m_template,
-						":ulangid" => $this->m_language,		":utimez" => $this->m_timezone,			":uposts" => $this->m_posts,
-						":uakey" => $this->m_activation_key,	":uloc" => $this->m_location,			":uweb" => $this->m_website,
-						":uavtype" => $this->m_avatar_type,		":uavloc" => $this->m_avatar_location,	":uavdim" => $this->m_avatar_dimension,
-						":ubirth" => $this->m_birthday);
-		
+		$values = array(":uid" => intval($this->m_id), 					
+						":username" => $this->m_username, 		
+						":email" => $this->m_mail,
+						":datejoined" => $this->m_date_joined ?: 0, 	
+						":lastvisit" => $this->m_last_visit ?: 0, 	
+						":ulevel" => intval($this->m_level),
+						":usergroup" => $this->m_usergroup ?: 0, 	
+						":signature" => $this->m_signature ?: " ", 	
+						":urank" => intval($this->m_rank),
+						":uaim" => $this->m_aim ?: " ",
+						":uicq" => $this->m_icq ?: " ", 				
+						":umsn" => $this->m_msn ?: " ",
+						":uyahoo" => $this->m_yahoo ?: " ", 			
+						":umailpm" => intval($this->m_bEmail_on_pm) ?: 0, 
+						":utid" => $this->m_template ?: 1,
+						":ulangid" => $this->m_language ?: 1,		
+						":utimez" => $this->m_timezone ?: 0,			
+						":uposts" => $this->m_posts ?: 0,
+						":uakey" => $this->m_activation_key ?: " ",	
+						":uloc" => $this->m_location ?: " ",			
+						":uweb" => $this->m_website ?: " ",
+						":uavtype" => $this->m_avatar_type ?: 0,		
+						":uavloc" => $this->m_avatar_location ?: " ",	
+						":uavdim" => $this->m_avatar_dimension ?: " ",
+						":ubirth" => $this->m_birthday ?: " ");
+	
 		$db->query($query, $values);
 		
 		return $db->rowCount() > 0;
@@ -659,7 +676,7 @@ class User {
 		SET user_password=:upass, user_new_password=:unewpass
 		WHERE user_id=:uid";
 		
-		$values = array(":uid" 		=> $this->m_id,
+		$values = array(":uid" 		=> intval($this->m_id),
 						":upass" 	=> $this->m_password,
 						":unewpass" => $this->m_password);
 						
