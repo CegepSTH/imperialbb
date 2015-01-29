@@ -41,6 +41,8 @@ class User {
 	private $m_birthday;		// string(50)
 	private $m_password;		// string(225)
 	
+	private static $m_lastUser; // Last user queried.
+	
 	/**
 	 * CTOR
 	 * @param $id User's id. If -1, it'll update itself to most recent (in case of additions).
@@ -93,6 +95,17 @@ class User {
 	 * @returns User class if success, null otherwise.
 	 */
 	static function findUser($id_username) {
+		
+		// If last user is same user than requested here, 
+		// just return it.
+		if(!is_null(self::$m_lastUser)) {
+			if(is_numeric($id_username) && self::$m_lastUser->getId() == $id_username) {
+				return self::$m_lastUser;
+			} else if (is_string($id_username) && self::$m_lastUser->getUsername() == $id_username) {
+				return self::$m_lastUser;
+			}
+		} 
+		
 		$result = array();
 		global $database;
 		
