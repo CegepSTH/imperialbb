@@ -126,17 +126,17 @@ class User {
 		$user->setBirthday($result["user_birthday"]);
 		$user->setDateJoined($result["user_date_joined"]);
 		$user->setEmailOnPm($result["user_email_on_pm"]);
-		$user->setLanguageId($result["user_language"]);
+		$user->setLanguageId(intval($result["user_language"]));
 		$user->setLastVisit($result["user_lastvisit"]);
-		$user->setLevel($result["user_level"]);
+		$user->setLevel(intval($result["user_level"]));
 		$user->setLocation($result["user_location"]);
 		$user->setMessengers((array("aim" => $result["user_aim"], "icq" => $result["user_icq"], "msn" => $result["user_msn"], "yahoo" => $result["user_yahoo"])));
 		$user->setPostsCount($result["user_posts"]);
-		$user->setRankId($result["user_rank"]);
+		$user->setRankId(intval($result["user_rank"]));
 		$user->setSignature($result["user_signature"]);
-		$user->setTemplateId($result["user_template"]);
+		$user->setTemplateId(intval($result["user_template"]));
 		$user->setTimezone($result["user_timezone"]);
-		$user->setUsergroupId($result["user_usergroup"]);
+		$user->setUsergroupId(intval($result["user_usergroup"]));
 		$user->setWebsite($result["user_website"]);		
 		
 		return $user;
@@ -268,18 +268,14 @@ class User {
 	 * @returns User's signature
 	 */
 	function getSignature() {
-		$this->m_signature;
+		return $this->m_signature;
 	}
 	
 	/**
 	 * setSignature Sets the user's signature.
 	 * @param $signature 
 	 */
-	function setSignature($signature) {
-		if(!is_string($signature)) {
-			return "Signature is not a string";
-		}
-		
+	function setSignature($signature) {	
 		$this->m_signature = $signature;
 	}
 	
