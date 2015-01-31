@@ -1,6 +1,6 @@
 <table width="100%">
 	<tr>
-		<td align="left" style="padding-left:5px;" valign="bottom"><a href="?">{C.site_name}</a> &raquo; <b>Login</b></td>
+		<td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <b>Login</b></td>
 	</tr>
 </table>
 <form method="post" action="">
