@@ -23,6 +23,11 @@ require_once($root_path . "models/user.php");
 
 $language->add_file("register");
 
+// Redirects to login page after registering.
+if($_GET['act'] == "login") {
+	header("Location: login.php");
+} 
+
 if(isset($_POST['Submit'])) {
 	$error = "";
 	
@@ -55,19 +60,9 @@ if(isset($_POST['Submit'])) {
 		));
 		
 		$theme->add_nest("register", "error");
-		//
-		// Output the page header
-		//
+
 		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
 		$theme->output("register");
-
-		//
-		// Output the page footer
-		//
 		include_once($root_path . "includes/page_footer.php");
 	} else {
 		if($config['register_auth_type'] == 0) {
@@ -81,7 +76,7 @@ if(isset($_POST['Submit'])) {
 			$oUser->setRankId(1);
 			$oUser->update();
 			
-			info_box($lang['Registration'], $lang['Registration_Successful_Msg'], "?act=login");
+			info_box($lang['Registration'], $lang['Registration_Successfull_Msg'], "?act=login");
 		} else {
 			$oUser = new User(-1, $_POST['UserName'], $_POST['Email']);
 			$oUser->setPassword($_POST['Password']);
@@ -137,20 +132,9 @@ if(isset($_POST['Submit'])) {
 
 	$page_title = $config['site_name'] . " &raquo; " . $lang['Register'];
 
-	//
-	// Output the page header
-	//
-	include($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
+	include_once($root_path . "includes/page_header.php");
 	$theme->output("register");
-
-	//
-	// Output the page footer
-	//
-	include($root_path . "includes/page_footer.php");
+	include_once($root_path . "includes/page_footer.php");
 }
 
 /*======================================================================*\
