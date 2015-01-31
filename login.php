@@ -107,19 +107,8 @@ else if($_GET['func'] == "forgotten_pass")
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Forgotten_Password'];
 
-		//
-		// Output the page header
-		//
 		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
 		$theme->output("forgotten_password");
-
-		//
-		// Output the page footer
-		//
 		include_once($root_path . "includes/page_footer.php");
 	}
 
@@ -196,19 +185,8 @@ else
 		$theme->new_file("login", "login.tpl", "");
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
 
-		//
-		// Output the page header
-		//
 		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
 		$theme->output("login");
-
-		//
-		// Output the page footer
-		//
 		include_once($root_path . "includes/page_footer.php");
 	}
 }
