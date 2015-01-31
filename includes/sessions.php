@@ -68,7 +68,7 @@ if($session['count'] > 1) {
 		)
 	);
    session_regenerate_id();
-   if(isset($_COOKIE['UserName']) ) { // && isset($_COOKIE['Password'])
+   if(isset($_COOKIE['UserName']) ) { 
       $check_cookies_sql = $db2->query("SELECT * FROM `_PREFIX_users`
          WHERE `username` = :username",
          //AND `user_password` = :password",
@@ -151,15 +151,12 @@ if($session['count'] > 1) {
         )
     );
     session_regenerate_id();
-    if(isset($_COOKIE['UserName'])) { //  && isset($_COOKIE['Password'])
+    if(isset($_COOKIE['UserName'])) {
        $check_cookies_sql = $db2->query("SELECT `user_id` FROM `_PREFIX_users`
           WHERE `username` = :username",
-          //AND `user_password` = :password",
           array(
-             ':username' => $_COOKIE['UserName']
-             //':password' => $_COOKIE['Password']
-          )
-       );
+             ':username' => $_COOKIE['UserName']) );
+             
        if($check_user = $check_cookies_sql->fetch()) {
           $_SESSION['user_id'] = $check_user['user_id'];
        } else {
@@ -186,15 +183,12 @@ if($session['count'] > 1) {
 } else if($session['count'] == 0) {
      // Get the session created! - change session_id
      session_regenerate_id();
-        if(isset($_COOKIE['UserName']) ) { //&& isset($_COOKIE['Password'])
+        if(isset($_COOKIE['UserName']) ) { 
            $check_cookies_sql = $db2->query("SELECT `user_id` FROM `".$db_prefix."users`
               WHERE `username` = :username",
-              //AND `user_password` = :password",
               array(
-                 ':username' => $_COOKIE['UserName']
-                // ':password' => $_COOKIE['Password']
-              )
-           );
+                 ':username' => $_COOKIE['UserName']));
+                 
            if($check_user = $check_cookies_sql->fetch()) {
               $_SESSION['user_id'] = $check_user['user_id'];
            } else {
