@@ -22,8 +22,10 @@ div#quick_reply {
 
 <table width="100%">
  <tr>
+   <td align="left" style="padding-left:10px;"><a href="index.php">{C.site_name}</a><!-- BEGIN location_top_forum --> &raquo; <a href="view_forum.php?fid={LOCATION_FORUM_ID}">{LOCATION_FORUM_NAME}</a><!-- END location_top_forum --> &raquo; <b>{TOPIC_NAME}</b></td>
+</tr>
+<tr>
   <td width="250"><a href="posting.php?func=newtopic&fid={FORUM_ID}"><img src="{T.TEMPLATE_PATH}/images/new_topic.gif" /></a>&nbsp;&nbsp;&nbsp;<a href="posting.php?func=reply&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/reply.gif" /></a></td>
-  <td align="left"><a href="index.php">{C.site_name}</a><!-- BEGIN location_top_forum --> &raquo; <a href="view_forum.php?fid={LOCATION_FORUM_ID}">{LOCATION_FORUM_NAME}</a><!-- END location_top_forum --> &raquo; <b>{TOPIC_NAME}</b></td>
  </tr>
 </table>
 <table width="100%" align="center" class="maintable">
