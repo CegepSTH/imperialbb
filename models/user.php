@@ -73,10 +73,10 @@ class User {
 		$this->setAvatarLocation('');
 		$this->setAvatarType(0);
 		$this->setBirthday("");
-		$this->setDateJoined(date("D d M Y"));
+		$this->setDateJoined(time());
 		$this->setEmailOnPm(true);
 		$this->setLanguageId(1);
-		$this->setLastVisit(date("D d M Y"));
+		$this->setLastVisit(time());
 		$this->setLevel(0);
 		$this->setLocation('');
 		$this->setMessengers((array("aim" => '', "icq" => '', "msn" => '', "yahoo" => '')));

@@ -71,8 +71,6 @@ if(isset($_POST['Submit'])) {
 			$oUser->setPassword($_POST['Password']);
 			$oUser->setLanguageId($config['default_template']);
 			$oUser->setTemplateId($config['default_language']);
-			$oUser->setDateJoined(date("D d M Y"));
-			$oUser->setLastVisit(date("D d M Y"));
 			$oUser->setRankId(1);
 			$oUser->update();
 			
