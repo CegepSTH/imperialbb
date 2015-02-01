@@ -57,6 +57,8 @@ if($_GET['func'] == "delete")
 			$result = $db2->fetch();
 			confirm_msg($lang['Delete_Topic'], sprintf($lang['Delete_Topic_Confirm_Msg'], $result['topic_title']), "mod.php?func=delete&tid=".$_GET['tid']."&confirm=1", "view_topic.php?tid=".$_GET['tid']."");
 		} else {
+			CSRF::validate();
+
 			$values = array(":tid" => $_GET['tid']);
 			// Delete Topid Data
 			$db2->query("DELETE FROM `_PREFIX_topics` WHERE `topic_id`=:tid", $values);
@@ -125,6 +127,8 @@ if($_GET['func'] == "delete")
 			$topic = $db2->fetch();
 			confirm_msg($lang['Delete_Post'], $lang['Delete_Post_Confirm_Msg'], "mod.php?func=delete&pid=".$_GET['pid']."&confirm=1", "view_topic.php?tid=".$topic['topic_id']."");
 		} else {			
+			CSRF::validate();
+
 			$db2->query("DELETE FROM `_PREFIX_posts` WHERE `post_id`=:pid", array(":pid" => $_GET['pid']));
 
 			$db2->query("SELECT `post_id`, `post_timestamp`
@@ -176,7 +180,8 @@ if($_GET['func'] == "delete")
 				"FORUM_NAME" => $result['forum_name'],
 				"TOPIC_ID" => $result['topic_id'],
 				"TOPIC_NAME" => $result['topic_title'],
-				"MOVE_TOPIC" => sprintf($lang['Move_Topic_Name'], $result['topic_title'])
+				"MOVE_TOPIC" => sprintf($lang['Move_Topic_Name'], $result['topic_title']),
+				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 			
 			$db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`");
@@ -206,6 +211,8 @@ if($_GET['func'] == "delete")
 			error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
 		}
 	} else {
+		CSRF::validate();
+
 		if(!isset($_POST['fid']) || !preg_match("/^[0-9]+$/", $_POST['fid'])) error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
 
 		$db2->query("SELECT t.`topic_id`, f.`forum_id`, f.`forum_name`

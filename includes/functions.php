@@ -66,13 +66,14 @@ function error_msg($name, $message)
 function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 {
 	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
-	
+
 	$theme->new_file("confirm_msg", "confirm_msg.tpl");
 	$theme->replace_tags("confirm_msg", array(
 		"TITLE"     => $name,
 		"MESSAGE"   => $message,
 		"URL"       => $url,
-		"NO_URL"    => (strlen($no_url) > 0) ? $no_url : "index.php"
+		"NO_URL"    => (strlen($no_url) > 0) ? $no_url : "index.php",
+		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 	
 	if(is_array($values)) {

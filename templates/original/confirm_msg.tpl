@@ -1,4 +1,5 @@
 <form method="post" action="{URL}">
+{CSRF_TOKEN}
 <table width="75%" align="center" class="maintable">
  <tr>
   <th height="25">{TITLE}</th>
