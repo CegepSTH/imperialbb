@@ -120,7 +120,8 @@ if($_GET['func'] == "edit")
 				"LOCATION" => $_POST['location'],
 				"WEBSITE" => $_POST['website'],
 				"EOP_TRUE" => ($_POST['email_on_pm'] == "1") ? "CHECKED" : "",
-				"EOP_FALSE" => ($_POST['email_on_pm'] == "0") ? "CHECKED" : ""
+				"EOP_FALSE" => ($_POST['email_on_pm'] == "0") ? "CHECKED" : "",
+				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 			
 			if($user['user_avatar_type'] == 0) {
@@ -289,7 +290,8 @@ if($_GET['func'] == "edit")
 				"EOP_FALSE" => ($oUser->getEmailOnPm().""  == "0") ? "CHECKED" : "",
 				"REMOTE_AVATAR_URL" => ($oUser->getAvatarType() == REMOTE_AVATAR) ? $oUser->getAvatarLocation() : "",
 				"LOCATION" => $oUser->getLocation(),
-				"WEBSITE" => $oUser->getWebsite()
+				"WEBSITE" => $oUser->getWebsite(),
+				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
 			$birthday = explode("-", $oUser->getBirthday());

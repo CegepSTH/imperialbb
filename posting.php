@@ -60,6 +60,8 @@ if($_GET['func'] == "newtopic")
 
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
+
 		$error = "";
 		if(strlen($_POST['title']) < 1 )
 		{
@@ -101,7 +103,8 @@ if($_GET['func'] == "newtopic")
 				"BODY" => stripcslashes($_POST['body']),
 				"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
 				"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled'])
+				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
 			$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $lang['New_Topic'];
@@ -211,21 +214,9 @@ if($_GET['func'] == "newtopic")
        			$theme->add_nest("newtopic", "smilies");
  			}
 
-
-			//
-			// Output the page header
-			//
 			include($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
 			$theme->output("newtopic");
-
-			//
-			// Output the page footer
-			//
-			include($inclues_path . "/page_footer.php");
+			include($root_path . "includes/page_footer.php");
 		}
 		else
 		{			// Disable checkboxes && attach signature
@@ -442,7 +433,8 @@ if($_GET['func'] == "newtopic")
 			"BODY" => (isset($_POST['body'])) ? $_POST['body'] : "",
 			"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
 			"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled'])
+			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+			"CSRF_TOKEN" => CSRF::getHTML()
 		));
 
 		$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $lang['New_Topic'];
@@ -608,6 +600,8 @@ else if($_GET['func'] == "reply")
 
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
+
 		$error = "";
 		if(!isset($_POST['title'])) $_POST['title'] = "";
 
@@ -661,7 +655,8 @@ else if($_GET['func'] == "reply")
 			"BODY" => $body,
 			"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
 			"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled'])
+			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+			"CSRF_TOKEN" => CSRF::getHTML()
 		));
 
 			$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $forum_result['topic_title'] . " &raquo; " . $lang['Reply'];
@@ -811,7 +806,7 @@ else if($_GET['func'] == "reply")
 			 $db2->query("UPDATE `_PREFIX_topics`
 				SET `topic_replies` = :reply_count,
 				`topic_time` = :last_reply_time,
-				`topic_last_post` = :last_tid,
+				`topic_last_post` = :last_tid
 				WHERE `topic_id` = :tid",
 				array(
 					":reply_count" => $new_replies,
@@ -871,7 +866,8 @@ else if($_GET['func'] == "reply")
 			"BODY" => "",
 			"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
 			"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled'])
+			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+			"CSRF_TOKEN" => CSRF::getHTML()
 		));
 
 		$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $forum_result['topic_title'] . " &raquo; " . $lang['Reply'];
@@ -986,6 +982,8 @@ else if($_GET['func'] == "edit")
 
 		if(isset($_POST['Submit']))
       	{
+			CSRF::validate();
+
       		$error = "";
       		if(strlen($_POST['body']) < 1)
       		{
@@ -1003,7 +1001,8 @@ else if($_GET['func'] == "edit")
       				"BODY" => $_POST['body'],
       				"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
       				"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-      				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled'])
+      				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+					"CSRF_TOKEN" => CSRF::getHTML()
       			));
 
       			$page_title = $config['site_name'] . " &raquo; " . $result['forum_name'] . " &raquo; " . $result['topic_title'] . " &raquo; " . $lang['Edit'];
@@ -1113,10 +1112,11 @@ else if($_GET['func'] == "edit")
 				);
       			$result = $query->fetch();
 
-      			$db2->query("UPDATE `".$db_prefix."topics`
-					SET `topic_time` = '".time()."'
+      			$db2->query("UPDATE `_PREFIX_topics`
+					SET `topic_time` = :time
 					WHERE `topic_id` = :tid",
 					array(
+						":time" => time(),
 						":tid" => $result['post_topic_id']
 					)
 				);
@@ -1136,7 +1136,8 @@ else if($_GET['func'] == "edit")
    				"BODY" => $result['post_text'],
    				"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
    				"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-   				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled'])
+   				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+				"CSRF_TOKEN" => CSRF::getHTML()
    			));
    			$page_title = $config['site_name'] . " &raquo; " . $result['forum_name'] . " &raquo; " . $result['topic_title'] . " &raquo; " . $lang['Edit'];
 

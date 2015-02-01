@@ -62,6 +62,8 @@ else if($_GET['func'] == "forgotten_pass")
 {
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
+
 		if(!isset($_POST['username']) || !isset($_POST['email'])) error_msg($lang['Error'], $lang['Invalid_username_or_email']);
 		$query = $db2->query("SELECT `user_id`, `username`, `user_email`
 			FROM `_PREFIX_users`
@@ -104,6 +106,11 @@ else if($_GET['func'] == "forgotten_pass")
 	else
 	{
 		$theme->new_file("forgotten_password", "forgotten_password.tpl");
+		$theme->replace_tags("forgotten_password",
+			array(
+				"CSRF_TOKEN" => CSRF::getHtml()
+			)
+		);
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Forgotten_Password'];
 

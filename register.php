@@ -29,6 +29,8 @@ if($_GET['act'] == "login") {
 } 
 
 if(isset($_POST['Submit'])) {
+	CSRF::validate();
+
 	$error = "";
 	
 	if(strlen($_POST['UserName']) < 2) {
@@ -125,7 +127,8 @@ if(isset($_POST['Submit'])) {
 	$theme->new_file("register", "register.tpl", "");
 	$theme->replace_tags("register", array(
 		"USERNAME" => "",
-		"EMAIL" => ""
+		"EMAIL" => "",
+		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 
 	$page_title = $config['site_name'] . " &raquo; " . $lang['Register'];

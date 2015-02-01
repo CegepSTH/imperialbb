@@ -16,6 +16,7 @@
 </table>
 <!-- END error -->
 <form method="post" action="">
+{CSRF_TOKEN}
 <table width="100%" align="center">
  <tr>
   <th>{L.Reply}</th>

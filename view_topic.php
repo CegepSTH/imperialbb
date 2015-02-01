@@ -24,6 +24,8 @@ $language->add_file("view_topic");
 if(!isset($_GET['tid'])) info_box("Error", "No topic ID specified, if you typed the link manually please go to the forum index and try find it from there", "index.php");
 
 if(isset($_POST['vote'])) {
+	CSRF::validate();
+
 	$cookie_vote_array = isset($_COOKIE['poll_votes']) ? unserialize($_COOKIE['poll_votes']) : array();
     if(!isset($_SESSION['poll_votes'])) $_SESSION['poll_votes'] = array();
 
@@ -120,7 +122,8 @@ if($topic = $db2->fetch()) {
 		"FORUM_ID" => $topic['forum_id'],
 		"FORUM_NAME" => $topic['forum_name'],
 		"TOPIC_NAME" => $topic['topic_title'],
-		"PAGINATION" => $pagination
+		"PAGINATION" => $pagination,
+		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 
 	for($i = count($forum_route); $i >= 1; $i--) {

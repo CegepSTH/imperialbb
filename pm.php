@@ -31,6 +31,8 @@ if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "send")
 {	$language->add_file("posting");
 	if(isset($_POST['Submit'])) {
+		CSRF::validate();
+
 		$error = "";
 		if(strlen($_POST['username']) < 1 )
 		{
@@ -56,7 +58,8 @@ if($_GET['func'] == "send")
 				"PM_SELECTED" => (!isset($_POST['action']) || $_POST['action'] == "pm" || $_POST['action'] == "") ? "CHECKED" : "",
 				"EMAIL_SELECTED" => (isset($_POST['action']) && $_POST['action'] == "email") ? "CHECKED" : "",
 				"TITLE" => $_POST['title'],
-				"BODY" => $_POST['body']
+				"BODY" => $_POST['body'],
+				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
 			$theme->insert_nest("send_pm", "username");
@@ -206,7 +209,8 @@ if($_GET['func'] == "send")
 			"PM_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "" : "CHECKED",
 			"EMAIL_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "CHECKED" : "",
 			"TITLE" => "",
-			"BODY" => ""
+			"BODY" => "",
+			"CSRF_TOKEN" => CSRF::getHTML()
 		));
 
 		$theme->insert_nest("send_pm", "username");
@@ -394,6 +398,8 @@ else if($_GET['func'] == "edit")
 
        	if(!isset($_GET['id'])) error_msg($lang['Error'], $lang['Invalid_PM_Id']);
        	if(isset($_POST['Submit'])) {
+			CSRF::validate();
+
        		$error = "";
        		if(strlen($_POST['title']) < 1 )
        		{
@@ -409,7 +415,8 @@ else if($_GET['func'] == "edit")
        			$theme->replace_tags("edit_pm", array(
        				"ACTION" => $lang['Edit_PM'],
        				"TITLE" => $_POST['title'],
-       				"BODY" => $_POST['body']
+       				"BODY" => $_POST['body'],
+					"CSRF_TOKEN" => CSRF::getHTML()
        			));
 
        			if($config['bbcode_enabled'] == true)
@@ -518,7 +525,8 @@ else if($_GET['func'] == "edit")
        			$theme->replace_tags("edit_pm", array(
        				"ACTION" => $lang['Edit_PM'],
        				"TITLE" => $result['pm_title'],
-       				"BODY" => $result['pm_body']
+       				"BODY" => $result['pm_body'],
+					"CSRF_TOKEN" => CSRF::getHTML()
        			));
 
        			if($config['bbcode_enabled'] == true)

@@ -41,6 +41,7 @@ div#quick_reply {
     </tr>
     <!-- BEGIN poll_vote_form -->
     <form action="" method="post">
+	{CSRF_TOKEN}
     <!-- END poll_vote_form -->
     <!-- BEGIN SWITCH poll_choice -->
     <tr>
@@ -149,6 +150,7 @@ div#quick_reply {
      </tr>
      <tr>
       <form method="post" action="posting.php?func=reply&tid={TOPIC_ID}" style="margin:0px;">
+	  {CSRF_TOKEN}
       <td align="center">
        <textarea name="body" rows="10" style="width:99%"></textarea>
       </td>

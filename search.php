@@ -27,6 +27,8 @@ if(isset($_POST['submit']) || $_GET['func'] == "unanswered" || $_GET['func'] == 
 	$theme->new_file("search_results", "search_results.tpl");
 
 	if(isset($_POST['submit'])) {
+		CSRF::validate();
+
 		$sql = "SELECT p.`post_timestamp`, t.`topic_id`, t.`topic_title`, t.`topic_replies`, t.`topic_views`, f.`forum_id`, u.`user_id`, u.`username`
 			FROM `_PREFIX_topics` t 
 			JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`
@@ -176,6 +178,11 @@ if(isset($_POST['submit']) || $_GET['func'] == "unanswered" || $_GET['func'] == 
 else
 {
 	$theme->new_file("search", "search.tpl");
+	$theme->replace_tags("search",
+		array(
+			"CSRF_TOKEN" => CSRF::getHTML()
+		)
+	);
 
 	$page_title = $config['site_name'] . " » " . $lang['Search'];
 

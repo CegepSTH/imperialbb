@@ -17,6 +17,7 @@
 <!-- END error -->
 <table width="100%" align="center" class="maintable">
 <form method="post" action="" enctype="multipart/form-data">
+{CSRF_TOKEN}
  <tr>
   <th colspan="2" height="25">
    {L.Email_Preferences}

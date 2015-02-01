@@ -48,6 +48,7 @@ function add_bbcode(text,attrib) {
 <br />
 <!-- END error -->
 <form method="post" action="" name="send_pm">
+{CSRF_TOKEN}
 <table width="100%" align="center" class="maintable">
  <tr>
   <th colspan="3" height="25">

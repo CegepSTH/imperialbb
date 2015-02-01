@@ -4,6 +4,7 @@
 	</tr>
 </table>
 <form method="post" action="">
+{CSRF_TOKEN}
 	<table width="100%" align="center" class="maintable">
 		<tr>
 			<th height="25" colspan="3">{L.Search}</th>

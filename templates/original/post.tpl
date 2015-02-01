@@ -43,6 +43,7 @@ function add_bbcode(text,attrib) {
 </table>
 <!-- END error -->
 <form name="new_topic" method="post" action="">
+{CSRF_TOKEN}
 	<input type="hidden" name="current_poll_choices" value="{CURRENT_POLL_CHOICES}" />
 	<table width="100%" align="center" class="maintable">
 		<tr>
