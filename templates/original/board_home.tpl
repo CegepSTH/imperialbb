@@ -25,6 +25,7 @@
 	<tr>
 		<form method="post" action="login.php">
 			<td align="center" valign="middle" class="cell2" height="40">
+				{CSRF_TOKEN}
 				<input type="text" name="UserName" value="{L.Username}" onfocus="this.value=''" />&nbsp;&nbsp;
 				<input type="password" name="PassWord" value="{L.Password}" onfocus="this.value=''" />&nbsp;&nbsp;
 				<input type="submit" name="Submit" value="{L.Login}" />&nbsp;&nbsp;<input type="button" onclick="window.location = 'register.php'" value="{L.Register}" />

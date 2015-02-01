@@ -56,7 +56,8 @@ else
 {
 	$theme->replace_tags("board_home",  array(
 		"CURRENT_TIME" => create_date("D d M Y", time()),
-		"ALL_TIMES_ARE_TIMEZONE" => sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$config['timezone']])
+		"ALL_TIMES_ARE_TIMEZONE" => sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$config['timezone']]),
+		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 }
 

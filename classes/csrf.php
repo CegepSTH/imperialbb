@@ -72,9 +72,11 @@ class CSRF {
 	 * this function will fetch the token from the POST variables.
 	 * @return A boolean indicating if the supplied token is valid.
 	 */
-	public static function validateToken($tokenToValidate) {
-		if (func_num_args() == 0) {
-			$tokenToValidate = $_POST[self::HIDDEN_FIELD_NAME];
+	public static function validateToken($tokenToValidate = NULL) {
+		if (is_null($tokenToValidate)) {
+			if (isset($_POST[self::HIDDEN_FIELD_NAME])) {
+				$tokenToValidate = $_POST[self::HIDDEN_FIELD_NAME];
+			}
 		}
 
 		if (!is_string($tokenToValidate)) {
@@ -96,9 +98,8 @@ class CSRF {
 	 * @param $tokenToValidate The token to validate. If it is not supplied,
 	 * this function will fetch the token from the POST variables.
 	 */
-	public static function validateTokenWithMessage($tokenToValidate) {
-		$ret = (func_num_args() == 0) ?
-			self::validateToken() : self::validateToken($tokenToValidate);
+	public static function validateTokenWithMessage($tokenToValidate = NULL) {
+		$ret = self::validateToken($tokenToValidate);
 
 		if ($ret)
 		{
@@ -115,7 +116,18 @@ class CSRF {
 	 * 
 	 */
 	public static function validate() {
-		validateTokenWithMessage();
+		self::validateTokenWithMessage();
+	}
+
+	/**
+	 * getFormInput Gets the HTML as a hidden form input for the token.
+	 * 
+	 * @return The HTML with the token.
+	 */
+	public static function getHTML() {
+		$token = self::getToken();
+
+		return "<input type=\"hidden\" name=\"" . self::HIDDEN_FIELD_NAME . "\" value=\"" . $token . "\" />";
 	}
 }
 

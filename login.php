@@ -154,6 +154,8 @@ else
 	}
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
+
 		$user_id = User::check($_POST['UserName'], $_POST['PassWord']);
 		$oUser = User::findUser($user_id);
 
@@ -183,6 +185,11 @@ else
 	else
 	{
 		$theme->new_file("login", "login.tpl", "");
+		$theme->replace_tags("login",
+			array(
+				"CSRF_TOKEN" => CSRF::getHTML()
+			)
+		);
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
 
 		include_once($root_path . "includes/page_header.php");

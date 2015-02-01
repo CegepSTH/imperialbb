@@ -4,6 +4,7 @@
 	</tr>
 </table>
 <form method="post" action="">
+{CSRF_TOKEN}
 <table width="100%" class="maintable">
 	<tr>
 		<th height="25">{L.Login}</th>
