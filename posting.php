@@ -811,7 +811,7 @@ else if($_GET['func'] == "reply")
 				array(
 					":reply_count" => $new_replies,
 					":last_reply_time" => time(),
-					":last_tid" => $tid,
+					":last_tid" => $post_id,
 					":tid" => $_GET['tid']
 				)
 			);
