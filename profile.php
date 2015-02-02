@@ -262,7 +262,6 @@ if($_GET['func'] == "edit")
 			$oUser->setBirthday($birthdate);
 
 			$oUser->update();
-			$oUser->updatePassword();
 			info_box($lang['Edit_Profile'], $lang['Profile_Updated'], "index.php");
 		}
 	} else {
