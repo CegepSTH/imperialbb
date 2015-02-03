@@ -9,7 +9,7 @@
 || # ---------------------------------------------------------------- # ||
 || # Name: posting.php                                                # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright ï¿½ 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -856,6 +856,32 @@ else if($_GET['func'] == "reply")
 	}
 	else
 	{
+		if(isset($_GET['quote']) && is_numeric($_GET['quote']))
+		{
+
+			$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
+				FROM `_PREFIX_posts` p, `_PREFIX_users` u
+				WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
+				LIMIT 1",
+				array(
+					":pid" => $_GET['quote']
+				)
+			);
+
+			if($quote = $db2->fetch())
+			{
+				$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
+			}
+			else
+			{
+				$body = "";
+			}
+		}
+		else
+		{
+			$body = "";
+		}
+
 		$theme->new_file("reply", "post.tpl", "");
 		$theme->replace_tags("reply", array(
 			"FORUM_ID" => $forum_result['forum_id'],
@@ -863,7 +889,7 @@ else if($_GET['func'] == "reply")
 			"TOPIC_ID" => $_GET['tid'],
 			"TOPIC_NAME" => $forum_result['topic_title'],
 			"ACTION" => $lang['Reply'],
-			"BODY" => "",
+			"BODY" => $body, // C'EST Ã€ CAUSE DE Ã‡A QUE LA QUOTE APPARAIT PAS
 			"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
 			"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
 			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
@@ -1242,7 +1268,7 @@ else if(isset($_GET['mark']))
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright ï¿½ 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>
