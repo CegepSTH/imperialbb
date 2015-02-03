@@ -168,8 +168,61 @@ div#quick_reply {
  <tr>
   <td colspan="2">
   <!-- BEGIN mod_links -->
-  <a href="mod.php?func=delete&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/delete.gif" alt="{L.Delete_Topic}" title="{L.Delete_Topic}" /></a>&nbsp;&nbsp;<a href="mod.php?func=move&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/move.gif" alt="{L.Move_Topic}" title="{L.Move_Topic}" /></a>&nbsp;&nbsp;<!-- BEGIN SWITCH lock_topic --><a href="mod.php?func=lock&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/lock.gif" alt="{L.Lock_Topic}" title="{L.Lock_Topic}" /></a><!-- SWITCH lock_topic --><a href="mod.php?func=unlock&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/unlock.gif" alt="{L.Unlock_Topic}" title="{L.Unlock_Topic}" /></a><!-- END SWITCH lock_topic --><br />
-  <!-- BEGIN announce_topic --><a href="mod.php?func=topic_type&tid={TOPIC_ID}&type={Constant.ANNOUNCMENT}"><img src="{T.TEMPLATE_PATH}/images/announce_topic.gif" alt="{L.Announce_Topic}" title="{L.Announce_Topic}" /></a>&nbsp;&nbsp;<!-- END announce_topic --><!-- BEGIN pin_topic --><a href="mod.php?func=topic_type&tid={TOPIC_ID}&type={Constant.PINNED}"><img src="{T.TEMPLATE_PATH}/images/pin_topic.gif" alt="{L.Pin_Topic}" title="{L.Pin_Topic}" /></a>&nbsp;&nbsp;<!-- END pin_topic --><!-- BEGIN general_topic --><a href="mod.php?func=topic_type&tid={TOPIC_ID}&type={Constant.GENERAL}"><img src="{T.TEMPLATE_PATH}/images/general_topic.gif" alt="{L.Make_General_Topic}" title="{L.Make_General_Topic}" /></a><!-- END general_topic -->
+  <a href="mod.php?func=delete&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/delete.gif" alt="{L.Delete_Topic}" title="{L.Delete_Topic}" /></a>
+  <a href="mod.php?func=move&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/move.gif" alt="{L.Move_Topic}" title="{L.Move_Topic}" /></a>
+  <!-- BEGIN SWITCH lock_topic -->
+  <form method="post" action="mod.php" class="mod-action-form">
+    {CSRF_TOKEN}
+	<input type="hidden" name="func" value="lock" />
+	<input type="hidden" name="tid" value="{TOPIC_ID}" />
+  	<button name="modaction">
+      <img src="{T.TEMPLATE_PATH}/images/lock.gif" alt="{L.Lock_Topic}" title="{L.Lock_Topic}" />
+	</button>
+  </form>
+  <!-- SWITCH lock_topic -->
+  <form method="post" action="mod.php" class="mod-action-form">
+    {CSRF_TOKEN}
+	<input type="hidden" name="func" value="unlock" />
+	<input type="hidden" name="tid" value="{TOPIC_ID}" />
+  	<button name="modaction">
+       <img src="{T.TEMPLATE_PATH}/images/unlock.gif" alt="{L.Unlock_Topic}" title="{L.Unlock_Topic}" />
+	</button>
+  </form>
+  <!-- END SWITCH lock_topic -->
+  <br />
+  <!-- BEGIN announce_topic -->
+  <form method="post" action="mod.php" class="mod-action-form">
+    {CSRF_TOKEN}
+	<input type="hidden" name="func" value="topic_type" />
+	<input type="hidden" name="tid" value="{TOPIC_ID}" />
+	<input type="hidden" name="type" value="{Constant.ANNOUNCMENT}" />
+  	<button name="modaction">
+      <img src="{T.TEMPLATE_PATH}/images/announce_topic.gif" alt="{L.Announce_Topic}" title="{L.Announce_Topic}" />
+	</button>
+  </form>
+  <!-- END announce_topic -->
+  <!-- BEGIN pin_topic -->
+  <form method="post" action="mod.php" class="mod-action-form">
+    {CSRF_TOKEN}
+	<input type="hidden" name="func" value="topic_type" />
+	<input type="hidden" name="tid" value="{TOPIC_ID}" />
+	<input type="hidden" name="type" value="{Constant.PINNED}" />
+  	<button name="modaction">
+      <img src="{T.TEMPLATE_PATH}/images/pin_topic.gif" alt="{L.Pin_Topic}" title="{L.Pin_Topic}" />
+	</button>
+  </form>
+  <!-- END pin_topic -->
+  <!-- BEGIN general_topic -->
+  <form method="post" action="mod.php" class="mod-action-form">
+    {CSRF_TOKEN}
+	<input type="hidden" name="func" value="topic_type" />
+	<input type="hidden" name="tid" value="{TOPIC_ID}" />
+	<input type="hidden" name="type" value="{Constant.GENERAL}" />
+  	<button name="modaction">
+	  <img src="{T.TEMPLATE_PATH}/images/general_topic.gif" alt="{L.Make_General_Topic}" title="{L.Make_General_Topic}" />
+	</button>
+  </form>
+  <!-- END general_topic -->
   <!-- END mod_links -->
   </td>
  </tr>

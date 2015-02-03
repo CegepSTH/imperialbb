@@ -213,3 +213,16 @@ img {
     text-decoration:   none;
     background-color:  transparent;
 }
+
+.mod-action-form
+{
+	display: inline;
+	margin: 0;
+}
+
+.mod-action-form button
+{
+	padding: 0;
+	border: none;
+}
+

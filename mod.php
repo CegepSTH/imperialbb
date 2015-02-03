@@ -23,6 +23,14 @@ $language->add_file("mod");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
+$is_mod_action_post = isset($_POST['modaction']);
+if($is_mod_action_post) {
+	CSRF::validate();
+}
+if(!isset($_POST['func'])) {
+	$_POST['func'] = "";
+}
+
 if($_GET['func'] == "delete")
 {
 	// Deleting a topic
@@ -233,15 +241,18 @@ if($_GET['func'] == "delete")
 	}
 
 }
-else if($_GET['func'] == "lock")
-{	if(!isset($_GET['tid']) || !preg_match("/^[0-9]+$/", $_GET['tid'])) error_msg("Critical Error", "Invalid topic ID specified");
+else if($is_mod_action_post && $_POST['func'] == "lock")
+{
+	if(!(isset($_POST['tid']) && is_numeric($_POST['tid']))) {
+		error_msg("Critical Error", "Invalid topic ID specified");
+	}
 
 	$db2->query("SELECT t.`topic_id`, t.`topic_status`, f.`forum_mod`, g.`ug_mod`
 		FROM ((`_PREFIX_topics` t
 			LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
 			LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup`=:ugroup AND g.`ug_forum_id` = f.`forum_id`)
 		WHERE t.`topic_id`=:tid",
-		array(":ugroup" => $user['user_usergroup'], ":tid" => $_GET['tid']));
+		array(":ugroup" => $user['user_usergroup'], ":tid" => $_POST['tid']));
 
 	if($ug_auth = $db2->fetch()) {		
 		if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {
@@ -266,15 +277,18 @@ else if($_GET['func'] == "lock")
 
 	info_box($lang['Lock_Topic'], $lang['Topic_Locked_Msg'], "view_topic.php?tid=$tid");
 }
-else if($_GET['func'] == "unlock")
-{	if(!isset($_GET['tid']) || !preg_match("/^[0-9]+$/", $_GET['tid'])) error_msg("Critical Error", "Invalid topic ID specified");
+else if($is_mod_action_post && $_POST['func'] == "unlock")
+{
+	if(!(isset($_POST['tid']) && is_numeric($_POST['tid']))) {
+		error_msg("Critical Error", "Invalid topic ID specified");
+	}
 
 	$db2->query("SELECT t.`topic_id`, t.`topic_status`, f.`forum_mod`, g.`ug_mod`
 		FROM ((`_PREFIX_topics` t
 			LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
 			LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup`=:ugroup AND g.`ug_forum_id` = f.`forum_id`)
 		WHERE t.`topic_id`=:tid", 
-		array(":ugroup" => $user['user_usergroup'], ":tid" => $_GET['tid']));
+		array(":ugroup" => $user['user_usergroup'], ":tid" => $_POST['tid']));
 
 	if($ug_auth = $db2->fetch()) {		
 		if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {			
@@ -294,17 +308,22 @@ else if($_GET['func'] == "unlock")
 
 	info_box($lang['Unlock_Topic'], $lang['Topic_Unlocked_Msg'], "view_topic.php?tid=$tid");
 }
-else if($_GET['func'] == "topic_type")
+else if($is_mod_action_post && $_POST['func'] == "topic_type")
 {
-	if(!isset($_GET['tid']) || !preg_match("/^[0-9]+$/", $_GET['tid'])) error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
-	if(!isset($_GET['type']) || !preg_match("/^[0-9]+$/", $_GET['type'])) error_msg($lang['Error'], $lang['Invalid_Topic_Type']);
+	if(!(isset($_POST['tid']) && is_numeric($_POST['tid']))) {
+		error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+	}
+
+	if(!(isset($_POST['type']) && is_numeric($_POST['type']))) {
+		error_msg($lang['Error'], $lang['Invalid_Topic_Type']);
+	}
 
 	$db2->query("SELECT t.`topic_id`, t.`topic_status`, f.`forum_mod`, g.`ug_mod`
 		FROM ((`_PREFIX_topics` t
 			LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
 			LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup`=:ugroup AND g.`ug_forum_id` = f.`forum_id`)
 		WHERE t.`topic_id`=:tid",
-		array(":ugroup" => $user['user_usergroup'], ":tid" => $_GET['tid']));
+		array(":ugroup" => $user['user_usergroup'], ":tid" => $_POST['tid']));
 
 	if($ug_auth = $db2->fetch()) {
 		if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {
@@ -321,7 +340,7 @@ else if($_GET['func'] == "topic_type")
 	if(empty($tid)) error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
 
 	$db2->query("UPDATE `_PREFIX_topics` SET `topic_type`=:type WHERE `topic_id`=:tid",
-		array(":type" => $_GET['type'], ":tid" => $tid));
+		array(":type" => $_POST['type'], ":tid" => $tid));
 
 	info_box($lang['Change_Topic_Type'], $lang['Topic_Type_Changed_Msg'], "view_topic.php?tid=$tid");
 }
