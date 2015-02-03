@@ -16,10 +16,13 @@ define("IN_ADMIN", 1);
 $root_path = "../";
 require_once($root_path . "includes/common.php");
 
+$language->add_file("admin/bbcode");
 //
 // BBCode Locked!
 //
-error_msg($lang['BBCode'], "Sorry BBCode is currently hard coded due to security problems. It may return in the future!");
+// error_msg($lang['BBCode'], "Sorry BBCode is currently hard coded due to security problems. It may return in the future!");
+error_msg($lang['BBCode'], $lang['I_AM_HARD_CODED']);
+
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "add") {
