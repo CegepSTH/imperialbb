@@ -8,16 +8,20 @@ class Template {
 	// Associative array as $tagName => $content
 	private $m_tags;
 	// Relative file path for the template.
-	private $m_filePath; 
+	private $m_filePath;
+	// Reference towards the language associated.
+	private static $m_lang; 
 	
 	/**
 	 * CTOR 
 	 * 
 	 * @param $str_file File relative path / file name
 	 */
-	public __construct($str_file) {
+	public function __construct($str_file, &$lang) {
 		$this->m_vars = array();
 		$this->m_tags = array();
+		$this->m_filePath = $str_file;
+		self::$m_lang = &$lang;
 	}
 	
 	/**
@@ -26,7 +30,7 @@ class Template {
 	 * @param $str_name Variable's name. Must be string.
 	 * @param $value Variable's value
 	 */
-	public setVar($str_name, $value) {
+	public function setVar($str_name, $value) {
 		$this->m_vars[$str_name] = $value;		
 	}
 	
@@ -35,7 +39,7 @@ class Template {
 	 * 
 	 * @param $vars Associative array as $name => $value
 	 */
-	public setVars(array $vars) {
+	public function setVars(array $vars) {
 		foreach($vars as $name => $value) {
 			setVar($name, $value);
 		}	
@@ -48,7 +52,7 @@ class Template {
 	 * @param $str_content Either a string with the content or
 	 * 		with a Template object.
 	 */
-	public addToTag($str_tagName, $str_content) {
+	public function addToTag($str_tagName, $str_content) {
 		$content = $str_content;
 		
 		if($str_content instanceof Template) {
@@ -64,7 +68,7 @@ class Template {
 	 * @param $tags Associative array as $name => $content
 	 * @note $content may be either a template object or a string.
 	 */
-	public addToTags(array $tags) {
+	public function addToTags(array $tags) {
 		foreach($tags as $name => $content) {
 			addToTag($name, $content);
 		}
@@ -75,23 +79,36 @@ class Template {
 	 * 
 	 * @returns Parsed content string.
 	 */
-	public render() {
+	public function render() {
 		$content = "";
 		
-		$fPath = $this->m_basePath . "/" . $this->m_filePath;
+		$fPath = self::$m_basePath . "/" . $this->m_filePath;
 		$hFile = fopen($fPath, "r");
 		
 		if ($hFile) {
 			while (($sLine = fgets($hFile)) !== false) {
 				$sLineCopy = "";
-				
+						
+				// Replace the variables
 				foreach($this->m_vars as $name => $value) {
 					$sLineCopy .= str_replace("{".$name."}", $value, $sLine);
 				}
 				
+				// Replace the tags.
 				foreach($this->m_tags as $name => $value) {
-					$content .= str_replace("<!-- TAG ".$name." -->", $value, $sLineCopy);
+					$sLineCopy = str_replace("<!-- TAG ".$name." -->", $value, $sLineCopy);
 				}
+				
+				// Replace all language variables in the file
+				$matches = array();
+				preg_match_all("/{L\.([0-9a-zA-Z\-_]+)}/", $sLineCopy, $matches);
+				foreach($matches[1] as $match) {
+					if(isset(self::$m_lang[$match])) {
+						$sLineCopy = str_replace("{L.".$match."}", self::$m_lang[$match], $sLineCopy);
+					}
+				}
+				
+				$content .= $sLineCopy;
 			}
 
 			fclose($hFile);
@@ -107,7 +124,7 @@ class Template {
 	 * 
 	 * @param $str_basePath 
 	 */
-	public static setBasePath($str_basePath)  {
+	public static function setBasePath($str_basePath)  {
 		if(!is_string($str_basePath)) {
 			die( __METHOD__ . " [". __LINE__ . ":] Base path is not a string");
 		}
