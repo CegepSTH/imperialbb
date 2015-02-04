@@ -38,7 +38,15 @@ if(isset($_POST['Submit'])) {
 	} else if(userexists($_POST['UserName']) == 1) {
 		$error .= $lang['Username_Already_Taken'] . "<br />";
 	}
-	
+
+	if(strlen($_POST['Email']) < 2) {
+		$error .= $lang['Email_Too_Short'] . "<br />";
+	} else if(emailexists($_POST['Email']) == 1) {
+		$error .= $lang['Email_Already_Taken'] . "<br />";
+	}
+
+
+
 	if(strlen($_POST['Password']) < 4) {
 		$error .= $lang['Password_Too_Short'] . "<br />";
 	} else if($_POST['Password'] != $_POST['Pass2']) {

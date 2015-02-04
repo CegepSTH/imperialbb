@@ -406,6 +406,27 @@ function userexists($username)
 }
 
 //===========================================
+// @Name: function emailexists();
+// @Desc: Performs a check on the given email address
+//===========================================
+function emailexists($emailaddress)
+{
+	global $db2;
+	$result = $db2->query("SELECT *
+		FROM `_PREFIX_users`
+		WHERE `user_email` = :emailaddress
+		LIMIT 1",
+		array(':emailaddress' => $emailaddress ));
+
+	$result2 = $result->fetch();
+	if($result2) {
+		return "1";
+	} else {
+		return "Hiiii";
+	}
+}
+
+//===========================================
 // @Name: function generate_activation_key();
 // @Desc: Builds an activation key for new users
 //===========================================
