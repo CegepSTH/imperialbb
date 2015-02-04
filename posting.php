@@ -981,7 +981,7 @@ else if($_GET['func'] == "edit")
 {
 
 	if(!isset($_GET['pid']) || !is_numeric($_GET['pid'])) error_msg($lang['Error'], $lang['Invalid_Post_Id']);
-	$query = $db2->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
+	$query = $db2->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_status`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
 		FROM (((`_PREFIX_posts` p
 		LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
 		LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
@@ -995,8 +995,14 @@ else if($_GET['func'] == "edit")
 
 	if($result = $query->fetch())
 	{
+		if($result['topic_status'] == 1){
+			error_msg("Error", $lang['Topic_Is_Closed']);
+		}
+
 		if(!((($result['forum_mod'] <= $user['user_level'] && $result['ug_mod'] == 0) || $result['ug_mod'] == 1) || ($result['post_user_id'] == $user['user_id'] && $user['user_id'] > 0)))
-		{			if($user['user_id'] > 0) {
+		{
+
+			if($user['user_id'] > 0) {
 				error_msg("Error", $lang['User_Edit_Msg']);
 			}
 			else
@@ -1255,7 +1261,7 @@ else if($_GET['func'] == "delete")
 	if(isset($_GET['pid']))
 	{
 		// Get the current thread and the id of the user who posted the comments.
-		$result = $db2->query("SELECT  t.`topic_id`, f.`forum_id`, p.`post_user_id`
+		$result = $db2->query("SELECT  t.`topic_id`, t.`topic_status`, f.`forum_id`, p.`post_user_id`
 					  FROM ((_PREFIX_posts p
 							LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
 							LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
@@ -1267,7 +1273,11 @@ else if($_GET['func'] == "delete")
 			if($user['user_id'] != $ug_auth['post_user_id']) {
 				error_msg($lang['Error'], $lang['Invalid_Permissions_Mod']);
 
-			} else if ($user['user_id'] < 0){
+			}
+			else if ($ug_auth['topic_status'] == 1){
+				error_msg($lang['Error'], $lang['Topic_Is_Closed']);
+			}
+			else if ($user['user_id'] < 0){
 				header("Location: login.php");
 				exit;
 			}
