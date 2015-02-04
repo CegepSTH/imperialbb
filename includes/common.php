@@ -53,6 +53,8 @@ require_once($root_path . "classes/database.php");
 $db2 = new Database($database, $db_prefix);
 
 require_once($root_path . "classes/csrf.php");
+require_once($root_path . "classes/template.php");
+Template::setBasePath($root_path . "templates/original");
 
 include_once($root_path . "includes/constants.php");
 include_once($root_path . "includes/init.php");

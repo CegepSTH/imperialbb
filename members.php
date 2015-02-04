@@ -19,6 +19,7 @@ $root_path = "./";
 include($root_path . "includes/common.php");
 $language->add_file("members");
 $theme->new_file("memberslist", "memberslist.tpl");
+$page_master = new Template("memberslist.tpl", $lang);
 
 $member_count_query = $db2->query("SELECT count(`user_id`) AS 'member_count' FROM `_PREFIX_users`");
 
@@ -27,7 +28,7 @@ $member_count = (intval($member_count_result['member_count']) - 1);
 
 $pagination = $pp->paginate($member_count, $config['members_per_page']);
 
-$theme->replace_tags("memberslist", array(
+$page_master->setVars(array(
 	"PAGINATION" => $pagination
 ));
 
@@ -38,36 +39,26 @@ $sql = $db2->query("SELECT *
 	LIMIT " . $pp->limit . ""
 );
 
+$member_row = new Template("memberslist_memberrow.tpl", $lang);
 while($result = $sql->fetch()) 
 {
     $membername = '';
     $membername = format_membername($result['user_rank'],$result['user_id'],$result['username']);
-	$theme->insert_nest("memberslist", "member_row", array(
+	$member_row->setVars(array(
 		"ID" => $result['user_id'],
 		"USERNAME" => $membername,
 		"USER" => $result['username'],
 		"POSTS" => $result['user_posts'],
 		"DATE_JOINED" => create_date("D d M Y", $result['user_date_joined'])
 	));
-	$theme->add_nest("memberslist", "member_row");
+	$page_master->addToTag("members_rows", $member_row);
 }
 
 
 $page_title = $config['site_name'] . " &raquo; " . $lang['Members_List'];
 
-//
-// Output the page header
-//
 include($root_path . "includes/page_header.php");
-
-//
-// Output the main page
-//
-$theme->output("memberslist");
-
-//
-// Output the page footer
-//
+echo($page_master->render());
 include($root_path . "includes/page_footer.php");
 
 /*======================================================================*\
