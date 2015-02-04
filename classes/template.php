@@ -21,7 +21,6 @@ class Template {
 		$this->m_vars = array();
 		$this->m_tags = array();
 		$this->m_filePath = $str_file;
-		self::$m_namespaces = array();
 	}
 	
 	/**
@@ -104,7 +103,7 @@ class Template {
 				}
 				
 				// Replace all namespaces 
-				foreach(self::$m_namespaces as $key) {
+				foreach(self::$m_namespaces as $key => $value) {
 					$matches = array();
 					preg_match_all("/{".$key."\.([0-9a-zA-Z\-_]+)}/", $sLineCopy, $matches);
 					
@@ -133,12 +132,12 @@ class Template {
 	 * @param $str_name Namespace name
 	 * @param $values Associative array of values.
 	 */ 
-	public function addNamespace($str_name, array &$values) {
+	public static function addNamespace($str_name, array &$values) {
 		if(strlen($str_name) < 1) {
 			die(__METHOD__ . ": namespace name '".$str_name."' is either invalid or empty.");
 		}
 		
-		self::$m_namespaces[$str_name] = array_merge(self::$m_namespaces[$str_name], $values);
+		self::$m_namespaces[$str_name] = $values;
 	}
 	
 	/**

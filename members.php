@@ -19,7 +19,7 @@ $root_path = "./";
 include($root_path . "includes/common.php");
 $language->add_file("members");
 $theme->new_file("memberslist", "memberslist.tpl");
-$page_master = new Template("memberslist.tpl", $lang);
+$page_master = new Template("memberslist.tpl");
 
 $member_count_query = $db2->query("SELECT count(`user_id`) AS 'member_count' FROM `_PREFIX_users`");
 
@@ -39,7 +39,7 @@ $sql = $db2->query("SELECT *
 	LIMIT " . $pp->limit . ""
 );
 
-$member_row = new Template("memberslist_memberrow.tpl", $lang);
+$member_row = new Template("memberslist_memberrow.tpl");
 while($result = $sql->fetch()) 
 {
     $membername = '';

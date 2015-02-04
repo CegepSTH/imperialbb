@@ -81,6 +81,7 @@ while($row = $sql->fetch())
 		unset($row['language_folder']);
 	}
 }
+Template::addNamespace("C", $config);
 
 // Get user data and put into array
 $sql = $db2->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l.`language_name`
@@ -117,6 +118,7 @@ if(defined("IN_ADMIN") && $user['user_level'] < 5)
 }
 
 $language = new Language();
+Template::addNamespace("L", $lang);
 
 // Template Check
 if($user['user_id'] < 0) {
