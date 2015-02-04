@@ -1249,7 +1249,86 @@ else if($_GET['func'] == "edit")
 	else
 	{		error_msg($lang['Error'], $lang['Invalid_Post_Id']);
 	}
+}
+else if($_GET['func'] == "delete")
+{
+	if(isset($_GET['pid']))
+	{
+		// Get the current thread and the id of the user who posted the comments.
+		$result = $db2->query("SELECT  t.`topic_id`, f.`forum_id`, p.`post_user_id`
+					  FROM ((_PREFIX_posts p
+							LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
+							LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
+					  WHERE p.`post_id` = :pid",
+			array(":pid" => $_GET['pid']));
 
+		// The can only delete his own post!
+		if($ug_auth = $result->fetch()) {
+			if($user['user_id'] != $ug_auth['post_user_id']) {
+				error_msg($lang['Error'], $lang['Invalid_Permissions_Mod']);
+
+			} else if ($user['user_id'] < 0){
+				header("Location: login.php");
+				exit;
+			}
+
+			$tid = $ug_auth['topic_id'];
+			$fid = $ug_auth['forum_id'];
+		} else {
+			error_msg($lang['Error'], $lang['Invalid_Post_Id']);
+		}
+
+		$db2->query("SELECT count(*) AS `cc` FROM `_PREFIX_posts` WHERE `post_topic_id`=:tid", array(":tid" => $tid));
+		if($result = $db2->fetch()) {
+			if($result["cc"] == 1) {
+				error_msg($lang['Error'], sprintf($lang['Delete_Last_Post_In_Topic_Msg'], "<a href=\"view_topic.php?tid=$tid\">", "</a>"));
+			}
+		}
+
+		if(!isset($_GET['confirm']) || $_GET['confirm'] != "1") {
+			$db2->query("SELECT t.`topic_id`
+				FROM (`_PREFIX_posts` p
+					LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
+				WHERE p.`post_id`=:pid",
+				array(":pid" => $_GET['pid']));
+
+			$topic = $db2->fetch();
+			confirm_msg($lang['Delete_Post'], $lang['Delete_Post_Confirm_Msg'], "posting.php?func=delete&pid=".$_GET['pid']."&confirm=1", "view_topic.php?tid=".$topic['topic_id']."");
+		} else {
+			CSRF::validate();
+
+			$db2->query("DELETE FROM `_PREFIX_posts` WHERE `post_id`=:pid", array(":pid" => $_GET['pid']));
+
+			$db2->query("SELECT `post_id`, `post_timestamp`
+				FROM `_PREFIX_posts`
+				WHERE `post_topic_id`=:tid
+				ORDER BY `post_timestamp` DESC LIMIT 1",
+				array(":tid" => $tid));
+
+			if($result = $db2->fetch()) {
+				$db2->query("UPDATE `_PREFIX_topics`
+					SET `topic_last_post`=:pid, `topic_time`=:time, `topic_replies` = (`topic_replies` - 1)
+					WHERE `topic_id`=:tid",
+					array("pid" => $result['post_id'], ":time" => $result['post_timestamp'], ":tid" => $tid));
+			} else {
+				error_msg($lang['Error'], $lang['Select_last_post_in_topic_error']);
+			}
+
+			$db2->query("SELECT p.`post_id`
+				FROM (`_PREFIX_topics` t
+					LEFT JOIN `_PREFIX_posts` p ON p.`post_id` = t.`topic_last_post`)
+				ORDER BY t.`topic_time` DESC LIMIT 1");
+
+			if($result = $db2->fetch()) {
+				$db2->query("UPDATE `_PREFIX_forums` SET `forum_last_post`=:pid WHERE `forum_id`=:fid",
+					array(":pid" => $result['pid'], ":fid" => $fid));
+			} else {
+				error_msg($lang['Error'], $lang['Select_last_post_in_forum_error']);
+			}
+
+			info_box($lang['Delete_Post'], $lang['Post_Deleted_Msg'], "view_topic.php?tid=$tid");
+		}
+	}
 }
 else if(isset($_GET['mark']))
 {
