@@ -133,12 +133,12 @@ class Template {
 	 * @param $str_name Namespace name
 	 * @param $values Associative array of values.
 	 */ 
-	public function addNamespace($str_name, array &$values) {
+	public static function addNamespace($str_name, array &$values) {
 		if(strlen($str_name) < 1) {
 			die(__METHOD__ . ": namespace name '".$str_name."' is either invalid or empty.");
 		}
 		
-		self::$m_namespaces[$str_name] = array_merge(self::$m_namespaces[$str_name], $values);
+		self::$m_namespaces[$str_name] = $values;
 	}
 	
 	/**
