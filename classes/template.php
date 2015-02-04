@@ -41,7 +41,7 @@ class Template {
 	 */
 	public function setVars(array $vars) {
 		foreach($vars as $name => $value) {
-			setVar($name, $value);
+			$this->setVar($name, $value);
 		}	
 	}
 	
@@ -70,7 +70,7 @@ class Template {
 	 */
 	public function addToTags(array $tags) {
 		foreach($tags as $name => $content) {
-			addToTag($name, $content);
+			$this->addToTag($name, $content);
 		}
 	}
 	
@@ -87,11 +87,11 @@ class Template {
 		
 		if ($hFile) {
 			while (($sLine = fgets($hFile)) !== false) {
-				$sLineCopy = "";
+				$sLineCopy = $sLine;
 						
 				// Replace the variables
 				foreach($this->m_vars as $name => $value) {
-					$sLineCopy .= str_replace("{".$name."}", $value, $sLine);
+					$sLineCopy = str_replace("{".$name."}", $value, $sLineCopy);
 				}
 				
 				// Replace the tags.
