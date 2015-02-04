@@ -59,7 +59,11 @@ class Template {
 			$content = $str_content->render();
 		}
 		
-		$this->m_tags[$str_tagName] .= $content;
+		if(!isset($this->m_tags[$str_tagName])) {
+			$this->m_tags[$str_tagName] = $content;
+		} else {
+			$this->m_tags[$str_tagName] .= $content;
+		}
 	}
 	
 	/**
