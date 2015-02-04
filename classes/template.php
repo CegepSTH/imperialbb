@@ -9,19 +9,19 @@ class Template {
 	private $m_tags;
 	// Relative file path for the template.
 	private $m_filePath;
-	// Reference towards the language associated.
-	private static $m_lang; 
+	// Associative array of namespace ['C'] => array values
+	private static $m_namespaces;
 	
 	/**
 	 * CTOR 
 	 * 
 	 * @param $str_file File relative path / file name
 	 */
-	public function __construct($str_file, &$lang) {
+	public function __construct($str_file) {
 		$this->m_vars = array();
 		$this->m_tags = array();
 		$this->m_filePath = $str_file;
-		self::$m_lang = &$lang;
+		self::$m_namespaces = array();
 	}
 	
 	/**
@@ -59,7 +59,11 @@ class Template {
 			$content = $str_content->render();
 		}
 		
-		$this->m_tags[$str_tagName] .= $content;
+		if(!isset($this->m_tags[$str_tagName])) {
+			$this->m_tags[$str_tagName] = $content;
+		} else {
+			$this->m_tags[$str_tagName] .= $content;
+		}
 	}
 	
 	/**
@@ -99,12 +103,16 @@ class Template {
 					$sLineCopy = str_replace("<!-- TAG ".$name." -->", $value, $sLineCopy);
 				}
 				
-				// Replace all language variables in the file
-				$matches = array();
-				preg_match_all("/{L\.([0-9a-zA-Z\-_]+)}/", $sLineCopy, $matches);
-				foreach($matches[1] as $match) {
-					if(isset(self::$m_lang[$match])) {
-						$sLineCopy = str_replace("{L.".$match."}", self::$m_lang[$match], $sLineCopy);
+				// Replace all namespaces 
+				foreach(self::$m_namespaces as $key) {
+					$matches = array();
+					preg_match_all("/{".$key."\.([0-9a-zA-Z\-_]+)}/", $sLineCopy, $matches);
+					
+					foreach($matches[1] as $match) {
+						if(isset(self::$m_namespaces[$key][$match])) {
+							$sLineCopy = str_replace("{".$key.".".$match."}", 
+								self::$m_namespaces[$key][$match], $sLineCopy);
+						}
 					}
 				}
 				
@@ -117,6 +125,20 @@ class Template {
 		} 
 		
 		return $content;
+	}
+	
+	/**
+	 * Add a namespace with values.
+	 * 
+	 * @param $str_name Namespace name
+	 * @param $values Associative array of values.
+	 */ 
+	public function addNamespace($str_name, array &$values) {
+		if(strlen($str_name) < 1) {
+			die(__METHOD__ . ": namespace name '".$str_name."' is either invalid or empty.");
+		}
+		
+		self::$m_namespaces[$str_name] = array_merge(self::$m_namespaces[$str_name], $values);
 	}
 	
 	/**
