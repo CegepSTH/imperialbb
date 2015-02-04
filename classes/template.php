@@ -105,11 +105,11 @@ class Template {
 				// Replace all namespaces 
 				foreach(self::$m_namespaces as $key => $value) {
 					$matches = array();
-					preg_match_all("/{".$value."\.([0-9a-zA-Z\-_]+)}/", $sLineCopy, $matches);
-					
+					preg_match_all("/{".$key."\.([0-9a-zA-Z\-_]+)}/", $sLineCopy, $matches);
+	
 					foreach($matches[1] as $match) {
 						if(isset($value[$match])) {
-							$sLineCopy = str_replace("{".$value.".".$match."}", 
+							$sLineCopy = str_replace("{".$key.".".$match."}", 
 								$value[$match], $sLineCopy);
 						}
 					}
