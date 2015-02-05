@@ -701,6 +701,92 @@ function load_forum_stats()
 	));
 }
 
+function before($inthat, $this) {
+	$arr = explode($this, $inthat, 2);
+	$first = $arr[0];
+	
+	return $first; 
+}
+
+function str_replace_once($needle, $replace, $haystack) {
+    $pos = strpos($haystack, $needle);
+    if ($pos === false) {
+        return $haystack;
+    }
+    return substr_replace($haystack, $replace, $pos, strlen($needle));
+}
+
+function countWord($needle, $haystack) {
+	$count = 0;
+	$c = str_replace($needle, "", $haystack, $count);
+	return $count;
+}
+
+/**
+ * Match nested tags. 
+ * 
+ * Example: [quote] [quote] [/quote] [/quote]
+ * 		With a normal parser would return a match like
+ * 		[quote:0][quote:1] [/quote:0] [/quote:1] 
+ * 		With a more complex structure: 
+ * 		[quote:0] [quote:1] [/quote:0] [/quote:1] [quote:3] [/quote:3]
+ * 
+ * However, this functions fixes the behavior and results:
+ * 		[quote:0] [quote:1] [/quote:1] [/quote:0] [quote:0] [quote:1][/quote:1] [/quote:0]
+ * 
+ * @param $code Full code as string to parse.
+ * @param $opening Opening tag.
+ */
+function match_nested_tags($code, $opening, $end, 
+	array &$matches = array(), $delimS = "[", $delimE = "]") 
+{ 
+    $ix = 0; 
+    $iy = 0; 
+    $nbr_op = countWord($opening, $code);
+
+    while($ix < $nbr_op) { 
+        if(countWord($opening, before($code, $end)) > 0) {
+            // The following piece of code replace the default [tag] by [tag:#] 
+            $rep = $delimS . substr($opening, 1, (strlen($opening)-2)).":".$ix.$delimE;
+            $matches[] = $rep;
+            $code = str_replace_once($opening, $rep, $code); 
+            $iy++; 
+        } elseif(countWord($end, before($code, $opening)) > 0)  { 
+            $iy = $iy-1; 
+            $rep = $delimS . substr($end, 1, (strlen($end)-2)).":".($ix-1).$delimE;
+            $matches[] = $rep;
+            $code = str_replace_once($end, $rep, $code); 
+            $ix = $ix-2; 
+        } 
+
+        $ix++; 
+    } 
+
+    while(strpos($code, $end) !== false) { 
+		$rep = $delimS . substr($end, 1, (strlen($end)-2)).":".($iy-1).$delimE;
+		$matches[] = $rep;
+		$code = str_replace_once($end, $rep, $code); 
+        $iy=$iy-1; 
+    } 
+    
+	$pat = substr($end, 0, -1);
+
+	// Replace negatives [/code:-1]
+    $code = preg_replace("#\\$delimS$pat:-[0-9]\\$delimE#", "", $code); 
+
+    return $code; 
+} 
+
+function in_array_r($needle, $haystack, $strict = false) {
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /*======================================================================*\
 || #################################################################### ||
 || #                 "Copyright � 2006 M-ka Network"                  # ||

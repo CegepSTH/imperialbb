@@ -216,8 +216,10 @@ else if($_GET['func'] == "add")
 		}
 		else
 		{
+
 			$values = array(":uname" => $_POST['name'], ":desc" => $_POST['desc']);
-			$db2->query("INSERT INTO `_PREFIX_usergroups` (`name`, `desc`) VALUES (:uname, :desc)");
+			$db2->query("INSERT INTO `_PREFIX_usergroups` (`name`, `desc`) VALUES (:uname, :desc)", $values);
+
 			info_box($lang['Create_Usergroup'], $lang['Usergroup_Created_Msg'], "usergroups.php");
 		}
 	}
