@@ -285,7 +285,11 @@ if($topic = $db2->fetch()) {
 				"POST_ID" => $post['post_id']
 			));
 		} else if($post['user_id'] == $user['user_id'] && $user['user_id'] > 0) {
-			$theme->switch_nest("view_topic", "postrow/mod_links", false);
+			// Vérifier ici si le thread est verouillé pour cacher les boutons ou non.
+			// topic status 1 = topic closed (verouillé)
+			if($topic['topic_status'] != 1) {
+				$theme->switch_nest("view_topic", "postrow/mod_links", false);
+			}
 		}
 
 		if(($topic['forum_reply'] <= $user['user_level'] && $topic['ug_reply'] == 0) || $topic['ug_reply'] == 1) {

@@ -101,9 +101,11 @@ div#quick_reply {
      <td height="20">{DATE}</td>
      <td width="300" class="cell2" align="right" style="padding-right:5px;">
       <!-- BEGIN SWITCH mod_links -->
-      <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>&nbsp;&nbsp;<a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
+      <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
+      <a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
       <!-- SWITCH mod_links -->
       <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
+      <a href="posting.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
       <!-- END SWITCH mod_links -->
       <!-- BEGIN quote_button -->
       <a href="posting.php?func=reply&tid={TOPIC_ID}&quote={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/quote.gif" /></a>
