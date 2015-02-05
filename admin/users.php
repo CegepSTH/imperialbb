@@ -66,7 +66,7 @@ if($_GET['func'] == "edit")
 			));
 			$theme->add_nest("edit_user", "rank_option");
 		}
-		
+
 		// Fetch user levels.
 		$user_levels = array($lang['Administrator'] => "5", $lang['Moderator'] => "4", $lang['Registered'] => "3", $lang['Validating'] => "2", $lang['Guest'] => "1", $lang['Banned'] => "0");
 		foreach($user_levels as $ul_name => $ul_id)	{
