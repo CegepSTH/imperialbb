@@ -242,7 +242,7 @@ class User {
 	 * @return User's level.
 	 */
 	function getLevel() {
-		$this->m_level;
+		return $this->m_level;
 	}
 	
 	/**

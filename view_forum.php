@@ -143,7 +143,7 @@ if($forum = $db_forum->fetch())
 				));
 				$theme->add_nest("view_forum", "subforums/forum_row");
 			} else {
-				$theme->insert_nest("view_forum", "subforums/forum_row", array(
+				$theme->switch_nest("view_forum", "subforums/forum_row", true, array(
 					"SUBFORUM_ID" => $forum_result['forum_id'],
 					"SUBFORUM_NAME" => $forum_result['forum_name'],
 					"SUBFORUM_DESCRIPTION" => $forum_result['forum_description'],
