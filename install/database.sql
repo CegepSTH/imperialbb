@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `ibb_categories` (
 --
 
 INSERT INTO `ibb_categories` (`cat_id`, `cat_name`, `cat_orderby`) VALUES
-(1, 'Test Category', 1)
+(1, 'Test Category', 1);
 
 -- --------------------------------------------------------
 
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `ibb_posts` (
 --
 
 INSERT INTO `ibb_posts` (`post_id`, `post_topic_id`, `post_user_id`, `post_text`, `post_timestamp`, `post_disable_html`, `post_disable_bbcode`, `post_disable_smilies`, `post_attach_signature`) VALUES
-(1, 3, 1, 'test', 1422030719, 0, 0, 0, 1),
+(1, 3, 1, 'test', 1422030719, 0, 0, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -424,7 +424,7 @@ CREATE TABLE IF NOT EXISTS `ibb_topics` (
 --
 
 INSERT INTO `ibb_topics` (`topic_id`, `topic_forum_id`, `topic_title`, `topic_poll_title`, `topic_status`, `topic_type`, `topic_first_post`, `topic_user_id`, `topic_replies`, `topic_views`, `topic_last_post`, `topic_time`) VALUES
-(1, 9, 'test', '', 0, 0, 11, -1, 0, 3, 11, 1422467028),
+(1, 9, 'test', '', 0, 0, 11, -1, 0, 3, 11, 1422467028);
 
 -- --------------------------------------------------------
 
@@ -511,7 +511,7 @@ CREATE TABLE IF NOT EXISTS `ibb_users` (
 --
 
 INSERT INTO `ibb_users` (`user_id`, `username`, `user_password`, `user_email`, `user_date_joined`, `user_lastvisit`, `user_level`, `user_usergroup`, `user_signature`, `user_rank`, `user_aim`, `user_icq`, `user_msn`, `user_yahoo`, `user_email_on_pm`, `user_template`, `user_language`, `user_timezone`, `user_posts`, `user_activation_key`, `user_location`, `user_website`, `user_avatar_type`, `user_avatar_location`, `user_avatar_dimensions`, `user_password_reset_request`, `user_new_password`, `user_birthday`) VALUES
-(-1, 'Guest', '', '', 0, 1422464343, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '', ''),
+(-1, 'Guest', '', '', 0, 1422464343, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '', '');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

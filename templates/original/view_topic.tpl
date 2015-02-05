@@ -101,9 +101,11 @@ div#quick_reply {
      <td height="20">{DATE}</td>
      <td width="300" class="cell2" align="right" style="padding-right:5px;">
       <!-- BEGIN SWITCH mod_links -->
-      <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>&nbsp;&nbsp;<a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
+      <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
+      <a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
       <!-- SWITCH mod_links -->
       <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
+      <a href="posting.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
       <!-- END SWITCH mod_links -->
       <!-- BEGIN quote_button -->
       <a href="posting.php?func=reply&tid={TOPIC_ID}&quote={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/quote.gif" /></a>
@@ -170,6 +172,8 @@ div#quick_reply {
   <!-- BEGIN mod_links -->
   <a href="mod.php?func=delete&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/delete.gif" alt="{L.Delete_Topic}" title="{L.Delete_Topic}" /></a>
   <a href="mod.php?func=move&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/move.gif" alt="{L.Move_Topic}" title="{L.Move_Topic}" /></a>
+   <!-- SWITCH mod_links -->
+   <a href="mod.php?func=delete&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/delete.gif" alt="{L.Delete_Topic}" title="{L.Delete_Topic}" /></a>
   <!-- BEGIN SWITCH lock_topic -->
   <form method="post" action="mod.php" class="mod-action-form">
     {CSRF_TOKEN}

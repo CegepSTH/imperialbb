@@ -285,7 +285,11 @@ if($topic = $db2->fetch()) {
 				"POST_ID" => $post['post_id']
 			));
 		} else if($post['user_id'] == $user['user_id'] && $user['user_id'] > 0) {
-			$theme->switch_nest("view_topic", "postrow/mod_links", false);
+			// Vérifier ici si le thread est verouillé pour cacher les boutons ou non.
+			// topic status 1 = topic closed (verouillé)
+			if($topic['topic_status'] != 1) {
+				$theme->switch_nest("view_topic", "postrow/mod_links", false);
+			}
 		}
 
 		if(($topic['forum_reply'] <= $user['user_level'] && $topic['ug_reply'] == 0) || $topic['ug_reply'] == 1) {
@@ -338,8 +342,10 @@ if($topic = $db2->fetch()) {
 	}
 
 	if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {
+		$theme->switch_nest("view_topic", "mod_links", true);
+
 		$theme->insert_nest("view_topic", "mod_links");
-		
+
 		if($topic['topic_status'] == "0") {
 			$theme->switch_nest("view_topic", "mod_links/lock_topic", true);
 		} else {
@@ -357,8 +363,17 @@ if($topic = $db2->fetch()) {
 		if($topic['topic_type'] != GENERAL) {
 			$theme->insert_nest("view_topic", "mod_links/general_topic");
 		}
-		
+
 		$theme->add_nest("view_topic", "mod_links");
+	}
+	if($topic['topic_user_id'] == $user['user_id'] && $user['user_id'] > 0) {
+		if($topic['topic_status'] != 1) {
+//			$theme->insert_nest("view_topic", "mod_links");
+
+
+			$theme->switch_nest("view_topic", "mod_links", false);
+			$theme->add_nest("view_topic", "mod_links");
+		}
 	}
 }
 else
