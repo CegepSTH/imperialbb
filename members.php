@@ -39,19 +39,17 @@ $sql = $db2->query("SELECT *
 	LIMIT " . $pp->limit . ""
 );
 
-$member_row = new Template("memberslist_memberrow.tpl");
 while($result = $sql->fetch()) 
 {
     $membername = '';
     $membername = format_membername($result['user_rank'],$result['user_id'],$result['username']);
-	$member_row->setVars(array(
+	$page_master->addToBlock("member", array(
 		"ID" => $result['user_id'],
 		"USERNAME" => $membername,
 		"USER" => $result['username'],
 		"POSTS" => $result['user_posts'],
 		"DATE_JOINED" => create_date("D d M Y", $result['user_date_joined'])
 	));
-	$page_master->addToTag("members_rows", $member_row);
 }
 
 

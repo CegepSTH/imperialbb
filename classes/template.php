@@ -1,4 +1,23 @@
 <?php
+if(!isset($root_path)) $root_path = "../";
+
+require_once($root_path . "includes/functions.php");
+
+class Block {
+	public $output;
+	
+	public function Block($str_file, $str_blockName, array $values) {
+		$content = file_get_contents($str_file);
+
+		$matches = array();
+		preg_match_all("/<!-- BLOCK $str_blockName -->(.*?)<!-- END BLOCK $str_blockName -->/s", $content, $matches);
+		$this->output = $matches[1][0];
+		// replaces tags
+		foreach($values as $key => $value) {
+			$this->output = str_replace("{".$key."}", $value, $this->output);
+		}
+	}
+}
 
 class Template {
 	// Base path of the template
@@ -11,6 +30,8 @@ class Template {
 	private $m_filePath;
 	// Associative array of namespace ['C'] => array values
 	private static $m_namespaces;
+	// Blocks
+	private $m_blocks;
 	
 	/**
 	 * CTOR 
@@ -20,6 +41,7 @@ class Template {
 	public function __construct($str_file) {
 		$this->m_vars = array();
 		$this->m_tags = array();
+		$this->m_blocks = array();
 		$this->m_filePath = $str_file;
 	}
 	
@@ -78,6 +100,23 @@ class Template {
 	}
 	
 	/**
+	 * Adds values to the specified block
+	 * 
+	 * @param $str_name Name of the block
+	 * @param $values Associative array of values as $key => $value
+	 * @note Limited to 3 nested.
+	 */
+	public function addToBlock($str_name, array $values) {
+		$block = new Block(self::$m_basePath . "/" . $this->m_filePath, $str_name, $values);
+		
+		if(!isset($this->m_blocks[$str_name])) {
+			$this->m_blocks[$str_name] = "".$block->output;
+		} else {
+			$this->m_blocks[$str_name] .= "".$block->output;
+		}
+	}
+	
+	/**
 	 * Renders the template
 	 * 
 	 * @returns Parsed content string.
@@ -121,7 +160,28 @@ class Template {
 			fclose($hFile);
 		} else {
 			die(__FILE__ . " : Cannot open " . $fPath );
-		} 
+		}
+		
+		// Replace blocks
+		foreach($this->m_blocks as $block => $output) {
+			// Replace all namespaces 
+			foreach(self::$m_namespaces as $key => $value) {
+				$matches = array();
+				preg_match_all("/{".$key."\.([0-9a-zA-Z\-_]+)}/", $output, $matches);
+	
+				foreach($matches[1] as $match) {
+					if(isset($value[$match])) {
+						$output= str_replace("{".$key.".".$match."}", 
+							$value[$match], $output);
+					}
+				}
+			}
+			$content = preg_replace("/<!-- BLOCK $block -->(.*?)<!-- END BLOCK $block -->/s", $output, $content);
+		}
+		
+		// Remove what should be removed.
+		$content = preg_replace("/<!-- BLOCK(.*?)-->(.*?)<!-- END BLOCK(.*?)-->/s", "", $content);
+		$content = preg_replace("/<!-- TAG(.*?)-->/s", "", $content);
 		
 		return $content;
 	}
@@ -143,7 +203,7 @@ class Template {
 	/**
 	 * Sets the base path for the templates. 
 	 * 
-	 * @param $str_basePath 
+	 * @param $str_basePath Base template path.
 	 */
 	public static function setBasePath($str_basePath)  {
 		if(!is_string($str_basePath)) {
