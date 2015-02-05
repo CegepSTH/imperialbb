@@ -13,3 +13,6 @@ imperialbb.sln
 .httpd.conf
 imperialbb.v12.suo
 php.ini
+includes/functions.php.orig
+test.php
+~$b_plan_de_test.docx
