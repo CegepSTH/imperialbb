@@ -31,6 +31,7 @@ if($_GET['func'] == "edit")
 			exit();
 		}
 
+
 		$ims = $oUser->getMessengers();
 		$theme->new_file("edit_user", "edit_user.tpl");
 		$theme->replace_tags("edit_user", array(
@@ -54,8 +55,8 @@ if($_GET['func'] == "edit")
 			));
 			$theme->add_nest("edit_user", "usergroup_option");
 		}
-		
-		// Fetch ranks.		
+
+		// Fetch ranks.
 		$db2->query("SELECT * FROM `_PREFIX_ranks`");
 		while($rank_result = $db2->fetch()) {
 			$theme->insert_nest("edit_user", "rank_option", array(
@@ -74,10 +75,10 @@ if($_GET['func'] == "edit")
 				"UL_NAME" => $ul_name,
 				"UL_SELECTED" => ($ul_id == $oUser->getLevel()) ? "SELECTED" : ""
 			));
-			
+
 			$theme->add_nest("edit_user", "user_level_option");
 		}
-		
+
 		include_once($root_path . "includes/page_header.php");
 		$theme->output("edit_user");
 		include_once($root_path . "includes/page_footer.php");
