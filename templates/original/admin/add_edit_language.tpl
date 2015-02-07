@@ -1,4 +1,4 @@
-<!-- BEGIN error -->
+<!-- BLOCK error -->
 <table width="100%" class="maintable">
 	<tr>
 		<th height="25">{L.Error}</th>
@@ -9,7 +9,7 @@
 		</td>
 	</tr>
 </table><br />
-<!-- END error -->
+<!-- END BLOCK error -->
 <table width="100%" class="maintable">
 	<tr>
 		<th colspan="2" height="25">
@@ -36,4 +36,5 @@
 			<input type="submit" name="Submit" value="{L.Submit}" />  <input type="reset" value="{L.Reset}" />
 		</th>
 	</tr>
+	</form>
 </table>
