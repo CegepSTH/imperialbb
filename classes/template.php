@@ -182,7 +182,7 @@ class Template {
 		// Remove what should be removed: blocks, tags and comments.
 		$content = preg_replace("/<!-- BLOCK(.*?)-->(.*?)<!-- END BLOCK(.*?)-->/s", "", $content);
 		$content = preg_replace("/<!-- TAG(.*?)-->/s", "", $content);
-		$content = preg_replace("/<!--//(.*?)-->/s", "", $content);
+		$content = preg_replace("/<!--\\/\\/(.*?)-->/s", "", $content);
 		
 		return $content;
 	}
