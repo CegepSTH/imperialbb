@@ -5,9 +5,21 @@ require_once($root_path . "includes/functions.php");
 
 class Block {
 	public $output;
+	private static $m_blocks;
 	
 	public function Block($str_file, $str_blockName, array $values) {
-		$content = file_get_contents($str_file);
+		if(is_null($m_block)) {
+			self::$m_blocks;
+		}
+		$content = "";
+		
+		// If block was already loaded, do not redo an IO operation. 
+		if(!isset(self::$m_blocks[$str_blockName]) || trim(self::$m_blocks[$str_blockName]) == "") {
+			$content = file_get_contents($str_file);
+			self::$m_blocks[$str_blockName] = $content;
+		} else {
+			$content = self::$m_blocks[$str_blockName];
+		}
 
 		$matches = array();
 		preg_match_all("/<!-- BLOCK $str_blockName -->(.*?)<!-- END BLOCK $str_blockName -->/s", $content, $matches);
