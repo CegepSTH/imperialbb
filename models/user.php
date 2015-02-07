@@ -164,7 +164,7 @@ class User {
 	 * 
 	 * @returns Associative array as $user_id => $username
 	 */ 
-	function findUsersIds($n_count, $n_start = 0) {
+	public static function findUsersIds($n_count, $n_start = 0) {
 		if(!is_numeric($n_start) || !is_numeric($n_count)) {
 			die(__METHOD__ . ": parameters must be both numerics.");
 		}
