@@ -787,6 +787,15 @@ function in_array_r($needle, $haystack, $strict = false) {
     return false;
 }
 
+function parseBirthday($str_brithday) {
+	$birthday = explode("-", $str_birthday);
+	$day = $birthday[2];
+	$month = $birthday[1];
+	$year = $birthday[0] ?: '';
+	
+	return array("day" => $day, "month" => $month, "year" => $year);
+}
+
 /*======================================================================*\
 || #################################################################### ||
 || #                 "Copyright � 2006 M-ka Network"                  # ||
