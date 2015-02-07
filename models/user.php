@@ -157,6 +157,37 @@ class User {
 	}
 	
 	/**
+	 * Selects all users from $n_start, $n_count
+	 * 
+	 * @param $n_start Starting offset. Must be an integer
+	 * @param $n_count User count to fetch. Must be an integer.
+	 * 
+	 * @returns Associative array as $user_id => $username
+	 */ 
+	public static function findUsersIds($n_count, $n_start = 0) {
+		if(!is_numeric($n_start) || !is_numeric($n_count)) {
+			die(__METHOD__ . ": parameters must be both numerics.");
+		}
+		
+		global $database;
+		$list = array();
+		$db = new Database($database, $database["prefix"]);
+		$query = "SELECT `user_id`, `username` FROM _PREFIX_users";
+		
+		if($database['dbtype'] == "mysql") $query .= "LIMIT :offset,:count";
+		else if($database['dbtype'] == "pgsql") $query .= "LIMIT :count OFFSET :offset";
+		
+		$db->query($query, array(":count" => $n_count, ":offset" => $n_start));
+		
+		// Transform into a list. Ensure username is string.
+		while($result = $db->fetch()) {
+			$list[$result['user_id']] = (string)$result['username'];
+		}
+
+		return $list;
+	}
+	
+	/**
 	 * getId Gets the user's id.
 	 * @returns User id (int)
 	 */
