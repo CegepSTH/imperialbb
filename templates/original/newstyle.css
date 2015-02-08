@@ -11,10 +11,22 @@
 	border-bottom: 1px solid #ccc;
 	border-collapse: collapse;
 }
-/* For each input in the row, add a padding. important.. I think. */
-.form-admin-row input {
-	margin-top: 5px;
-}
+	/* For each input in the row, add a padding. important.. I think. */
+	.form-admin-row input {
+		margin-top: 5px;
+		height: 30px;
+	}
+	.form-admin-row select {
+		height: 25px;
+	}
+	
+	.form-admin-row input[type="radio"] {
+		width: auto;
+		vertical-align: middle;
+		margin-right: 5px;
+		margin-left: 5px;
+	}
+	
 	/* in-row column. */
 	.form-admin-row .form-admin-col {
 		margin-left: auto; 
@@ -33,6 +45,14 @@
 		background: #297ACC;	
 		color: #ffffff;   	
 		font-weight: bold; 
+		text-align: center;
+		padding-top: 5px;
+	}
+	
+	.block-form-admin h4 {
+		background: #11AAFF;
+		color: #fffff;
+		font-weight: bold;
 		text-align: center;
 		padding-top: 5px;
 	}

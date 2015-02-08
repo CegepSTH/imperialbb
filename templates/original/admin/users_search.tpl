@@ -1,5 +1,5 @@
 			<div class="block-form-admin">
-				<form action="#" method="post">
+				<form action="users.php?func=edit" method="post">
 					<h3>{L.search_user}</h3>
 					<div class="form-admin-row">
 						<label for="username">
@@ -13,7 +13,7 @@
 							<!-- END BLOCK userlist_item -->
 							</select>
 							<br />
-							<input id="username" placeholder="{L.username}" type="text" required autofocus>
+							<input id="username" name="username" placeholder="{L.username}" type="text" required autofocus>
 						</label>
 					</div>
 					<div class="form-admin-row right no-border">
