@@ -1,0 +1,33 @@
+			<div class="block-form-admin">
+				<form action="#" method="post">
+					<h3>{L.search_user}</h3>
+					<div class="form-admin-row">
+						<label for="username">
+							<span>{L.username}:</span>
+						</label>
+						<label>
+							<select id="userlist" onchange="fillUsername()">
+								<option value=""></option>
+							<!-- BLOCK userlist_item -->
+								<option value="{USERNAME}">{USERNAME}</option>
+							<!-- END BLOCK userlist_item -->
+							</select>
+							<br />
+							<input id="username" placeholder="{L.username}" type="text" required autofocus>
+						</label>
+					</div>
+					<div class="form-admin-row right no-border">
+						<input type="submit" value="{L.submit}">
+					</div>
+				</form>
+			</div>
+
+
+<!--// Javascript functions. -->
+			<script type="text/javascript">
+				function fillUsername() {
+					var field = document.getElementById("username");
+					var selected = document.getElementById("userlist");
+					field.value = selected.options[selected.selectedIndex].value;
+					}
+			</script>

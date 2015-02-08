@@ -1,15 +1,5 @@
 <?php
 
-/**********************************************************
-*
-*			admin/users.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
@@ -19,14 +9,93 @@ require_once($root_path."models/user.php");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
-if($_GET['func'] == "edit")
-{
-	if(isset($_POST['username']))
-	{
+// Create template instance. 
+$tplUsers = new Template($root_path."templates/admin/users.tpl");
+
+/**
+ * Search a user
+ */
+if($_GET['func'] == "search") {
+	// Get the first 30 users ids (id + username)
+	$lstUsersIds = User::findUsersIds(30);
+	
+	// Process the search sub-view. Add items to users list.
+	$tplUsersSearch = new Template($root_path."templates/admin/users_search.tpl");
+	foreach($lstUsersIds as $id => $username) {
+		$tplUsersSearch->addToBlock("userlist_item", array("USERNAME" => $username));
+	}
+	
+	// Add usersearch sub-view to main user view.
+	$tplUsers->addToTag("users_page", $tplUsersSearch);
+	
+} elseif($_GET['func'] == "edit") {
+	/**
+	 * EDIT
+	 */
+	 
+	// If username wasn't sent or empty !
+	if(!isset($_POST['username']) || trim($_POST['username']) == "") {
+		$_SESSION["return_url"] = "users.php?func=search";
+		header("Location: error.php?code=".ERR_CODE_USERNAME_NOT_SET);
+		exit();
+	}
+	
+	// Fetch user
+	$oUser = User::findUser(trim($_POST['username']));
+	
+	if(is_null($oUser)) {
+		$_SESSION["return_url"] = "users.php?func=search";
+		header("Location: error.php?code=".ERR_CODE_USER_NOT_FOUND);
+		exit();
+	}
+	
+	$_SESSION['user_edit_id'] = $oUser->getId();
+	$tplUserEdit = new Template($root_path."templates/admin/users_edit.tpl");
+	
+	// Parse birthday
+	$birthday = parseBirthday($oUser->getBirthday());
+	
+	// Add non-conditional vars.
+	$tplUserEdit->setVars(array("USERNAME" => $oUser->getUsername(),
+		"WEBSITE" => $oUser->getWebsite(),
+		"SIGNATURE" => $oUser->getSignature(),
+		"LOCATION" => $oUser->getLocation(),
+		"EMAIL" => $oUser->getEmail(),
+		"BDAY_MONTH" => $birthday["month"],
+		"BDAY_DAY" => $birthday["day"],
+		"BDAY_YEAR" => $birthday["year"]
+		));
+	
+	// Add conditional vars.
+	if($oUser->getEmailOnPm()) {
+		$tplUserEdit->addToBlock("email_on_pm_true", array());
+	} else {
+		$tplUserEdit->addToBlock("email_on_pm_false", array());
+	}
+	
+	// Add subview.
+	$tplUsers->addToTag("users_page", $tplUserEdit);
+} elseif($_GET['func'] == "save") {
+	/** 
+	 * SAVE
+	 */
+	 // Check if any data is even sent.
+	if(!isset($_SESSION['user_edit_id']) || $_SESSION['user_edit_id'] < 0) {
+		$_SESSION["return_url"] = "users.php?func=search";
+		header("Location: error.php?code=".ERR_CODE_USERNAME_NOT_SET);
+		exit();
+	}
+ }
+ 
+ 
+ //------------------------------- Not done, yet.
+if($_GET['func'] == "edit") {
+	if(isset($_POST['username'])) {
 		// Fetch user.
 		$oUser = User::findUser(trim($_POST['username']));
 		
-		if($oUser == null || is_null($oUser)) {
+		if(is_null($oUser)) {
+			// TODO header("location: error.php?code=".ERR_INVALID_USER_ID);
 			error_msg($lang['Error'], $lang['Invalid_User_Id']);
 			exit();
 		}
