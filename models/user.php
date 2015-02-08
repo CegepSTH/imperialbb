@@ -839,10 +839,11 @@ class User {
 	 * @returns True if success, else returns an error message.
 	 */ 
 	static function delete($id_username) {
+		global $database;
 		$db = new Database($database, $database['prefix']);
 		
 		if(is_string($id_username)) {
-			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => intval($id_username)));
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => (string)$id_username));
 		} else {
 			$db->query("DELETE FROM `_PREFIX_users` WHERE `user_id`=:uid LIMIT 1", array(":uid" => intval($id_username)));
 		}

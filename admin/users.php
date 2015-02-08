@@ -186,7 +186,7 @@ if($_GET['func'] == "search") {
 	} else {
 		CSRF::validate();
 		$ok = User::delete($_POST['username']);
-		
+
 		if(!$ok) { 
 			$_SESSION["return_url"] = "users.php?func=delete";
 			header("Location: error.php?code=".ERR_CODE_USER_CANT_DELETE);
