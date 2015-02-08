@@ -1,3 +1,63 @@
+/*
+ * Added contents, by MrTryHard. 
+ * These should fixes the forms and overuse of containers. 
+ */
+ /* In admin part, for forms. Represents a row.*/
+ .form-admin-row {
+	padding: 10px;	
+	margin-left: auto;
+	margin-right: auto;
+	width: 30em;
+	border-bottom: 1px solid #ccc;
+	border-collapse: collapse;
+}
+/* For each input in the row, add a padding. important.. I think. */
+.form-admin-row input {
+	margin-top: 5px;
+}
+	/* in-row column. */
+	.form-admin-row .form-admin-col {
+		margin-left: auto; 
+		margin-right: 1em;
+		min-width: 6em;
+	}
+/* Represents form-container, to center the form */
+.block-form-admin {
+	margin-left: auto;
+	margin-right: auto;
+	width: 60em;
+	background-color: rgb(248,248,248);
+}
+	/* For forms title. */
+	.block-form-admin h3 {
+		background: #297ACC;	
+		color: #ffffff;   	
+		font-weight: bold; 
+		text-align: center;
+		padding-top: 5px;
+	}
+	/* To align content to right. Usually submit. */
+	.block-form-admin .right {
+		text-align:right;
+	}
+	/* For the labels for admin forms, so it can be 2 columns. */
+	.block-form-admin label {
+		width: 13em;
+		margin-right: 10px;
+		display: inline-block;
+	}
+		/* Resizes the labels content to 100% possible width. To create 
+		 * "equals" controls. */
+		.block-form-admin label * {
+			width: 100%;
+		}
+/* A no-border property. Kind of useless, but used still. */
+.no-border {
+	border: none;
+}
+
+
+/* OLD CSS*/
 * {
 	margin:0;
 	padding:0;
