@@ -10,7 +10,7 @@ require_once($root_path."models/user.php");
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 // Create template instance. 
-$tplUsers = new Template($root_path."templates/admin/users.tpl");
+$tplUsers = new Template("admin/users.tpl");
 
 /**
  * Search a user
@@ -20,8 +20,12 @@ if($_GET['func'] == "search") {
 	$lstUsersIds = User::findUsersIds(30);
 	
 	// Process the search sub-view. Add items to users list.
-	$tplUsersSearch = new Template($root_path."templates/admin/users_search.tpl");
+	$tplUsersSearch = new Template("/admin/users_search.tpl");
 	foreach($lstUsersIds as $id => $username) {
+		if($id == -1) {
+			continue;
+		}
+		
 		$tplUsersSearch->addToBlock("userlist_item", array("USERNAME" => $username));
 	}
 	
@@ -32,7 +36,6 @@ if($_GET['func'] == "search") {
 	/**
 	 * EDIT
 	 */
-	 
 	// If username wasn't sent or empty !
 	if(!isset($_POST['username']) || trim($_POST['username']) == "") {
 		$_SESSION["return_url"] = "users.php?func=search";
@@ -50,13 +53,13 @@ if($_GET['func'] == "search") {
 	}
 	
 	$_SESSION['user_edit_id'] = $oUser->getId();
-	$tplUserEdit = new Template($root_path."templates/admin/users_edit.tpl");
+	$tplUserEdit = new Template("/admin/users_edit.tpl");
 	
 	// Parse birthday
 	$birthday = parseBirthday($oUser->getBirthday());
 	// Get ims 
 	$ims = $oUser->getMessengers();
-	
+
 	// Add non-conditional vars.
 	$tplUserEdit->setVars(array("USERNAME" => $oUser->getUsername(),
 		"USER_ID" => $oUser->getId(),
@@ -162,7 +165,7 @@ if($_GET['func'] == "search") {
 	 */
 	if(!isset($_POST['username']))
 	{
-		$tplUserDelete = new Template("users_delete.tpl");
+		$tplUserDelete = new Template("/admin/users_delete.tpl");
 
 		$db2->query("SELECT `username` FROM `_PREFIX_users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 25");
 		while($result = $db2->fetch()) {
@@ -189,4 +192,5 @@ if($_GET['func'] == "search") {
 
 // Add to main layout. 
 //$main_layout->addToTag("page_content", $tplUsers);
+echo $tplUsers->render();
 ?>
