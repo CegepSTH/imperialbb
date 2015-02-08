@@ -796,6 +796,41 @@ function parseBirthday($str_birthday) {
 	return $res;
 }
 
+/**
+ * outputPage Outputs the page master with the master layout.
+ * 
+ * @param $page_master The page master to output.
+ * @param $page_title The title of the page (optional).
+ */
+function outputPage($page_master, $page_title = null) {
+	global $page_gen_start, $config, $lang, $user;
+
+	$page_gen_stop = explode(' ',microtime());
+	$page_gen_stop = $page_gen_stop[0] + $page_gen_stop[1];
+
+	$generation_time = round($page_gen_stop - $page_gen_start, 3);
+
+	if(is_null($page_title)) {
+		$page_title = $config['site_name'];
+	}
+
+	if($config['board_offline']) {
+		$page_title .= "  (" . $lang['Offline'] . ")";
+	}
+
+	$layout_master = new Template("layout_master.tpl");
+	$layout_master->setVars(array(
+		"TITLE"      => $page_title,
+		"SITE_NAME"  => $config['site_name'],
+		"USERNAME"   => $user['username'],
+		"GENERATION_TIME" => sprintf($lang['Page_Generated_In_X_Seconds'], $generation_time)
+	));
+
+	$layout_master->addToTag("content", $page_master);
+
+	echo($layout_master->render());
+}
+
 /*======================================================================*\
 || #################################################################### ||
 || #                 "Copyright � 2006 M-ka Network"                  # ||
