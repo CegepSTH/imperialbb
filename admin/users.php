@@ -28,11 +28,12 @@ if($_GET['func'] == "search") {
 		
 		$tplUsersSearch->addToBlock("userlist_item", array("USERNAME" => $username));
 	}
-	
+	$tplUsersSearch->setVar("CSRF_TOKEN", CSRF::getHTML());
 	// Add usersearch sub-view to main user view.
 	$tplUsers->addToTag("users_page", $tplUsersSearch);
 	
 } elseif($_GET['func'] == "edit") {
+	CSRF::validate();
 	/**
 	 * EDIT
 	 */
@@ -112,13 +113,15 @@ if($_GET['func'] == "search") {
 	} else {
 		$tplUserEdit->addToBlock("email_on_pm_false", array());
 	}
-	
+	$tplUserEdit->setVar("CSRF_TOKEN", CSRF::getHTML());
 	// Add subview.
 	$tplUsers->addToTag("users_page", $tplUserEdit);
 } elseif($_GET['func'] == "save") {
 	/** 
 	 * SAVE
 	 */
+	 CSRF::validate();
+	 
 	 // Check if any data is even sent.
 	if(!isset($_SESSION['user_edit_id']) || $_SESSION['user_edit_id'] < 0) {
 		$_SESSION["return_url"] = "users.php?func=search";
@@ -165,18 +168,24 @@ if($_GET['func'] == "search") {
 	 */
 	if(!isset($_POST['username']))
 	{
+		// Get the first 30 users ids (id + username)
+		$lstUsersIds = User::findUsersIds(30);
 		$tplUserDelete = new Template("/admin/users_delete.tpl");
 
-		$db2->query("SELECT `username` FROM `_PREFIX_users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 25");
-		while($result = $db2->fetch()) {
-			$tplUserDelete->addToBlock("userslist_item", array(
-				"USERNAME" => $result['username']
-			));
+		foreach($lstUsersIds as $id => $username) {
+			if($id == -1) {
+				continue;
+			}
+		
+			$tplUserDelete->addToBlock("userlist_item", array("USERNAME" => $username));
 		}
+		
+		$tplUserDelete->setVar("CSRF_TOKEN", CSRF::getHTML());
 		// Add subview.
 		$tplUsers->addToTag("users_page", $tplUserDelete);
 	} else {
-		$ok = User::delete($_GET['username']);
+		CSRF::validate();
+		$ok = User::delete($_POST['username']);
 		
 		if(!$ok) { 
 			$_SESSION["return_url"] = "users.php?func=delete";

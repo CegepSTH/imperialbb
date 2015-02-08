@@ -1,7 +1,7 @@
 			<div class="block-form-admin">
-				<form action="users.php?func=edit" method="post">
+				<form action="users.php?func=delete" method="post">
 					{CSRF_TOKEN}
-					<h3>{L.search_user}</h3>
+					<h3>{L.delete_user}</h3>
 					<div class="form-admin-row">
 						<label for="username">
 							<span>{L.username}:</span>

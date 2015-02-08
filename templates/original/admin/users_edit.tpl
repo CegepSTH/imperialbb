@@ -1,5 +1,6 @@
 			<div class="block-form-admin">
 				<form action="users.php?func=save" method="post">
+					{CSRF_TOKEN}
 					<h3>{L.edit_user}</h3>
 					<div class="form-admin-row">
 						<label for="username">
