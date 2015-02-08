@@ -125,8 +125,8 @@ class User {
 		{
 			return null;
 		}
-		
-		if(is_null($result)) {
+
+		if(is_null($result) || $result === false) {
 			return null;
 		}
 
