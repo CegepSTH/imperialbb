@@ -1,5 +1,6 @@
 			<div class="block-form-admin">
 				<form action="users.php?func=save" method="post">
+					{CSRF_TOKEN}
 					<h3>{L.edit_user}</h3>
 					<div class="form-admin-row">
 						<label for="username">
@@ -86,7 +87,7 @@
 							<!-- BLOCK email_on_pm_false -->
 								<input type="radio" name="emailonpm" value="true">{L.yes}
 								<input type="radio" name="emailonpm" value="false" checked>{L.no}
-							<!-- END BLOCK email_on_pm_true -->
+							<!-- END BLOCK email_on_pm_false -->
 						</label>
 					</div>
 					<div class="form-admin-row">

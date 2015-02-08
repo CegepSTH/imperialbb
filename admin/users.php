@@ -6,11 +6,15 @@ define("IN_ADMIN", 1);
 $root_path = "../";
 require_once($root_path."includes/common.php");
 require_once($root_path."models/user.php");
+Template::setBasePath($root_path . "templates/original/admin/");
+
+$language->add_file("admin/users");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 // Create template instance. 
-$tplUsers = new Template("admin/users.tpl");
+$tplUsers = new Template("users.tpl");
 
 /**
  * Search a user
@@ -20,7 +24,7 @@ if($_GET['func'] == "search") {
 	$lstUsersIds = User::findUsersIds(30);
 	
 	// Process the search sub-view. Add items to users list.
-	$tplUsersSearch = new Template("/admin/users_search.tpl");
+	$tplUsersSearch = new Template("users_search.tpl");
 	foreach($lstUsersIds as $id => $username) {
 		if($id == -1) {
 			continue;
@@ -28,11 +32,12 @@ if($_GET['func'] == "search") {
 		
 		$tplUsersSearch->addToBlock("userlist_item", array("USERNAME" => $username));
 	}
-	
+	$tplUsersSearch->setVar("CSRF_TOKEN", CSRF::getHTML());
 	// Add usersearch sub-view to main user view.
 	$tplUsers->addToTag("users_page", $tplUsersSearch);
 	
 } elseif($_GET['func'] == "edit") {
+	CSRF::validate();
 	/**
 	 * EDIT
 	 */
@@ -53,7 +58,7 @@ if($_GET['func'] == "search") {
 	}
 	
 	$_SESSION['user_edit_id'] = $oUser->getId();
-	$tplUserEdit = new Template("/admin/users_edit.tpl");
+	$tplUserEdit = new Template("users_edit.tpl");
 	
 	// Parse birthday
 	$birthday = parseBirthday($oUser->getBirthday());
@@ -112,13 +117,15 @@ if($_GET['func'] == "search") {
 	} else {
 		$tplUserEdit->addToBlock("email_on_pm_false", array());
 	}
-	
+	$tplUserEdit->setVar("CSRF_TOKEN", CSRF::getHTML());
 	// Add subview.
 	$tplUsers->addToTag("users_page", $tplUserEdit);
 } elseif($_GET['func'] == "save") {
 	/** 
 	 * SAVE
 	 */
+	 CSRF::validate();
+	 
 	 // Check if any data is even sent.
 	if(!isset($_SESSION['user_edit_id']) || $_SESSION['user_edit_id'] < 0) {
 		$_SESSION["return_url"] = "users.php?func=search";
@@ -127,32 +134,43 @@ if($_GET['func'] == "search") {
 	}
 	
 	// Verify if user exists.
-	$oUser = User::findUser($_GET['user_id']);
+	$oUser = User::findUser($_SESSION['user_edit_id']);
 	if(is_null($oUser)) {
 		$_SESSION["return_url"] = "users.php?func=search";
 		header("Location: error.php?code=".ERR_CODE_USER_NOT_FOUND);
 		exit();
 	}
 	
-	$oUser->setUsername($_POST['Username']); 
-	$oUser->setMail($_POST['Email']);
+	$oUser->setUsername($_POST['username']); 
+	//$oUser->setMail($_POST['email']);
+	$oUser->setEmailOnPm($_POST['emailonpm'] == "true" ? true : false);
 	$oUser->setSignature($_POST['signature']);
-	$oUser->setMessengers(array("aim" => $_POST['aim'], "icq" => $_POST['icq'], "msn" => $_POST['msn'], "yahoo" => $_POST['yahoo']));
-	$oUser->setUsergroupId($_POST['usergroup']);
-	$oUser->setRankId($_POST['rank']);
-	$oUser->setLevel($_POST['user_level']); 
+	$oUser->setUsergroupId($_POST['usergroupslist']);
+	$oUser->setRankId($_POST['rankslist']);
+	$oUser->setLevel($_POST['levelslist']); 
+	$oUser->setWebsite($_POST['website']);
+	$oUser->setLocation($_POST['location']);
+	$oUser->setSignature($_POST['signature']);
 			
 	$pass_ok = true;
-	if(strlen($_POST['PassWord']) > 0) {
-		$oUser->setPassword($_POST['PassWord']); 
-		$pass_ok = $oUser->updatePassword();
+	if(strlen($_POST['new_password']) > 0) {
+		if($_POST['new_password'] != $_POST['new_password2']) {
+			$pass_ok = false;
+		} else {
+			$oUser->setPassword($_POST['new_password']); 
+			$oUser->updatePassword();
+		}
 	}
 	
 	$ok = $oUser->update();
 	
-	if(!$ok || !$pass_ok) {
+	if(!$ok) {
 		$_SESSION["return_url"] = "users.php?func=search";
 		header("Location: error.php?code=".ERR_CODE_USER_CANT_UPDATE);
+		exit();
+	} else if(!$pass_ok) {
+		$_SESSION["return_url"] = "users.php?func=search";
+		header("Location: error.php?code=".ERR_CODE_USER_PASS_MISMATCH);
 		exit();
 	} else { 
 		$_SESSION["return_url"] = "users.php?func=search";
@@ -165,19 +183,25 @@ if($_GET['func'] == "search") {
 	 */
 	if(!isset($_POST['username']))
 	{
-		$tplUserDelete = new Template("/admin/users_delete.tpl");
+		// Get the first 30 users ids (id + username)
+		$lstUsersIds = User::findUsersIds(30);
+		$tplUserDelete = new Template("users_delete.tpl");
 
-		$db2->query("SELECT `username` FROM `_PREFIX_users` WHERE `user_id` > 0 ORDER BY `user_id` DESC LIMIT 25");
-		while($result = $db2->fetch()) {
-			$tplUserDelete->addToBlock("userslist_item", array(
-				"USERNAME" => $result['username']
-			));
+		foreach($lstUsersIds as $id => $username) {
+			if($id == -1) {
+				continue;
+			}
+		
+			$tplUserDelete->addToBlock("userlist_item", array("USERNAME" => $username));
 		}
+		
+		$tplUserDelete->setVar("CSRF_TOKEN", CSRF::getHTML());
 		// Add subview.
 		$tplUsers->addToTag("users_page", $tplUserDelete);
 	} else {
-		$ok = User::delete($_GET['username']);
-		
+		CSRF::validate();
+		$ok = User::delete($_POST['username']);
+
 		if(!$ok) { 
 			$_SESSION["return_url"] = "users.php?func=delete";
 			header("Location: error.php?code=".ERR_CODE_USER_CANT_DELETE);

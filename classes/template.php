@@ -44,6 +44,8 @@ class Template {
 	private static $m_namespaces;
 	// Blocks
 	private $m_blocks;
+	// Rendered: Already rendered content.
+	private $m_rendered;
 	
 	/**
 	 * CTOR 
@@ -55,6 +57,7 @@ class Template {
 		$this->m_tags = array();
 		$this->m_blocks = array();
 		$this->m_filePath = $str_file;
+		$this->m_rendered = null;
 	}
 	
 	/**
@@ -134,6 +137,10 @@ class Template {
 	 * @returns Parsed content string.
 	 */
 	public function render() {
+		if(!is_null($this->m_rendered)) {
+			return $this->m_rendered;
+		}
+		
 		$content = "";
 		
 		$fPath = self::$m_basePath . "/" . $this->m_filePath;
@@ -195,6 +202,13 @@ class Template {
 		$content = preg_replace("/<!-- BLOCK(.*?)-->(.*?)<!-- END BLOCK(.*?)-->/s", "", $content);
 		$content = preg_replace("/<!-- TAG(.*?)-->/s", "", $content);
 		$content = preg_replace("/<!--\\/\\/(.*?)-->/s", "", $content);
+		
+		// Cache and empty buffers
+		$this->m_rendered = $content;
+		
+		$this->m_vars = null;
+		$this->m_tags = null;
+		$this->m_blocks = null;
 		
 		return $content;
 	}
