@@ -8,8 +8,8 @@ class Block {
 	private static $m_blocks;
 	
 	public function Block($str_file, $str_blockName, array $values) {
-		if(is_null($m_block)) {
-			self::$m_blocks;
+		if(is_null(self::$m_blocks)) {
+			self::$m_blocks = array();
 		}
 		$content = "";
 		
