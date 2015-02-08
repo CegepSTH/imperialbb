@@ -27,6 +27,10 @@
 		margin-left: 5px;
 	}
 	
+	.form-admin-row input[type="submit"] {
+		min-width: 100px;
+	}
+	
 	/* in-row column. */
 	.form-admin-row .form-admin-col {
 		margin-left: auto; 

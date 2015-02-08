@@ -6,11 +6,15 @@ define("IN_ADMIN", 1);
 $root_path = "../";
 require_once($root_path."includes/common.php");
 require_once($root_path."models/user.php");
+Template::setBasePath($root_path . "templates/original/admin/");
+
+$language->add_file("admin/users");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 // Create template instance. 
-$tplUsers = new Template("admin/users.tpl");
+$tplUsers = new Template("users.tpl");
 
 /**
  * Search a user
@@ -20,7 +24,7 @@ if($_GET['func'] == "search") {
 	$lstUsersIds = User::findUsersIds(30);
 	
 	// Process the search sub-view. Add items to users list.
-	$tplUsersSearch = new Template("/admin/users_search.tpl");
+	$tplUsersSearch = new Template("users_search.tpl");
 	foreach($lstUsersIds as $id => $username) {
 		if($id == -1) {
 			continue;
@@ -54,7 +58,7 @@ if($_GET['func'] == "search") {
 	}
 	
 	$_SESSION['user_edit_id'] = $oUser->getId();
-	$tplUserEdit = new Template("/admin/users_edit.tpl");
+	$tplUserEdit = new Template("users_edit.tpl");
 	
 	// Parse birthday
 	$birthday = parseBirthday($oUser->getBirthday());
@@ -170,7 +174,7 @@ if($_GET['func'] == "search") {
 	{
 		// Get the first 30 users ids (id + username)
 		$lstUsersIds = User::findUsersIds(30);
-		$tplUserDelete = new Template("/admin/users_delete.tpl");
+		$tplUserDelete = new Template("users_delete.tpl");
 
 		foreach($lstUsersIds as $id => $username) {
 			if($id == -1) {

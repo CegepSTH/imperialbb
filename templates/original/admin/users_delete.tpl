@@ -18,7 +18,7 @@
 						</label>
 					</div>
 					<div class="form-admin-row right no-border">
-						<input type="submit" value="{L.submit}">
+						<input type="submit" value="{L.delete}">
 					</div>
 				</form>
 			</div>
