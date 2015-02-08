@@ -172,12 +172,12 @@ class User {
 		global $database;
 		$list = array();
 		$db = new Database($database, $database["prefix"]);
-		$query = "SELECT `user_id`, `username` FROM _PREFIX_users";
+		$query = "SELECT `user_id`, `username` FROM _PREFIX_users ";
 		
-		if($database['dbtype'] == "mysql") $query .= "LIMIT :offset,:count";
-		else if($database['dbtype'] == "pgsql") $query .= "LIMIT :count OFFSET :offset";
-		
-		$db->query($query, array(":count" => $n_count, ":offset" => $n_start));
+		if($database['dbtype'] == "mysql") $query .= "LIMIT ".$n_start." , ".$n_count;
+		else if($database['dbtype'] == "pgsql") $query .= "LIMIT ".$n_count." OFFSET ".$n_start;
+
+		$db->query($query);
 		
 		// Transform into a list. Ensure username is string.
 		while($result = $db->fetch()) {
@@ -820,7 +820,7 @@ class User {
 			$db->query("UPDATE `_PREFIX_users`
 				SET `user_level` = '3', `user_activation_key` = ''
 				WHERE `user_id` = :user_id",
-				array(":user_id" => $user_id));
+				array(":user_id" => intval($user_id)));
 				
 			if($db->rowCount() > 0) {
 				return 0;
@@ -842,9 +842,9 @@ class User {
 		$db = new Database($database, $database['prefix']);
 		
 		if(is_string($id_username)) {
-			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => $id_username));
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => intval($id_username)));
 		} else {
-			$db->query("DELETE FROM `_PREFIX_users` WHERE `user_id`=:uid LIMIT 1", array(":uid" => $id_username));
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `user_id`=:uid LIMIT 1", array(":uid" => intval($id_username)));
 		}
 		
 		return ($db->rowCount() > 0);
