@@ -55,9 +55,7 @@ if($_GET['func'] == "add")
 				"ERROR" => $error
 			));
 
-			include_once($root_path . "includes/page_header.php");
-			echo($page_master->render());
-			include_once($root_path . "includes/page_footer.php");
+			outputPage($page_master);
 		}
 		else
 		{
@@ -83,9 +81,7 @@ if($_GET['func'] == "add")
 			"USABLE" => ""
 		));
 
-		include_once($root_path . "includes/page_header.php");
-		echo($page_master->render());
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master);
 	}
 
 
@@ -132,9 +128,7 @@ else if($_GET['func'] == "edit")
 				"ERROR" => $error
 			));
 
-			include_once($root_path . "includes/page_header.php");
-			echo($page_master->render());
-			include_once($root_path . "includes/page_footer.php");
+			outputPage($page_master);
 		}
 		else
 		{
@@ -170,9 +164,7 @@ else if($_GET['func'] == "edit")
 			error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
 		}
 
-		include_once($root_path . "includes/page_header.php");
-		echo($page_master->render());
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master);
 	}
 }
 else if($_GET['func'] == "delete")
@@ -221,8 +213,6 @@ else
 		));
 	}
 
-	include_once($root_path . "includes/page_header.php");
-	echo($page_master->render());
-	include_once($root_path . "includes/page_footer.php");
+	outputPage($page_master);
 }
 ?>

@@ -68,7 +68,5 @@ if(is_dir("../install")) {
 	$page_master->addToBlock("install_warning", array());
 }
 
-include_once($root_path . "includes/page_header.php");
-echo($page_master->render());
-include_once($root_path . "includes/page_footer.php");
+outputPage($page_master);
 ?>
