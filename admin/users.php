@@ -134,32 +134,43 @@ if($_GET['func'] == "search") {
 	}
 	
 	// Verify if user exists.
-	$oUser = User::findUser($_GET['user_id']);
+	$oUser = User::findUser($_SESSION['user_edit_id']);
 	if(is_null($oUser)) {
 		$_SESSION["return_url"] = "users.php?func=search";
 		header("Location: error.php?code=".ERR_CODE_USER_NOT_FOUND);
 		exit();
 	}
 	
-	$oUser->setUsername($_POST['Username']); 
-	$oUser->setMail($_POST['Email']);
+	$oUser->setUsername($_POST['username']); 
+	//$oUser->setMail($_POST['email']);
+	$oUser->setEmailOnPm($_POST['emailonpm'] == "true" ? true : false);
 	$oUser->setSignature($_POST['signature']);
-	$oUser->setMessengers(array("aim" => $_POST['aim'], "icq" => $_POST['icq'], "msn" => $_POST['msn'], "yahoo" => $_POST['yahoo']));
-	$oUser->setUsergroupId($_POST['usergroup']);
-	$oUser->setRankId($_POST['rank']);
-	$oUser->setLevel($_POST['user_level']); 
+	$oUser->setUsergroupId($_POST['usergroupslist']);
+	$oUser->setRankId($_POST['rankslist']);
+	$oUser->setLevel($_POST['levelslist']); 
+	$oUser->setWebsite($_POST['website']);
+	$oUser->setLocation($_POST['location']);
+	$oUser->setSignature($_POST['signature']);
 			
 	$pass_ok = true;
-	if(strlen($_POST['PassWord']) > 0) {
-		$oUser->setPassword($_POST['PassWord']); 
-		$pass_ok = $oUser->updatePassword();
+	if(strlen($_POST['new_password']) > 0) {
+		if($_POST['new_password'] != $_POST['new_password2']) {
+			$pass_ok = false;
+		} else {
+			$oUser->setPassword($_POST['new_password']); 
+			$oUser->updatePassword();
+		}
 	}
 	
 	$ok = $oUser->update();
 	
-	if(!$ok || !$pass_ok) {
+	if(!$ok) {
 		$_SESSION["return_url"] = "users.php?func=search";
 		header("Location: error.php?code=".ERR_CODE_USER_CANT_UPDATE);
+		exit();
+	} else if(!$pass_ok) {
+		$_SESSION["return_url"] = "users.php?func=search";
+		header("Location: error.php?code=".ERR_CODE_USER_PASS_MISMATCH);
 		exit();
 	} else { 
 		$_SESSION["return_url"] = "users.php?func=search";
