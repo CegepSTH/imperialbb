@@ -50,25 +50,11 @@
  <tr>
     <th height="25">{L.Installation_Status}</th>
  </tr>
- <!-- BEGIN install_warning -->
+ <!-- BLOCK install_warning -->
  <tr>
   <td class="cell2" align="center" style="color:red;">
    {L.Installer_presence_warning}
   </td>
  </tr>
- <!-- END install_warning -->
- <!-- BEGIN SWITCH vcheck -->
- <tr>
-  <td class="cell2" align="center" style="color:green;">
-   {L.Installation_up_to_date}
-  </td>
- </tr>
- <!-- SWITCH vcheck -->
- <tr>
-  <td class="cell1" align="center" style="color:red;">
-   {L.Installation_not_up_to_date}<br /><br />
-   {INSTALL_NOTES}
-  </td>
- </tr>
- <!-- END SWITCH vcheck -->
+ <!-- END BLOCK install_warning -->
 </table>
