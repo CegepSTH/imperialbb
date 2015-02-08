@@ -87,7 +87,7 @@
 							<!-- BLOCK email_on_pm_false -->
 								<input type="radio" name="emailonpm" value="true">{L.yes}
 								<input type="radio" name="emailonpm" value="false" checked>{L.no}
-							<!-- END BLOCK email_on_pm_true -->
+							<!-- END BLOCK email_on_pm_false -->
 						</label>
 					</div>
 					<div class="form-admin-row">
