@@ -15,13 +15,17 @@ define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path . "includes/common.php");
+Template::setBasePath($root_path . "templates/original/admin/");
 
 $language->add_file("admin/language");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 if($_GET['func'] == "add")
 {
+	$page_master = new Template("add_edit_language.tpl");
+
 	if(isset($_POST['Submit']))
 	{
 		$error = "";
@@ -40,34 +44,18 @@ if($_GET['func'] == "add")
 
 		if(!empty($error))
 		{
-			$theme->new_file("add_language", "add_edit_language.tpl");
-
-			$theme->replace_tags("add_language", array(
+			$page_master->setVars(array(
 				"ACTION" => $lang['Add_Language'],
 				"NAME" => $_POST['name'],
 				"FOLDER" => $_POST['folder'],
 				"USABLE" => (isset($_POST['usable'])) ? "checked=\"checked\"" : ""
 			));
 
-			$theme->insert_nest("add_language", "error", array(
+			$page_master->addToBlock("error", array(
 				"ERROR" => $error
 			));
-			$theme->add_nest("add_language", "error");
 
-			//
-			// Output the page header
-			//
-			include_once($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("add_language");
-
-			//
-			// Output the page footer
-			//
-			include_once($root_path . "includes/page_footer.php");
+			outputPage($page_master);
 		}
 		else
 		{
@@ -86,29 +74,14 @@ if($_GET['func'] == "add")
 	}
 	else
 	{
-		$theme->new_file("add_language", "add_edit_language.tpl");
-
-		$theme->replace_tags("add_language", array(
+		$page_master->setVars(array(
 			"ACTION" => $lang['Add_Language'],
 			"NAME" => "",
 			"FOLDER" => "",
 			"USABLE" => ""
 		));
 
-		//
-		// Output the page header
-		//
-		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("add_language");
-
-		//
-		// Output the page footer
-		//
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master);
 	}
 
 
@@ -122,6 +95,8 @@ else if($_GET['func'] == "edit")
 	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
 		error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
 	}
+
+	$page_master = new Template("add_edit_language.tpl");
 
 	if(isset($_POST['Submit']))
 	{
@@ -141,9 +116,7 @@ else if($_GET['func'] == "edit")
 
 		if(!empty($error))
 		{
-			$theme->new_file("edit_language", "edit_language.tpl");
-
-			$theme->replace_tags("add_edit_language", array(
+			$page_master->setVars( array(
 				"ACTION" => $lang['Edit_Language'],
 				"ID" => $_GET['id'],
 				"NAME" => $_POST['name'],
@@ -151,25 +124,11 @@ else if($_GET['func'] == "edit")
 				"USABLE" => (isset($_POST['usable'])) ? "checked=\"checked\"" : ""
 			));
 
-			$theme->insert_nest("edit_language", "error", array(
+			$page_master->addToBlock(array(
 				"ERROR" => $error
 			));
-			$theme->add_nest("edit_language", "error");
 
-			//
-			// Output the page header
-			//
-			include_once($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("edit_language");
-
-			//
-			// Output the page footer
-			//
-			include_once($root_path . "includes/page_footer.php");
+			outputPage($page_master);
 		}
 		else
 		{
@@ -189,14 +148,12 @@ else if($_GET['func'] == "edit")
 	}
 	else
 	{
-		$theme->new_file("edit_language", "add_edit_language.tpl");
-
 		$db2->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` 
 			FROM `_PREFIX_languages` 
 			WHERE `language_id`=:lid", array(":lid" => $_GET['id']));
 
 		if($result = $db2->fetch()) {
-			$theme->replace_tags("edit_language", array(
+			$page_master->setVars(array(
 				"ACTION" => $lang['Edit_Language'],
 				"ID" => $result['language_id'],
 				"NAME" => $result['language_name'],
@@ -207,20 +164,7 @@ else if($_GET['func'] == "edit")
 			error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
 		}
 
-		//
-		// Output the page header
-		//
-		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("edit_language");
-
-		//
-		// Output the page footer
-		//
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master);
 	}
 }
 else if($_GET['func'] == "delete")
@@ -255,33 +199,20 @@ else
 	// View installed language packs
 	//
 	$theme->new_file("manage_languages", "manage_languages.tpl");
+	$page_master = new Template("manage_languages.tpl");
 
 	$db2->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` FROM `_PREFIX_languages`");
 
 	while($result = $db2->fetch())
 	{
-		$theme->insert_nest("manage_languages", "language_row", array(
+		$page_master->addToBlock("language_row", array(
 			"ID" => $result['language_id'],
 			"NAME" => $result['language_name'],
 			"FOLDER" => $result['language_folder'],
 			"USABLE" => ($result['language_usable'] == 1) ? "checked=\"checked\"" : ""
 		));
-		$theme->add_nest("manage_languages", "language_row");
 	}
 
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("manage_languages");
-
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
+	outputPage($page_master);
 }
 ?>

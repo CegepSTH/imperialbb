@@ -53,8 +53,14 @@ require_once($root_path . "classes/database.php");
 $db2 = new Database($database, $db_prefix);
 
 require_once($root_path . "classes/csrf.php");
+
 require_once($root_path . "classes/template.php");
 Template::setBasePath($root_path . "templates/original");
+$template_vars = array(
+	"TEMPLATE_PATH" => $root_path . "templates/original"
+);
+Template::addNamespace("T", $template_vars);
+require_once($root_path . "includes/rendering.php");
 
 include_once($root_path . "includes/constants.php");
 include_once($root_path . "includes/init.php");

@@ -125,8 +125,8 @@ class User {
 		{
 			return null;
 		}
-		
-		if(is_null($result)) {
+
+		if(is_null($result) || $result === false) {
 			return null;
 		}
 
@@ -154,6 +154,37 @@ class User {
 		
 		self::$m_lastUser = $user;
 		return $user;
+	}
+	
+	/**
+	 * Selects all users from $n_start, $n_count
+	 * 
+	 * @param $n_start Starting offset. Must be an integer
+	 * @param $n_count User count to fetch. Must be an integer.
+	 * 
+	 * @returns Associative array as $user_id => $username
+	 */ 
+	public static function findUsersIds($n_count, $n_start = 0) {
+		if(!is_numeric($n_start) || !is_numeric($n_count)) {
+			die(__METHOD__ . ": parameters must be both numerics.");
+		}
+		
+		global $database;
+		$list = array();
+		$db = new Database($database, $database["prefix"]);
+		$query = "SELECT `user_id`, `username` FROM _PREFIX_users ";
+		
+		if($database['dbtype'] == "mysql") $query .= "LIMIT ".$n_start." , ".$n_count;
+		else if($database['dbtype'] == "pgsql") $query .= "LIMIT ".$n_count." OFFSET ".$n_start;
+
+		$db->query($query);
+		
+		// Transform into a list. Ensure username is string.
+		while($result = $db->fetch()) {
+			$list[$result['user_id']] = (string)$result['username'];
+		}
+
+		return $list;
 	}
 	
 	/**
@@ -789,7 +820,7 @@ class User {
 			$db->query("UPDATE `_PREFIX_users`
 				SET `user_level` = '3', `user_activation_key` = ''
 				WHERE `user_id` = :user_id",
-				array(":user_id" => $user_id));
+				array(":user_id" => intval($user_id)));
 				
 			if($db->rowCount() > 0) {
 				return 0;
@@ -808,12 +839,13 @@ class User {
 	 * @returns True if success, else returns an error message.
 	 */ 
 	static function delete($id_username) {
+		global $database;
 		$db = new Database($database, $database['prefix']);
 		
 		if(is_string($id_username)) {
-			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => $id_username));
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `username`=:uname LIMIT 1", array(":uname" => (string)$id_username));
 		} else {
-			$db->query("DELETE FROM `_PREFIX_users` WHERE `user_id`=:uid LIMIT 1", array(":uid" => $id_username));
+			$db->query("DELETE FROM `_PREFIX_users` WHERE `user_id`=:uid LIMIT 1", array(":uid" => intval($id_username)));
 		}
 		
 		return ($db->rowCount() > 0);

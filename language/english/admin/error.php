@@ -7,9 +7,9 @@
 || #  navigate to the docs/ folder or visit the forums at the		  # ||
 || #  website, http://www.imperialbb.com/forums. with your questions. # ||
 || # ---------------------------------------------------------------- # ||
-|| # Name: constants.php                                              # ||
+|| # Name: language.php                                               # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright Â© 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -18,28 +18,19 @@ if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
 
-// Topic Types
-define("ANNOUNCMENT", 2);
-define("PINNED", 1);
-define("GENERAL", 0);
-
-// Avatar Types
-define("NO_AVATAR", 0);
-define("UPLOADED_AVATAR", 1);
-define("REMOTE_AVATAR", 2);
-
-//ERRORS
-define("ERR_CODE_USERNAME_NOT_SET", 10);
-define("ERR_CODE_USER_NOT_FOUND", 20);
-define("ERR_CODE_USER_CANT_UPDATE", 30);
-define("ERR_CODE_USER_CANT_DELETE", 40);
-define("ERR_CODE_USER_UPDATE_SUCCESS", 50);
-define("ERR_CODE_USER_DELETE_SUCCESS", 60);
-define("ERR_CODE_USER_PASS_MISMATCH", 70);
+$lang['error'] = "Message";
+$lang['dont_wait_redirect'] = "Return to index.";
+$lang['err_code'.ERR_CODE_USERNAME_NOT_SET] = "Username was not set.";
+$lang['err_code'.ERR_CODE_USER_NOT_FOUND] = "User not found.";
+$lang['err_code'.ERR_CODE_USER_CANT_UPDATE] = "Can't update user.";
+$lang['err_code'.ERR_CODE_USER_CANT_DELETE] = "Can't delete user.";
+$lang['err_code'.ERR_CODE_USER_UPDATE_SUCCESS] = "User updated.";
+$lang['err_code'.ERR_CODE_USER_DELETE_SUCCESS] = "User deleted.";
+$lang['err_code'.ERR_CODE_USER_PASS_MISMATCH] = "New password fields do not match.";
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright Â© 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>

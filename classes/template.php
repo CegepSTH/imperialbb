@@ -5,9 +5,21 @@ require_once($root_path . "includes/functions.php");
 
 class Block {
 	public $output;
+	private static $m_blocks;
 	
 	public function Block($str_file, $str_blockName, array $values) {
-		$content = file_get_contents($str_file);
+		if(is_null(self::$m_blocks)) {
+			self::$m_blocks = array();
+		}
+		$content = "";
+		
+		// If block was already loaded, do not redo an IO operation. 
+		if(!isset(self::$m_blocks[$str_blockName]) || trim(self::$m_blocks[$str_blockName]) == "") {
+			$content = file_get_contents($str_file);
+			self::$m_blocks[$str_blockName] = $content;
+		} else {
+			$content = self::$m_blocks[$str_blockName];
+		}
 
 		$matches = array();
 		preg_match_all("/<!-- BLOCK $str_blockName -->(.*?)<!-- END BLOCK $str_blockName -->/s", $content, $matches);
@@ -32,6 +44,8 @@ class Template {
 	private static $m_namespaces;
 	// Blocks
 	private $m_blocks;
+	// Rendered: Already rendered content.
+	private $m_rendered;
 	
 	/**
 	 * CTOR 
@@ -43,6 +57,7 @@ class Template {
 		$this->m_tags = array();
 		$this->m_blocks = array();
 		$this->m_filePath = $str_file;
+		$this->m_rendered = null;
 	}
 	
 	/**
@@ -122,6 +137,10 @@ class Template {
 	 * @returns Parsed content string.
 	 */
 	public function render() {
+		if(!is_null($this->m_rendered)) {
+			return $this->m_rendered;
+		}
+		
 		$content = "";
 		
 		$fPath = self::$m_basePath . "/" . $this->m_filePath;
@@ -179,9 +198,17 @@ class Template {
 			$content = preg_replace("/<!-- BLOCK $block -->(.*?)<!-- END BLOCK $block -->/s", $output, $content);
 		}
 		
-		// Remove what should be removed.
+		// Remove what should be removed: blocks, tags and comments.
 		$content = preg_replace("/<!-- BLOCK(.*?)-->(.*?)<!-- END BLOCK(.*?)-->/s", "", $content);
 		$content = preg_replace("/<!-- TAG(.*?)-->/s", "", $content);
+		$content = preg_replace("/<!--\\/\\/(.*?)-->/s", "", $content);
+		
+		// Cache and empty buffers
+		$this->m_rendered = $content;
+		
+		$this->m_vars = null;
+		$this->m_tags = null;
+		$this->m_blocks = null;
 		
 		return $content;
 	}

@@ -15,6 +15,7 @@ define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path."includes/common.php");
+Template::setBasePath($root_path . "templates/original/admin/");
 
 if(isset($_GET['func']) && $_GET['func'] == 'update_notepad') {
 	$values = array(":admnote" => $_POST['admincp_notepad']);
@@ -53,8 +54,8 @@ if($result = $db2->fetch()) {
 	$posts_today = $result['posts_today'];
 }
 
-$theme->new_file("main", "main.tpl", "");
-$theme->replace_tags("main", array(
+$page_master = new Template("main.tpl");
+$page_master->setVars(array(
 	"TOTAL_USERS"   => $total_users,
 	"USERS_TODAY"   => $users_today,
 	"TOTAL_POSTS"   => $total_posts,
@@ -63,18 +64,9 @@ $theme->replace_tags("main", array(
 	"TOPICS_TODAY"  => $topics_today
 ));
 
-$theme->add_nest("main", "vcheck");
 if(is_dir("../install")) {
-	$theme->insert_nest("main", "install_warning");
-	$theme->add_nest("main", "install_warning");
+	$page_master->addToBlock("install_warning", array());
 }
 
-// Output the page header
-include_once($root_path . "includes/page_header.php");
-
-// Output the main page
-$theme->output("main");
-
-// Output the page footer
-include_once($root_path . "includes/page_footer.php");
+outputPage($page_master);
 ?>

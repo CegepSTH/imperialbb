@@ -1,4 +1,4 @@
-<!-- BEGIN error -->
+<!-- BLOCK error -->
 <table width="100%" class="maintable">
 	<tr>
 		<th height="25">{L.Error}</th>
@@ -9,31 +9,40 @@
 		</td>
 	</tr>
 </table><br />
-<!-- END error -->
-<table width="100%" class="maintable">
-	<tr>
-		<th colspan="2" height="25">
-			{ACTION}
-		</th>
-	</tr>
-	<tr>
-		<td class="desc_row" height="25" colspan="2">
+<!-- END BLOCK error -->
+<link rel="stylesheet" type="text/css" href="{T.TEMPLATE_PATH}/newstyle.css" />
+<form action="" method="post">
+	<div class="rTable2">
+		<div class="rTableRow2">
+			<div class="rTableHead2">
+				<strong>{ACTION}</strong>
+			</div>
+		</div>
+
+		<div class="rTableRow2">
 			{L.Language_Pack_Upload_Msg}
-		</td>
-	</tr>
-	<form method="post" action="">
-	<tr>
-		<td width="30%" class="cell2">{L.Name}</td><td class="cell1"><input type="text" name="name" value="{NAME}" /></td>
-	</tr>
-	<tr>
-		<td class="cell2">{L.Folder}</td><td class="cell1"><input type="text" name="folder" value="{FOLDER}" /></td>
-	</tr>
-	<tr>
-		<td class="cell2">{L.Usable}</td><td class="cell1"><input type="checkbox" name="usable" {USABLE} /></td>
-	</tr>
-	<tr>
-		<th colspan="2" height="25">
-			<input type="submit" name="Submit" value="{L.Submit}" />  <input type="reset" value="{L.Reset}" />
-		</th>
-	</tr>
-</table>
+		</div>
+
+		<div class="rTableRow2">
+			<div class="rTableCell2">{L.Name}</div>
+			<div class="rTableCell2">
+				<input type="text" id="Name" name="name" value="{NAME}" />
+			</div>
+		</div>
+
+		<div class="rTableCell2">{L.Folder}</div>
+		<div class="rTableCell2">
+			<input type="text" id="Folder" name="folder" value="{FOLDER}" />
+		</div>
+
+		<div class="rTableCell2">{L.Usable}</div>
+		<div class="rTableCell2">
+			<input type="checkbox" name="usable" {USABLE} />
+		</div>
+	</div>
+
+	<p>
+		<input type="submit" name="Submit" class="formbutton" value="{L.Submit}" />
+		<input type="reset" name="reset" class="formbutton" value="{L.Reset}" />
+	</p>
+</form>

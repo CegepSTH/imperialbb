@@ -38,7 +38,7 @@ $lang['Usergroups'] => array(
 ),
 
 $lang['User_Managment'] => array(
-	$lang['Edit_User'] => "users.php?func=edit",
+	$lang['Edit_User'] => "users.php?func=search",
 	$lang['Delete_User'] => "users.php?func=delete",
 	$lang['Add_Rank'] => "ranks.php?func=add",
 	$lang['Manage_Ranks'] => "ranks.php"
