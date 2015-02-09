@@ -214,7 +214,5 @@ if($_GET['func'] == "search") {
 	}
 }
 
-// Add to main layout. 
-//$main_layout->addToTag("page_content", $tplUsers);
-echo $tplUsers->render();
+outputPage($tplUsers);
 ?>
