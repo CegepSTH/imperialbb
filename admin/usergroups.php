@@ -34,7 +34,7 @@ if($_GET['func'] == "search") {
 	$tplUsergroups->addToTag("usergroups_page", $tplUsergroupsSearch);
 	
 } else if($_GET['func'] == "edit") {
-	if(!isset($_POST['usergroupName'])) { 
+	if(isset($_POST['usergroup'])) { 
 		CSRF::validate();
 		
 		// Do they want permissions ? If so redirect.
@@ -95,6 +95,13 @@ if($_GET['func'] == "search") {
 		exit();			
 	}
 	
+	// Ensure name is not empty.
+	if(trim($_POST['usergroupName']) == "") {
+		$_SESSION['return_url'] = "usergroups.php?func=search";
+		header("location: error.php?code=".ERR_CODE_USERGROUP_NAME_MUSTNT_BE_EMPTY);
+		exit();
+	}
+	
 	$db2->query("UPDATE `_PREFIX_usergroups` SET `name`=:name, `desc`=:desc
 		WHERE `id`=:ugid", array(":name" => $_POST['usergroupName'],
 		":desc" => $_POST['usergroupDescription'], 
@@ -149,8 +156,14 @@ if($_GET['func'] == "search") {
 		exit();	
 	}	
 } else if($_GET['func'] == "create") {
-	CSRF::validate();
-	$ug_name = $_SESSION['create_group_name'] ?: ""; 
+	// Check if valid request.
+	if(!isset($_SESSION['create_group_name']) || trim($_SESSION['create_group_name']) == "") {
+		$_SESSION['return_url'] = "usergroups.php?func=search";
+		header("location: error.php?code=".ERR_CODE_USERGROUP_NAME_MUSTNT_BE_EMPTY);
+		exit();
+	}
+	
+	$ug_name = $_SESSION['create_group_name']; 
 	$ug_desc = "";
 	
 	$db2->query("INSERT INTO `_PREFIX_usergroups` (`name`, `desc`) 

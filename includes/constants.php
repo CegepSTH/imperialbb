@@ -43,6 +43,7 @@ define("ERR_CODE_USERGROUP_CANT_CREATE", 110);
 define("ERR_CODE_USERGROUP_CREATE_SUCCESS", 120);
 define("ERR_CODE_USERGROUP_DELETE_SUCCESS", 130);
 define("ERR_CODE_USERGROUP_CANT_DELETE", 140);
+define("ERR_CODE_USERGROUP_NAME_MUSTNT_BE_EMPTY", 150);
 
 /*======================================================================*\
 || #################################################################### ||

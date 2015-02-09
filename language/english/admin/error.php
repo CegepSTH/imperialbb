@@ -34,6 +34,7 @@ $lang['err_code'.ERR_CODE_USERGROUP_CREATE_SUCCESS] = "Usergroup create successf
 $lang['err_code'.ERR_CODE_USERGROUP_CANT_CREATE] = "Usergroup creation failed.";
 $lang['err_code'.ERR_CODE_USERGROUP_DELETE_SUCCESS] = "Usergroup successfully deleted.";
 $lang['err_code'.ERR_CODE_USERGROUP_CANT_DELETE] = "Usergroup couldn't be deleted.";
+$lang['err_code'.ERR_CODE_USERGROUP_NAME_MUSTNT_BE_EMPTY] = "Usergroup name must not be empty!!";
 
 /*======================================================================*\
 || #################################################################### ||
