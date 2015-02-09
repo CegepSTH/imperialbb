@@ -140,6 +140,8 @@ if($_GET['func'] == "search") {
 		header("Location: error.php?code=".ERR_CODE_USER_NOT_FOUND);
 		exit();
 	}
+	// Unset var.
+	unset($_SESSION['user_edit_id']);
 	
 	$oUser->setUsername($_POST['username']); 
 	//$oUser->setMail($_POST['email']);

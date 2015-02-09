@@ -1,6 +1,5 @@
-<link rel="stylesheet" type="text/css" href="{T.TEMPLATE_PATH}/newstyle.css" />
 			<div class="block-form-admin" style="text-align:center;">
-				<h4>{ERROR}</h4>
+				<h3>{ERROR}</h3>
 					<br />
 					{ERROR_MSG}<br /><br />
 					<a href="{RETURN_URL}">{DONT_WAIT}</a><br /><br />

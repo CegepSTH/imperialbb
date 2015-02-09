@@ -28,7 +28,5 @@ if(isset($_SESSION['return_url'])) {
 $tplError->setVar("ERROR", $lang['error']);
 $tplError->setVar("DONT_WAIT", $lang['dont_wait_redirect']);
 
-// add to main layout
-//$main_layout->addToTag("page_content", $tplError);
-echo $tplError->render();
+outputPage($tplError);
 ?>

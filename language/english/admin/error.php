@@ -27,6 +27,7 @@ $lang['err_code'.ERR_CODE_USER_CANT_DELETE] = "Can't delete user.";
 $lang['err_code'.ERR_CODE_USER_UPDATE_SUCCESS] = "User updated.";
 $lang['err_code'.ERR_CODE_USER_DELETE_SUCCESS] = "User deleted.";
 $lang['err_code'.ERR_CODE_USER_PASS_MISMATCH] = "New password fields do not match.";
+$lang['err_code'.ERR_CODE_USERGROUP_NOT_FOUND] = "Usergroup not found.";
 
 /*======================================================================*\
 || #################################################################### ||

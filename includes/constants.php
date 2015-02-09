@@ -36,6 +36,7 @@ define("ERR_CODE_USER_CANT_DELETE", 40);
 define("ERR_CODE_USER_UPDATE_SUCCESS", 50);
 define("ERR_CODE_USER_DELETE_SUCCESS", 60);
 define("ERR_CODE_USER_PASS_MISMATCH", 70);
+define("ERR_CODE_USERGROUP_NOT_FOUND", 80);
 
 /*======================================================================*\
 || #################################################################### ||
