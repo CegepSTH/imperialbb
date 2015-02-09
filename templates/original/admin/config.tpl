@@ -1,6 +1,7 @@
 <!-- BLOCK category -->
 <div class="panel config-panel">
     <form method="post" action="" style="margin: 0px; padding: 0px;">
+		{CSRF_TOKEN}
 		<div class="panel-header">
 			{CATEGORY_TITLE}
 		</div>

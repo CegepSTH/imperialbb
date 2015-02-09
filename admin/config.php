@@ -20,6 +20,8 @@ $language->add_file("admin/config");
 
 if(isset($_POST['Submit']))
 {
+	CSRF::validate();
+
 	$post_config = array();
 	$db2->query("SELECT `config_name`, `config_value`, `config_type` FROM `_PREFIX_config` WHERE `config_orderby` > 0");
 
@@ -67,7 +69,8 @@ else
 			$page_master->addToBlock("category", array(
 				"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
 					$lang[$current_category] : preg_replace("#_#", " ", $current_category),
-				"CATEGORY_CONFIG_OPTIONS" => $current_category_configs
+				"CATEGORY_CONFIG_OPTIONS" => $current_category_configs,
+				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
 			$current_category = $result['config_category'];
@@ -153,9 +156,10 @@ else
 
 	// Output the last config category.
 	$page_master->addToBlock("category", array(
-			"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
+		"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
 			$lang[$current_category] : preg_replace("#_#", " ", $current_category),
-		"CATEGORY_CONFIG_OPTIONS" => $current_category_configs
+		"CATEGORY_CONFIG_OPTIONS" => $current_category_configs,
+		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 
 	outputPage($page_master);
