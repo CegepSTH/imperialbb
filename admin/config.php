@@ -65,8 +65,8 @@ else
 
 		if($result['config_category'] != $current_category) {
 			$page_master->addToBlock("category", array(
-				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ?
-					$lang[$result['config_category']] : preg_replace("#_#", " ", $result['config_category']),
+				"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
+					$lang[$current_category] : preg_replace("#_#", " ", $current_category),
 				"CATEGORY_CONFIG_OPTIONS" => $current_category_configs
 			));
 
@@ -79,14 +79,14 @@ else
 
 		switch($result['config_type']) {
 			case "textbox":
-				$config_content = "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . changehtml($result['config_value']) . "\" size=\"35\" />";
+				$config_content = "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . changehtml($result['config_value']) . "\" />";
 
 			break;
 			case "password":
-				 $config_content = "<input type=\"password\" name=\"" . $result['config_name'] . "\" size=\"35\" />";
+				 $config_content = "<input type=\"password\" name=\"" . $result['config_name'] . "\" />";
 			break;
 			case "textarea":
-				$config_content = "<textarea name=\"" . $result['config_name'] . "\" rows=\"5\" cols=\"27\">" .
+				$config_content = "<textarea name=\"" . $result['config_name'] . "\">" .
 					changehtml($result['config_value']) .
 					"</textarea>";
 
@@ -150,6 +150,13 @@ else
 		}
 
 	}
+
+	// Output the last config category.
+	$page_master->addToBlock("category", array(
+			"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
+			$lang[$current_category] : preg_replace("#_#", " ", $current_category),
+		"CATEGORY_CONFIG_OPTIONS" => $current_category_configs
+	));
 
 	outputPage($page_master);
 }
