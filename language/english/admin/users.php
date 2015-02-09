@@ -37,6 +37,9 @@ $lang['location'] = "Location";
 $lang['user_signature'] = "Signature";
 $lang['delete_user'] = "Delete User";
 $lang['delete'] = "Delete";
+$lang['new_password'] = "New password";
+$lang['new_password_again'] = "Repeat new password";
+$lang['usergroup_none'] = "None";
 
 
 /*======================================================================*\
