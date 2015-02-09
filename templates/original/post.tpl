@@ -15,7 +15,6 @@ function add_bbcode(text,attrib) {
 	document.new_topic.body.value += "[" + text + attrib + "]Text[/" + text + "]";
 	document.new_topic.body.focus();
 }
-
 </script>
 <!-- BEGIN SWITCH navbar -->
 <table width="100%">
@@ -96,8 +95,9 @@ function add_bbcode(text,attrib) {
 					<!-- END bbcode -->
 					<tr>
 						<td>
-							<textarea name="body" tabindex="2" rows="13" cols="46">{BODY}</textarea>
+							<textarea id="body" name="body" tabindex="2" rows="13" cols="46" onkeyup="getNbCharactersLeft()" onchange="getNbCharactersLeft()">{BODY}</textarea>
 						</td>
+
 						<td>
 							<!-- BEGIN smilies -->
 							<table align="center" class="maintable" cellspacing="5">
@@ -118,7 +118,12 @@ function add_bbcode(text,attrib) {
 							<!-- END smilies -->
 						</td>
 					</tr>
+
 				</table>
+
+				<!-- HARD CODED -->
+				<p id="CharsLeft">Characters left : 2000</p>
+
 			</td>
 		</tr>
 		<tr>
@@ -170,8 +175,26 @@ function add_bbcode(text,attrib) {
 		<!-- END poll -->
 		<tr>
 			<th colspan="2">
-				<input type="submit" name="Submit" value="{L.Submit}" tabindex="3" />  <input type="reset" value="{L.Reset}" />
+				<input type="submit" name="Submit" id="Submit" value="{L.Submit}" tabindex="3" />  <input type="reset" value="{L.Reset}" />
 			</th>
 		</tr>
 	</table>
 </form>
+
+<script>
+	function getNbCharactersLeft() {
+		var nbCharsLeft = 2000 - document.getElementById("body").value.length;
+		document.getElementById("CharsLeft").innerHTML = "Characters left : " + nbCharsLeft;
+
+		<!-- HARD CODED -->
+		if(nbCharsLeft < 0){
+			document.getElementById("Submit").disabled = true;
+			document.getElementById("Submit").value = "Disabled";
+
+		}
+		else{
+			document.getElementById("Submit").disabled = false;
+			document.getElementById("Submit").value = "Submit";
+		}
+	}
+</script>
