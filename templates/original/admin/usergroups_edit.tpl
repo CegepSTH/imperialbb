@@ -19,7 +19,8 @@
 						</label>
 					</div>
 					<div class="form-admin-row right no-border">
-						<input type="submit" value="{L.save}">
+						<input type="submit" value="{L.delete}" name="ug_delete" style="float:left;">
+						<input type="submit" value="{L.save}" name="ug_save">
 					</div>
 				</form>
 			</div>

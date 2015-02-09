@@ -28,6 +28,12 @@ $lang['err_code'.ERR_CODE_USER_UPDATE_SUCCESS] = "User updated.";
 $lang['err_code'.ERR_CODE_USER_DELETE_SUCCESS] = "User deleted.";
 $lang['err_code'.ERR_CODE_USER_PASS_MISMATCH] = "New password fields do not match.";
 $lang['err_code'.ERR_CODE_USERGROUP_NOT_FOUND] = "Usergroup not found.";
+$lang['err_code'.ERR_CODE_USERGROUP_CANT_UPDATE] = "Usergroup couldn't be updated.";
+$lang['err_code'.ERR_CODE_USERGROUP_UPDATE_SUCCESS] = "Usergroup updated successfully.";
+$lang['err_code'.ERR_CODE_USERGROUP_CREATE_SUCCESS] = "Usergroup create successfully.";
+$lang['err_code'.ERR_CODE_USERGROUP_CANT_CREATE] = "Usergroup creation failed.";
+$lang['err_code'.ERR_CODE_USERGROUP_DELETE_SUCCESS] = "Usergroup successfully deleted.";
+$lang['err_code'.ERR_CODE_USERGROUP_CANT_DELETE] = "Usergroup couldn't be deleted.";
 
 /*======================================================================*\
 || #################################################################### ||

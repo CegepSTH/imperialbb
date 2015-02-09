@@ -37,6 +37,12 @@ define("ERR_CODE_USER_UPDATE_SUCCESS", 50);
 define("ERR_CODE_USER_DELETE_SUCCESS", 60);
 define("ERR_CODE_USER_PASS_MISMATCH", 70);
 define("ERR_CODE_USERGROUP_NOT_FOUND", 80);
+define("ERR_CODE_USERGROUP_CANT_UPDATE", 90);
+define("ERR_CODE_USERGROUP_UPDATE_SUCCESS", 100);
+define("ERR_CODE_USERGROUP_CANT_CREATE", 110);
+define("ERR_CODE_USERGROUP_CREATE_SUCCESS", 120);
+define("ERR_CODE_USERGROUP_DELETE_SUCCESS", 130);
+define("ERR_CODE_USERGROUP_CANT_DELETE", 140);
 
 /*======================================================================*\
 || #################################################################### ||

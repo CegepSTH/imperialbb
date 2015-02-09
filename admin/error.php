@@ -17,7 +17,7 @@ if(!isset($_GET['code']) || !is_numeric($_GET['code'])) {
 
 $tplError = new Template("error.tpl");
 
-if(isset($lang['err_code'.$_GET['code']])) { 
+if(isset($lang['err_code'.$_GET['code']])) {   
 	$tplError->setVar("ERROR_MSG", $lang['err_code'.$_GET['code']]);
 }
 
