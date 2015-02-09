@@ -44,7 +44,9 @@ if(isset($_POST['Submit']))
 }
 else
 {
-	$theme->new_file("config", "config.tpl", "");
+	Template::setBasePath($root_path . "templates/original/admin/");
+	Template::addNamespace("L", $lang);
+	$page_master = new Template("config.tpl");
 
 	$db_in = $db2->query("SELECT `config_name`, `config_value`, `config_type`, `config_category` 
 		FROM `_PREFIX_config`
@@ -52,57 +54,55 @@ else
 		ORDER BY `config_category_orderby`, `config_orderby`");
 						
 	$current_category = "";
+	$current_category_configs = "";
 
 	while($result = $db_in->fetch()) {
-		
-		if($current_category == "") {
-			$theme->insert_nest("config", "category", array(
-				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : preg_replace("#_#", " ", $result['config_category'])
-			));
-			$current_category = $result['config_category'];
-		} else if($result['config_category'] != $current_category) {
-			$theme->add_nest("config", "category");
-			$theme->insert_nest("config", "category", array(
-				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ? $lang[$result['config_category']] : preg_replace("#_#", " ", $result['config_category'])
 
-			));
+		// Special case for the first iteration.
+		if($current_category == "") {
 			$current_category = $result['config_category'];
 		}
 
+		if($result['config_category'] != $current_category) {
+			$page_master->addToBlock("category", array(
+				"CATEGORY_TITLE" => (isset($lang[$result['config_category']])) ?
+					$lang[$result['config_category']] : preg_replace("#_#", " ", $result['config_category']),
+				"CATEGORY_CONFIG_OPTIONS" => $current_category_configs
+			));
+
+			$current_category = $result['config_category'];
+			$current_category_configs = "";
+		}
+
+		$config_content_defined = true;
+		$config_content = "";
+
 		switch($result['config_type']) {
 			case "textbox":
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . changehtml($result['config_value']) . "\" size=\"35\" />"
-				));
-				$theme->add_nest("config", "category/config_option");
+				$config_content = "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . changehtml($result['config_value']) . "\" size=\"35\" />";
+
 			break;
 			case "password":
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => "<input type=\"password\" name=\"" . $result['config_name'] . "\" size=\"35\" />"
-				));
-				$theme->add_nest("config", "category/config_option");
+				 $config_content = "<input type=\"password\" name=\"" . $result['config_name'] . "\" size=\"35\" />";
 			break;
 			case "textarea":
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => "<textarea name=\"" . $result['config_name'] . "\" rows=\"5\" cols=\"27\">" . changehtml($result['config_value']) . "</textarea>"
-				));
-				$theme->add_nest("config", "category/config_option");
+				$config_content = "<textarea name=\"" . $result['config_name'] . "\" rows=\"5\" cols=\"27\">" .
+					changehtml($result['config_value']) .
+					"</textarea>";
+
 			break;
 			case "true/false":
 				$config_true = ($result['config_value'] == 1) ? "checked=\"checked\"" : "";
 				$config_false = ($result['config_value'] == 0) ? "checked=\"checked\"" : "";
 
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => "" . $lang['True'] . "<input type=\"radio\" name=\"" . $result['config_name'] . "\" value=\"1\" $config_true />&nbsp;&nbsp;" . $lang['False'] . "<input type=\"radio\" name=\"" . $result['config_name'] . "\" value=\"0\" $config_false />"
-				));
-				$theme->add_nest("config", "category/config_option");
+				$config_content = "" . $lang['True'] .
+					"<input type=\"radio\" name=\"" . $result['config_name'] . "\" value=\"1\" $config_true />" .
+					"&nbsp;&nbsp;" .
+					$lang['False'] .
+					"<input type=\"radio\" name=\"" . $result['config_name'] . "\" value=\"0\" $config_false />";
 			break;
 			case "dropdown:timezone":
-				$config_content =  "\n  <select name=\"" . $result['config_name'] . "\">";
+				$config_content = "\n  <select name=\"" . $result['config_name'] . "\">";
 
 				foreach($lang['tz'] as $id => $value) {
 					$selected = ($id == $result['config_value']) ? "selected=\"selected\"" : "";
@@ -110,11 +110,6 @@ else
 				}
 
 				$config_content .= "\n  </select>";
-
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => $config_content
-				));
 			break;
 			case "dropdown:template":
 				$config_content =  "\n  <select name=\"" . $result['config_name'] . "\">";
@@ -122,15 +117,13 @@ else
 				$db2->query("SELECT `template_id`, `template_name` FROM `_PREFIX_templates` WHERE `template_usable` = '1'");
 				while($template_result = $db2->fetch()) {
 					$selected = ($template_result['template_id'] == $result['config_value']) ? "selected=\"selected\"" : "";
-					$config_content .= "\n    <option value=\"" . $template_result['template_id'] . "\" $selected>" . $template_result['template_name'] . "</option>";
+					$config_content .= "\n    " .
+						"<option value=\"" . $template_result['template_id'] . "\" $selected>" .
+						$template_result['template_name'] .
+						"</option>";
 				}
 
 				$config_content .= "\n  </select>";
-
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => $config_content
-				));
 			break;
 			case "dropdown:language":
 				$config_content =  "\n  <select name=\"" . $result['config_name'] . "\">";
@@ -142,46 +135,22 @@ else
 				}
 
 				$config_content .= "\n  </select>";
-
-				$theme->insert_nest("config", "category/config_option", array(
-					"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ? $lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
-					"CONFIG_CONTENT" => $config_content
-				));
 			break;
+			default:
+				$config_content_defined = false;
+			break;
+		}
+
+		if($config_content_defined) {
+			$current_category_configs .= $page_master->renderBlock("config_option", array(
+				"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ?
+					$lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
+				"CONFIG_CONTENT" => $config_content
+			));
 		}
 
 	}
 
-	$theme->add_nest("config", "category");
-
-	$theme->replace_tags("config", array(
-		"SITE_NAME" => changehtml($config['site_name']),
-		"SITE_DESC" => changehtml($config['site_desc']),
-		"ADMIN_EMAIL" => $config['admin_email'],
-		"FOOTER" => changehtml($config['footer']),
-		"OFFLINE_TRUE" => ($config['board_offline'] == 1) ? "CHECKED" : "",
-		"OFFLINE_FALSE" => ($config['board_offline'] == 0) ? "CHECKED" : "",
-		"OFFLINE_MESSAGE" => changehtml($config['offline_message']),
-		"FTP_USER" => $config['ftp_user'],
-		"FTP_PATH" => $config['ftp_path'],
-		"REG_AUTH_TYPE_TRUE" => ($config['register_auth_type'] == 1) ? "CHECKED" : "",
-		"REG_AUTH_TYPE_FALSE" => ($config['register_auth_type'] == 0) ? "CHECKED" : ""
-	));
-
-
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("config");
-
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
+	outputPage($page_master);
 }
 ?>

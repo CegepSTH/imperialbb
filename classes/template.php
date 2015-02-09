@@ -131,6 +131,18 @@ class Template {
 			$this->m_blocks[$str_name] .= "".$block->output;
 		}
 	}
+
+	/**
+	 * Renders a block to a string.
+	 * 
+	 * @param $str_name Name of the block.
+	 * @param $values Associative array of values as $key => $value.
+	 */
+	public function renderBlock($str_name, array $values) {
+		$block = new Block(self::$m_basePath . "/" . $this->m_filePath, $str_name, $values);
+
+		return $block->output;
+	}
 	
 	/**
 	 * Renders the template
