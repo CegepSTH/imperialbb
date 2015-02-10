@@ -28,6 +28,18 @@ $lang['usergroup_desc'] = "Usergroup's description";
 $lang['save'] = "Save";
 $lang['create_group'] = "Create";
 $lang['delete'] = "Delete";
+$lang['default'] = "Default";
+$lang['true'] = "True";
+$lang['false'] = "False";
+$lang['forum_name'] = "Forum name";
+$lang['read'] = "Read";
+$lang['reply'] = "Reply";
+$lang['post'] = "Post";
+$lang['vote'] = "Vote";
+$lang['create_poll'] = "Create poll";
+$lang['moderate'] = "Moderate";
+$lang['permissions'] = "Permissions";
+$lang['save_permissions'] = "Save permissions";
 
 /*======================================================================*\
 || #################################################################### ||

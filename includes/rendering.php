@@ -21,7 +21,6 @@ function getAdminMenuDefinition() {
 		
 		$lang['Usergroups'] => array(
 			$lang['Managment'] => "usergroups.php",
-			$lang['Permissions'] => "usergroups.php?func=permissions"
 		),
 		
 		$lang['User_Managment'] => array(
