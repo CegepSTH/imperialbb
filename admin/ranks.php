@@ -15,6 +15,7 @@ if($_GET['func'] == "add")
 {
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
 		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
 		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
 		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
@@ -51,9 +52,10 @@ if($_GET['func'] == "add")
 	}
 	else
 	{
-		$theme->new_file("add_rank", "edit_rank.tpl");
+		$tplRanksAdd = new Template("ranks_add.tpl");
 
-		$theme->replace_tags("add_rank", array(
+		$tplRanksAdd->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML(),
 			"ACTION" => $lang['Add_Rank'],
 			"NAME" => "",
 			"COLOR" => "#000000",
@@ -65,12 +67,15 @@ if($_GET['func'] == "add")
 			"SPECIAL_RANK" => "",
 			"MINIMUM_POSTS" => 0
 		));
+		
+		$tplRanks->addToTag("ranks_page", $tplRanksAdd);
 	}
 }
 else if($_GET['func'] == "edit")
 {
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
 		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
 		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
 		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
