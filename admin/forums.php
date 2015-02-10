@@ -618,9 +618,9 @@ else
 		if($forum_count == 0) {
 			$category_content = $page_master->renderBlock("no_forums_in_cat", array());
 		} else {
-			// Prepend the table header to the contents.
-			$table_header = $page_master->renderBlock("forums_table_header", array());
-			$category_content = $table_header .	$category_content;
+			$table_start = $page_master->renderBlock("forums_table_start", array());
+			$table_end = $page_master->renderBlock("forums_table_end", array());
+			$category_content = $table_start . $category_content . $table_end;
 		}
 
 		$page_master->addToBlock("category", array(

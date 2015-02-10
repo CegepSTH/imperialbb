@@ -469,6 +469,11 @@ clear: both;
 .panel .panel-header
 {
 	padding-bottom: 10px;
+	text-align: center;
+}
+.panel .panel-header.panel-header-nocenter
+{
+	text-align: start;
 }
 
 .config-panel .config-option
@@ -524,4 +529,99 @@ so they span mutiple lines (up to three).
 	vertical-align: top;
 }
 
+.category-manage .panel-header a
+{
+	color: #fff;
+}
+.category-manage input[type="submit"],
+.category-manage input[type="reset"],
+.category-manage input[type="button"],
+.category-create input[type="submit"]
+{
+	background: #246bb2;
+	color: #fff;
+	border: 1px solid #2b5b78;
+	padding: 5px;
+}
+.category-manage,
+.category-create
+{
+	font-size: 0.75em;
+}
+.category-manage .panel-header
+{
+	position: relative;
+}
+.category-manage .panel-header .category-move
+{
+	position: absolute;
+	right: 10px;
+}
+.category-manage table
+{
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	font-size: 1em;
+}
+.category-manage table tr th.forum-name,
+.category-manage table tr td.forum-name
+{
+	width: 100%;
+}
+.category-manage table tr th.topic-count,
+.category-manage table tr td.topic-count
+{
+	width: 50px;
+}
+.category-manage table tr th.post-count,
+.category-manage table tr td.post-count
+{
+	width: 50px
+}
+.category-manage table tr th.action-buttons,
+.category-manage table tr td.action-buttons
+{
+	width: 100px;
+}
+.category-manage table tr th.topic-count,
+.category-manage table tr td.topic-count,
+.category-manage table tr th.post-count,
+.category-manage table tr td.post-count,
+.category-manage table tr td.redir-count
+{
+	border-left: 1px solid #dddddd;
+	border-right: 1px solid #dddddd;
+}
+.category-manage table tr td.action-buttons,
+.category-manage table tr td.post-count,
+.category-manage table tr td.topic-count,
+.category-manage table tr td.redir-count
+{
+	text-align: center;
+}
+.category-manage table tr td.action-buttons input[type="submit"],
+.category-manage table tr td.action-buttons input[type="reset"],
+.category-manage table tr td.action-buttons input[type="button"]
+{
+	padding: 2px;
+}
+.category-manage table tr td.action-buttons .button-row:first-child
+{
+	margin-bottom: 5px;
+}
+.category-manage .category-noforums
+{
+	text-align: center;
+	font-weight: bold;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+.category-create
+{
+	background-color: #297acc;
+	color: #fff;
+	padding: 5px;
+	border-top: 3px solid #2b5b78;
+}
 
