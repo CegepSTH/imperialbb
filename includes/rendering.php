@@ -58,14 +58,10 @@ function renderAdminMenu() {
 	foreach($menu_def as $section_name => $section_links) {
 		$links_html = "";
 		foreach($section_links as $name => $link) {
-			$single_link_block = new Block(
-				$root_path . "templates/original/admin/sidebar.tpl",
-				"link",
-				array(
-					"LINK" => $link,
-					"NAME" => $name
-				)
-			);
+			$single_link_block = $sidebar_template->renderBlock("link",	array(
+				"LINK" => $link,
+				"NAME" => $name
+			));
 
 			$links_html .= $single_link_block->output;
 		}
@@ -114,6 +110,23 @@ function outputPage($page_master, $page_title = null) {
 	if(defined("IN_ADMIN")) {
 		$admin_menu = renderAdminMenu();
 		$layout_master->addToTag("sidebar", $admin_menu);
+	} else {
+		if($user['user_id'] > 0) {
+			$admin_link_header = "";
+			$admin_link_footer = "";
+			if($user['user_level'] == 5) {
+				$admin_link_header = $layout_master->renderBlock("navh_admin_link", array());
+				$admin_link_footer = $layout_master->renderBlock("navf_admin_link", array());
+			}
+
+			$layout_master->addToBlock("navh_logged_in", array("ADMIN_LINK" => $admin_link_header));
+			$layout_master->addToBlock("navf_logged_in", array("ADMIN_LINK" => $admin_link_footer));
+			$layout_master->addToBlock("name_logged_in", array("USERNAME" => $user['username']));
+		} else {
+			$layout_master->addToBlock("navh_guest", array());
+			$layout_master->addToBlock("navf_guest", array());
+			$layout_master->addToBlock("name_guest", array());
+		}
 	}
 
 	echo($layout_master->render());
