@@ -21,7 +21,6 @@ function getAdminMenuDefinition() {
 		
 		$lang['Usergroups'] => array(
 			$lang['Managment'] => "usergroups.php",
-			$lang['Permissions'] => "usergroups.php?func=permissions"
 		),
 		
 		$lang['User_Managment'] => array(
@@ -43,7 +42,6 @@ function getAdminMenuDefinition() {
 		),
 		
 		$lang['Templates'] => array(
-			$lang['Add_Template'] => "template.php?func=add",
 			$lang['Manage_Templates'] => "template.php"
 		)
 	);

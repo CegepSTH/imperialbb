@@ -17,18 +17,18 @@ if(!isset($_GET['code']) || !is_numeric($_GET['code'])) {
 
 $tplError = new Template("error.tpl");
 
-if(isset($lang['err_code'.$_GET['code']])) { 
+if(isset($lang['err_code'.$_GET['code']])) {   
 	$tplError->setVar("ERROR_MSG", $lang['err_code'.$_GET['code']]);
 }
 
 if(isset($_SESSION['return_url'])) {
 	$tplError->setVar("RETURN_URL", $_SESSION['return_url']);
+} else {
+	$tplError->setVar("RETURN_URL", "index.php");
 }
 
 $tplError->setVar("ERROR", $lang['error']);
 $tplError->setVar("DONT_WAIT", $lang['dont_wait_redirect']);
 
-// add to main layout
-//$main_layout->addToTag("page_content", $tplError);
-echo $tplError->render();
+outputPage($tplError);
 ?>

@@ -1,0 +1,16 @@
+<?php 
+// WebService :^) 
+if(!defined("IBB_WEB_SERVICE")) {
+	header("Location: ../index.php");
+}
+
+class ImperialService {
+
+	// Must return
+	function getMembersList() {
+	}
+	
+	function 
+}
+
+?>

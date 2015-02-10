@@ -1,28 +1,21 @@
 <?php
-
-/**********************************************************
-*
-*			admin/ranks.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path . "includes/common.php");
-
+Template::setBasePath($root_path . "templates/original/admin");
 $language->add_file("admin/ranks");
+Template::addNamespace("L", $lang);
+
+$tplRanks = new Template("ranks.tpl");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "add")
 {
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
 		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
 		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
 		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
@@ -59,9 +52,10 @@ if($_GET['func'] == "add")
 	}
 	else
 	{
-		$theme->new_file("add_rank", "edit_rank.tpl");
+		$tplRanksAdd = new Template("ranks_add.tpl");
 
-		$theme->replace_tags("add_rank", array(
+		$tplRanksAdd->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML(),
 			"ACTION" => $lang['Add_Rank'],
 			"NAME" => "",
 			"COLOR" => "#000000",
@@ -73,27 +67,15 @@ if($_GET['func'] == "add")
 			"SPECIAL_RANK" => "",
 			"MINIMUM_POSTS" => 0
 		));
-
-		//
-		// Output the page header
-		//
-		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("add_rank");
-
-		//
-		// Output the page footer
-		//
-		include_once($root_path . "includes/page_footer.php");
+		
+		$tplRanks->addToTag("ranks_page", $tplRanksAdd);
 	}
 }
 else if($_GET['func'] == "edit")
 {
 	if(isset($_POST['Submit']))
 	{
+		CSRF::validate();
 		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
 		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
 		if(!isset($_POST['italics'])) $_POST['italics'] = "0";
@@ -141,8 +123,8 @@ else if($_GET['func'] == "edit")
 	{
 		$sql = $db2->query ("SELECT * FROM `_PREFIX_ranks` WHERE `rank_id`=:rid LIMIT 1", array(":rid" => $_GET['id']));
 		if ($result = $db2->fetch()) {
-			$theme->new_file("edit_rank", "edit_rank.tpl");
-			$theme->replace_tags("edit_rank", array(
+			$tplRanksEdit = new Template("ranks_edit.tpl");
+			$tplRanksEdit->setVars(array(
 				"ACTION" => $lang['Edit_Rank'],
 				"NAME" => $result['rank_name'],
 				"COLOR" => $result['rank_color'],
@@ -154,45 +136,45 @@ else if($_GET['func'] == "edit")
 				"SPECIAL_RANK" => ($result['rank_special'] == 1) ? 'checked="checked"' : '',
 				"MINIMUM_POSTS" => $result['rank_minimum_posts']
 			));
-			//
-			// Output the page header
-			//
-			include_once($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("edit_rank");
-
-			//
-			// Output the page footer
-			//
-			include_once($root_path . "includes/page_footer.php");
+			$tplRanks->addToTag("ranks_page", $tplRanksEdit);
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_Rank_Id']);
+			$_SESSION['return_url'] = "ranks.php";
+			header("location: error.php?code=".ERR_CODE_RANKS_INVALIDID);
+			exit();
 		}
 	}
 }
 else if($_GET['func'] == "delete")
 {
 	$db2->query("DELETE FROM `_PREFIX_ranks` WHERE `rank_id`=:rid", array(":rid" => $_GET['id']));
-	info_box($lang['Delete_Rank'], $lang['Rank_Deleted_Msg'], "ranks.php");
+	$ok = $db2->rowCount() > 0;
+	
+	if($ok) {
+		$_SESSION['return_url'] = "ranks.php";
+		header("location: error.php?code=".ERR_CODE_RANKS_DELETED);
+		exit();
+	} else {
+		$_SESSION['return_url'] = "ranks.php";
+		header("location: error.php?code=".ERR_CODE_RANKS_DELETE_FAILED);
+		exit();
+	}
 }
 else
 {
-	if(isset($_GET['move']))
-	{
+	if(isset($_GET['move'])) {
 		if(!isset($_GET['id'])) {
-			error_msg($lang['Error'], $lang['Invalid_Rank_Id']);
+			$_SESSION['return_url'] = "ranks.php";
+			header("location: error.php?code=".ERR_CODE_RANKS_INVALIDID);
+			exit();
 		}
 		
 		$old_sign = ($_GET['move'] == "up") ? "+" : "-";
 		$new_sign = ($_GET['move'] == "up") ? "-" : "+";
 		$query = $db2->query("SELECT r.`rank_id`, p.`rank_id` AS 'old_rank_id'
-							FROM (`_PREFIX_ranks` r
-							LEFT JOIN `_PREFIX_ranks` p ON p.`rank_orderby` = (r.`rank_orderby` ".$new_sign." 1) AND p.`rank_orderby` > 0)
-							WHERE r.`rank_id`=:rid AND r.`rank_orderby` > 0",
-							array(":rid" => $_GET['id']));
+			FROM (`_PREFIX_ranks` r
+			LEFT JOIN `_PREFIX_ranks` p ON p.`rank_orderby` = (r.`rank_orderby` ".$new_sign." 1) AND p.`rank_orderby` > 0)
+			WHERE r.`rank_id`=:rid AND r.`rank_orderby` > 0",
+			array(":rid" => $_GET['id']));
 
 		if($result = $db2->fetch()) {
 			if(!(empty($result['rank_id']) || empty($result['old_rank_id']))) {
@@ -203,8 +185,8 @@ else
 			}
 		}
 	}
+	$tplRanksManage = new Template("ranks_manage.tpl");
 	
-	$theme->new_file("ranks", "manage_ranks.tpl");
 	$db2->query("SELECT * FROM `_PREFIX_ranks`
 		ORDER BY `rank_orderby`, `rank_id`");
 						
@@ -233,7 +215,7 @@ else
 
 		$nest_prefix = ($result['rank_orderby'] > 0) ? "displayed" : "not_displayed";
 
-		$theme->insert_nest("ranks", $nest_prefix . "_rank_row", array(
+		$tplRanksManage->addToBlock($nest_prefix."_rank_row", array(
 			"ID" => $result['rank_id'],
 			"NAME" => $result['rank_name'],
 			"MINIMUM_POSTS" => $result['rank_minimum_posts'],
@@ -243,22 +225,10 @@ else
 			"UNDERLINE" => ($result['rank_underline'] == "1") ? "CHECKED" : "",
 			"ITALICS" => ($result['rank_italics'] == "1") ? "CHECKED" : ""
 		));
-		$theme->add_nest("ranks", $nest_prefix . "_rank_row");
 	}
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("ranks");
-
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
+	
+	$tplRanks->addToTag("ranks_page", $tplRanksManage);
 }
 
+outputPage($tplRanks);
 ?>

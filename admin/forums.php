@@ -570,41 +570,39 @@ else
 		}
 	}
 	
-	$theme->new_file("manage_forums", "manage_forums.tpl");
+	Template::setBasePath($root_path . "templates/original/admin/");
+	Template::addNamespace("L", $lang);
+	$page_master = new Template("manage_forums.tpl");
+
 	$db_cat = $db2->query("SELECT * FROM `_PREFIX_categories` ORDER BY `cat_orderby`");
-	while ($catagory = $db_cat->fetch())
+	while ($category = $db_cat->fetch())
 	{
-		$theme->insert_nest("manage_forums", "catrow", array(
-			"CAT_ID" => $catagory['cat_id'],
-			"CAT_NAME" => $catagory['cat_name']
-		));
-		
-		$forum_no = 0;
+		$category_content = "";
+
+		$forum_count = 0;
 		$forum_sql = $db2->query("SELECT * FROM `_PREFIX_forums`
 			WHERE `forum_cat_id`=:cid
 			AND `forum_type` = 'c'
-			ORDER BY `forum_orderby`", array(":cid" => $catagory['cat_id']));
+			ORDER BY `forum_orderby`", array(":cid" => $category['cat_id']));
                                  
 		while ($forum = $forum_sql->fetch()) {
 			if($forum['forum_redirect_url'] != null) {
-				$theme->switch_nest("manage_forums", "catrow/forumrow", false, array(
+				$category_content .= $page_master->renderBlock("redirection_forum", array(
 					"FORUM_ID" => $forum['forum_id'],
 					"FORUM_NAME" => $forum['forum_name'],
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
-					"REDIRECTS" => sprintf($lang['X_Hits'], $forum['forum_topics'])
+					"REDIRECTS" => sprintf($lang['X_Hits'], $forum['forum_topics']),
+					"PARENT_FORUMS" => $parent_forums
 				));
-	
-	            $theme->add_nest("manage_forums", "catrow/forumrow");
 			} else {
-				$theme->switch_nest("manage_forums", "catrow/forumrow", true, array(
+				$category_content .= $page_master->renderBlock("regular_forum", array(
 					"FORUM_ID" => $forum['forum_id'],
 					"FORUM_NAME" => $forum['forum_name'],
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
 					"TOPICS" => $forum['forum_topics'],
-					"POSTS" => $forum['forum_posts']
+					"POSTS" => $forum['forum_posts'],
+					"PARENT_FORUMS" => $parent_forums
 				));
-	
-	            $theme->add_nest("manage_forums", "catrow/forumrow");
 			}
 
 			//
@@ -612,74 +610,72 @@ else
 			//
             $forum_route[0]['id'] = $forum['forum_id'];
             $forum_route[0]['name'] = $forum['forum_name'];
-			_generate_subforums($forum['forum_id'], $forum_route);
+			_generate_subforums($forum['forum_id'], $forum_route, $page_master, $category_content);
 
-			$forum_no++;
+			$forum_count++;
 		}
 
-		if($forum_no == 0) {
-			$theme->switch_nest("manage_forums", "catrow/forum_titles", false);
+		if($forum_count == 0) {
+			$category_content = $page_master->renderBlock("no_forums_in_cat", array());
 		} else {
-			$theme->switch_nest("manage_forums", "catrow/forum_titles", true);
+			$table_start = $page_master->renderBlock("forums_table_start", array());
+			$table_end = $page_master->renderBlock("forums_table_end", array());
+			$category_content = $table_start . $category_content . $table_end;
 		}
-		$theme->add_nest("manage_forums", "catrow");
+
+		$page_master->addToBlock("category", array(
+			"CAT_ID" => $category['cat_id'],
+			"CAT_NAME" => $category['cat_name'],
+			"CAT_CONTENTS" => $category_content
+		));
 	}
 
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("manage_forums");
-
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
+	outputPage($page_master);
 }
 
-function _generate_subforums($forum_id, $forum_route)
+function _generate_subforums($forum_id, $forum_route, $page_master, &$category_content)
 {
 	global $db2, $theme, $db_prefix ,$lang;
 
-	$db2->query("SELECT `forum_id`, `forum_name`, `forum_description`, `forum_redirect_url`, `forum_topics`, `forum_posts` 
+	$subforums_sql = $db2->query("SELECT `forum_id`, `forum_name`, `forum_description`, `forum_redirect_url`, `forum_topics`, `forum_posts` 
 		FROM `_PREFIX_forums` 
 		WHERE `forum_cat_id`=:fid AND `forum_type` = 'f' ORDER BY `forum_orderby` ASC",
 		array(":fid" => $forum_id));
 
-	while($result = $db2->fetch()) {
+	while($result = $subforums_sql->fetch()) {
+		$parent_forums = "";
+
+		for($i = 0; $i < count($forum_route); $i++) {
+			$parent_forums .= $page_master->renderBlock("parent_forum", array(
+				"SUBFORUM_ID" => $forum_route[$i]['id'],
+				"SUBFORUM_NAME" => $forum_route[$i]['name']
+			));
+		}
+
 		if($result['forum_redirect_url'] != null) {
-			$theme->switch_nest("manage_forums", "catrow/forumrow", false, array(
+			$category_content .= $page_master->renderBlock("redirection_forum", array(
 				"FORUM_ID" => $result['forum_id'],
 				"FORUM_NAME" => $result['forum_name'],
 				"FORUM_DESCRIPTION" => $result['forum_description'],
-				"REDIRECTS" => sprintf($lang['X_Hits'], $result['forum_topics'])));
+				"REDIRECTS" => sprintf($lang['X_Hits'], $result['forum_topics']),
+				"PARENT_FORUMS" => $parent_forums
+			));
 		} else {
-			$theme->switch_nest("manage_forums", "catrow/forumrow", true, array(
+			$category_content .= $page_master->renderBlock("regular_forum", array(
 				"FORUM_ID" => $result['forum_id'],
 				"FORUM_NAME" => $result['forum_name'],
 				"FORUM_DESCRIPTION" => $result['forum_description'],
 				"TOPICS" => $result['forum_topics'],
-				"POSTS" => $result['forum_posts'] ));
+				"POSTS" => $result['forum_posts'],
+				"PARENT_FORUMS" => $parent_forums
+			));
 		}
-
-		for($i = 0; $i < count($forum_route); $i++) {
-			$theme->insert_nest("manage_forums", "catrow/forumrow/subforum", array(
-				"SUBFORUM_ID" => $forum_route[$i]['id'],
-				"SUBFORUM_NAME" => $forum_route[$i]['name'] ));
-				$theme->add_nest("manage_forums", "catrow/forumrow/subforum");
-		}
-
-		$theme->add_nest("manage_forums", "catrow/forumrow");
 
 		$forum_route_count = count($forum_route);
 
 		$forum_route[$forum_route_count]['id'] = $result['forum_id'];
 		$forum_route[$forum_route_count]['name'] = $result['forum_name'];
-		_generate_subforums($result['forum_id'], $forum_route);
+		_generate_subforums($result['forum_id'], $forum_route, $page_master, $category_content);
 		unset($forum_route[$forum_route_count]);
 	}
 	return true;
