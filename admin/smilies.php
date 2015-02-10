@@ -1,15 +1,5 @@
 <?php
 
-/**********************************************************
-*
-*			admin/smilies.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
