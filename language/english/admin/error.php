@@ -48,6 +48,15 @@ $lang['err_code'.ERR_CODE_TEMPLATE_FOLDER_CANT_EMPTY] = "You must specify the te
 $lang['err_code'.ERR_CODE_TEMPLATE_FOLDER_DOESNT_EXIST] = "Template folder must exist.";
 $lang['err_code'.ERR_CODE_TEMPLATE_EDIT_SUCCESS] = "Template edition was save successfully.";
 $lang['err_code'.ERR_CODE_TEMPLATE_EDIT_FAILED] = "Template edition couldn't be saved.";
+$lang['err_code'.ERR_CODE_SMILIES_CANT_ADD] = "Smiley addition failed.";
+$lang['err_code'.ERR_CODE_SMILIES_INVALID_ID] = "Invalid smiley id.";
+$lang['err_code'.ERR_CODE_SMILIES_DELETE_FAILED] = "Smilies deletion failed.";
+$lang['err_code'.ERR_CODE_SMILIES_DELETE_SUCCESS] = "Smilies deleted with success.";
+$lang['err_code'.ERR_CODE_SMILIES_UPDATE_SUCCESS] = "Smiley updated with success.";
+$lang['err_code'.ERR_CODE_SMILIES_UPDATE_FAILED] = "Smiley update failed.";
+$lang['err_code'.ERR_CODE_SMILIES_ADD_FAILED] = "Couldn't add smiley.";
+$lang['err_code'.ERR_CODE_SMILIES_ADD_SUCCESS] = "Smiley successfully added!";
+$lang['err_code'.ERR_CODE_SMILIES_CANT_ADD] = $lang['err_code'.ERR_CODE_SMILIES_ADD_FAILED];
 
 /*======================================================================*\
 || #################################################################### ||
