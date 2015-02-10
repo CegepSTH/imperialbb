@@ -23,6 +23,8 @@ if(isset($lang['err_code'.$_GET['code']])) {
 
 if(isset($_SESSION['return_url'])) {
 	$tplError->setVar("RETURN_URL", $_SESSION['return_url']);
+} else {
+	$tplError->setVar("RETURN_URL", "index.php");
 }
 
 $tplError->setVar("ERROR", $lang['error']);

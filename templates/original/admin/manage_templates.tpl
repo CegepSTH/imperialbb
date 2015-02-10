@@ -1,18 +1,20 @@
-<table width="100%" align="center" class="maintable">
-	<tr>
-		<th colspan="4" height="25">{L.Manage_Templates}</th>
-	</tr>
-	<tr>
-		<td class="desc_row" height="25" align="center">{L.Name}</td><td class="desc_row" align="center">{L.Folder}</td><td class="desc_row" width="100" align="center">{L.Usable}</td><td class="desc_row" width="150" align="center">###</td>
-	</tr>
-	<!-- BEGIN template_row -->
-	<tr>
-		<td class="cell2">{NAME}</td>
-		<td class="cell1">{FOLDER}</td>
-		<td class="cell2" align="center"><input type="checkbox" disabled="disabled" {USABLE}</td>
-		<td class="cell1" align="center">
-			<a href='template.php?func=edit&id={ID}'>{L.Edit}</a> - <a href='template.php?func=delete&id={ID}'>{L.Delete}</a>
-		</td>
-	</tr>
-	<!-- END template_row -->
-</table>
+			<div class="table">
+							
+				<h4>Manage Template</h4>
+				<table>
+				<tr>
+					<th>{L.name}</th>
+					<th>{L.folder}</th>
+					<th>{L.usable}</th>
+					<th>{L.symbol_number_diese}</th>
+				</tr>
+				<!-- BLOCK templateslist_item -->
+				<tr>
+					<td>{NAME}</td>
+					<td>{FOLDER}</td>
+					<td><input type="checkbox" disabled="disabled" {USABLE}></td>
+					<td><a href="template.php?func=edit&id={ID}">{L.edit}</a> - <a href="template.php?func=delete&id={ID}">{L.delete}</a></td>
+				</tr>
+				<!-- END BLOCK templateslist_item -->
+			</table>
+			</div>

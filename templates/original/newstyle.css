@@ -3,6 +3,16 @@
  * These should fixes the forms and overuse of containers. 
  */
  /* In admin part, for forms. Represents a row.*/
+ .no-form-button {
+ 	border:1px solid #999999;
+	border-bottom-color:#cccccc;
+	border-right-color:#cccccc;
+	padding:5px;
+	color:#666666;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1.0em;
+ }
+ 
  .form-admin-row {
 	padding: 10px;	
 	margin-left: auto;
