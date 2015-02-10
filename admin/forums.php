@@ -591,7 +591,8 @@ else
 					"FORUM_ID" => $forum['forum_id'],
 					"FORUM_NAME" => $forum['forum_name'],
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
-					"REDIRECTS" => sprintf($lang['X_Hits'], $forum['forum_topics'])
+					"REDIRECTS" => sprintf($lang['X_Hits'], $forum['forum_topics']),
+					"PARENT_FORUMS" => $parent_forums
 				));
 			} else {
 				$category_content .= $page_master->renderBlock("regular_forum", array(
@@ -599,16 +600,17 @@ else
 					"FORUM_NAME" => $forum['forum_name'],
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
 					"TOPICS" => $forum['forum_topics'],
-					"POSTS" => $forum['forum_posts']
+					"POSTS" => $forum['forum_posts'],
+					"PARENT_FORUMS" => $parent_forums
 				));
 			}
 
 			//
 			// Generate Sub-forums
 			//
-            //$forum_route[0]['id'] = $forum['forum_id'];
-            //$forum_route[0]['name'] = $forum['forum_name'];
-			//_generate_subforums($forum['forum_id'], $forum_route);
+            $forum_route[0]['id'] = $forum['forum_id'];
+            $forum_route[0]['name'] = $forum['forum_name'];
+			_generate_subforums($forum['forum_id'], $forum_route, $page_master, $category_content);
 
 			$forum_count++;
 		}
@@ -617,8 +619,8 @@ else
 			$category_content = $page_master->renderBlock("no_forums_in_cat", array());
 		} else {
 			// Prepend the table header to the contents.
-			$category_content = $page_master->renderBlock("forums_table_header", array()) .
-				$category_content;
+			$table_header = $page_master->renderBlock("forums_table_header", array());
+			$category_content = $table_header .	$category_content;
 		}
 
 		$page_master->addToBlock("category", array(
@@ -631,46 +633,49 @@ else
 	outputPage($page_master);
 }
 
-function _generate_subforums($forum_id, $forum_route)
+function _generate_subforums($forum_id, $forum_route, $page_master, &$category_content)
 {
 	global $db2, $theme, $db_prefix ,$lang;
 
-	$db2->query("SELECT `forum_id`, `forum_name`, `forum_description`, `forum_redirect_url`, `forum_topics`, `forum_posts` 
+	$subforums_sql = $db2->query("SELECT `forum_id`, `forum_name`, `forum_description`, `forum_redirect_url`, `forum_topics`, `forum_posts` 
 		FROM `_PREFIX_forums` 
 		WHERE `forum_cat_id`=:fid AND `forum_type` = 'f' ORDER BY `forum_orderby` ASC",
 		array(":fid" => $forum_id));
 
-	while($result = $db2->fetch()) {
+	while($result = $subforums_sql->fetch()) {
+		$parent_forums = "";
+
+		for($i = 0; $i < count($forum_route); $i++) {
+			$parent_forums .= $page_master->renderBlock("parent_forum", array(
+				"SUBFORUM_ID" => $forum_route[$i]['id'],
+				"SUBFORUM_NAME" => $forum_route[$i]['name']
+			));
+		}
+
 		if($result['forum_redirect_url'] != null) {
-			$theme->switch_nest("manage_forums", "catrow/forumrow", false, array(
+			$category_content .= $page_master->renderBlock("redirection_forum", array(
 				"FORUM_ID" => $result['forum_id'],
 				"FORUM_NAME" => $result['forum_name'],
 				"FORUM_DESCRIPTION" => $result['forum_description'],
-				"REDIRECTS" => sprintf($lang['X_Hits'], $result['forum_topics'])));
+				"REDIRECTS" => sprintf($lang['X_Hits'], $result['forum_topics']),
+				"PARENT_FORUMS" => $parent_forums
+			));
 		} else {
-			$theme->switch_nest("manage_forums", "catrow/forumrow", true, array(
+			$category_content .= $page_master->renderBlock("regular_forum", array(
 				"FORUM_ID" => $result['forum_id'],
 				"FORUM_NAME" => $result['forum_name'],
 				"FORUM_DESCRIPTION" => $result['forum_description'],
 				"TOPICS" => $result['forum_topics'],
-				"POSTS" => $result['forum_posts'] ));
+				"POSTS" => $result['forum_posts'],
+				"PARENT_FORUMS" => $parent_forums
+			));
 		}
 
-		for($i = 0; $i < count($forum_route); $i++) {
-			$theme->insert_nest("manage_forums", "catrow/forumrow/subforum", array(
-				"SUBFORUM_ID" => $forum_route[$i]['id'],
-				"SUBFORUM_NAME" => $forum_route[$i]['name'] ));
-				$theme->add_nest("manage_forums", "catrow/forumrow/subforum");
-		}
-
-		$theme->add_nest("manage_forums", "catrow/forumrow");
-
-		print("" . $forum_id . ":" . $result['forum_id']) . "<br />\n";
 		$forum_route_count = count($forum_route);
 
 		$forum_route[$forum_route_count]['id'] = $result['forum_id'];
 		$forum_route[$forum_route_count]['name'] = $result['forum_name'];
-		_generate_subforums($result['forum_id'], $forum_route);
+		_generate_subforums($result['forum_id'], $forum_route, $page_master, $category_content);
 		unset($forum_route[$forum_route_count]);
 	}
 	return true;

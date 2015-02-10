@@ -22,7 +22,7 @@
  <!-- BLOCK regular_forum -->
  <tr>
   <td class="cell2">
-   <a href="../view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a><br />
+   {PARENT_FORUMS}<a href="../view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a><br />
    <i>{FORUM_DESCRIPTION}</i>
   </td>
   <td align="center" class="cell1">
@@ -40,7 +40,7 @@
  <!-- BLOCK redirection_forum -->
  <tr>
   <td class="cell2">
-   <a href="../view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a><br />
+   {PARENT_FORUMS}<a href="../view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a><br />
    <i>{FORUM_DESCRIPTION}</i>
   </td>
   <td colspan="2" align="center" class="cell1">
