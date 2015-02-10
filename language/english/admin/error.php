@@ -57,6 +57,9 @@ $lang['err_code'.ERR_CODE_SMILIES_UPDATE_FAILED] = "Smiley update failed.";
 $lang['err_code'.ERR_CODE_SMILIES_ADD_FAILED] = "Couldn't add smiley.";
 $lang['err_code'.ERR_CODE_SMILIES_ADD_SUCCESS] = "Smiley successfully added!";
 $lang['err_code'.ERR_CODE_SMILIES_CANT_ADD] = $lang['err_code'.ERR_CODE_SMILIES_ADD_FAILED];
+$lang['err_code'.ERR_CODE_RANKS_INVALIDID] = "Invalid rank id.";
+$lang['err_code'.ERR_CODE_RANKS_DELETED] = "Rank was successfully deleted!";
+$lang['err_code'.ERR_CODE_RANKS_DELETE_FAILED] = "Rank couldn't be deleted.";
 
 /*======================================================================*\
 || #################################################################### ||

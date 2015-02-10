@@ -65,6 +65,9 @@ define("ERR_CODE_SMILIES_ADD_SUCCESS", 330);
 define("ERR_CODE_SMILIES_ADD_FAILED", 340);
 define("ERR_CODE_SMILIES_UPDATE_FAILED", 350);
 define("ERR_CODE_SMILIES_UPDATE_SUCCESS", 360);
+define("ERR_CODE_RANKS_INVALIDID", 370);
+define("ERR_CODE_RANKS_DELETED", 380);
+define("ERR_CODE_RANKS_DELETE_FAILED", 390);
 
 
 /*======================================================================*\
