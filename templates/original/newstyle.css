@@ -455,5 +455,85 @@ div.table h4 {
 
 
 
+.clearfix:before,
+.clearfix:after
+{
+content: " ";
+display: table;
+}
+.clearfix:after
+{
+clear: both;
+}
+
+.panel
+{
+	padding-bottom: 10px;
+}
+.panel .panel-header,
+.panel .panel-footer
+{
+	background-color: #297acc;
+	color: #fff;
+	padding: 5px;
+	border-top: 3px solid #2b5b78;
+}
+.panel .panel-header
+{
+	padding-bottom: 10px;
+}
+
+.config-panel .config-option
+{
+	border-top: 3px solid #2b5b78;
+	padding: 10px 5px 10px 5px;
+}
+.config-panel .config-option .config-name
+{
+	width: 30%;
+	float: left;
+	padding-right: 5px;
+	box-sizing: border-box;
+}
+.config-panel .config-option .config-value
+{
+	width: 70%;
+	float: right;
+}
+.config-panel .config-option .config-value input[type="text"],
+.config-panel .config-option .config-value input[type="password"],
+.config-panel .config-option .config-value textarea
+{
+	box-sizing: border-box;
+	width: 100%;
+}
+.config-panel .config-option .config-value textarea
+{
+	height: 4em;
+}
+.config-panel .panel-header,
+.config-panel .panel-footer
+{
+	text-align: center;
+}
+.config-panel .panel-footer input[type="submit"],
+.config-panel .panel-footer input[type="reset"]
+{
+	background: #246bb2;
+	color: #fff;
+	border: 1px solid #2b5b78;
+	padding: 6px 14px;
+}
+
+/*
+A bit ugly with this declaration because some labels are very long,
+so they span mutiple lines (up to three).
+*/
+.config-panel
+{
+	display: inline-block;
+	width: 400px;
+	vertical-align: top;
+}
 
 
