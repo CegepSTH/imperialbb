@@ -1,302 +1,219 @@
 <?php
 
-/**********************************************************
-*
-*			admin/template.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path . "includes/common.php");
+Template::setBasePath($root_path . "templates/original/admin/");
 
 $language->add_file("admin/template");
+Template::addNamespace("L", $lang);
+
+$tplTemplates = new Template("templates.tpl");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
-if($_GET['func'] == "add")
-{
-	if(isset($_POST['Submit']))
-	{
-		$error = "";
-
-		if(!isset($_POST['name']) || empty($_POST['name']))
-		{
-			$error .= $lang['No_Name_Entered_Error'] . "<br />";
+/**
+ * Add template.
+ */
+if($_GET['func'] == "add") {
+	
+	if(isset($_POST['Submit'])) {
+		CSRF::validate();
+		
+		// Check if name is empty.
+		if(!isset($_POST['name']) || empty($_POST['name'])) {
+			$_SESSION['return_url'] = "template.php?func=add";
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_NAME_CANT_EMPTY);
+			exit();
 		}
-		if(!isset($_POST['folder']) || empty($_POST['folder']))
-		{
-			$error .= $lang['No_Folder_Entered_Error'];
-		}
-		else
-		{
-			if(!is_dir($root_path . "/templates/".$_POST['folder']."/"))
-			{
-				$error .= $lang['Invalid_Folder_Entered_Error'];
+		
+		if(!isset($_POST['folder']) || empty($_POST['folder'])) {
+			$_SESSION['return_url'] = "template.php?func=add";
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_FOLDER_CANT_EMPTY);
+			exit();
+		} else {
+			if(!is_dir($root_path . "/templates/".$_POST['folder']."/")) {
+				$_SESSION['return_url'] = "template.php?func=add";
+				header("location: error.php?code=".ERR_CODE_TEMPLATE_FOLDER_DOESNT_EXIST);
+				exit();
 			}
 		}
-
-		if(!empty($error))
-		{
-			$theme->new_file("add_template", "add_edit_template.tpl");
-
-			$theme->replace_tags("add_template", array(
-				"ACTION" => $lang['Add_Template'],
-				"NAME" => $_POST['name'],
-				"FOLDER" => $_POST['folder'],
-				"USABLE" => (isset($_POST['usable'])) ? "checked=\"checked\"" : ""
-			));
-
-			$theme->insert_nest("add_template", "error", array(
-				"ERROR" => $error
-			));
-			$theme->add_nest("add_template", "error");
-
-			//
-			// Output the page header
-			//
-			include($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("add_template");
-
-			//
-			// Output the page footer
-			//
-			include($root_path . "includes/page_footer.php");
+		
+		$usable = isset($_POST['usable']) ? "1" : "0";
+			
+		$values = array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable);
+		$db2->query("INSERT INTO `_PREFIX_templates` (`template_name`, `template_folder`, `template_usable`) VALUES (:name, :folder, :usable)", $values);
+		$ok = $db2->rowCount() > 0;
+		
+		// Check if success.
+		if($ok) {
+			$_SESSION['return_url'] = "template.php";
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_ADDED_SUCCESS);
+			exit();
+		} else {
+			$_SESSION['return_url'] = "template.php?func=add";
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_CANT_ADD);
+			exit();
 		}
-		else
-		{
-			if(isset($_POST['usable']))
-			{
-				$usable = "1";
-			}
-			else
-			{
-				$usable = "0";
-			}
-			$values = array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable);
-			$db2->query("INSERT INTO `_PREFIX_templates` (`template_name`, `template_folder`, `template_usable`) VALUES (:name, :folder, :usable)", $values);
+	} else {
+		$tplTemplatesAdd = new Template("templates_add.tpl");
 
-			info_box($lang['Add_Template'], $lang['Template_Added_Msg'], "template.php");
-		}
-	}
-	else
-	{
-		$theme->new_file("add_template", "add_edit_template.tpl");
-
-		$theme->replace_tags("add_template", array(
+		$tplTemplatesAdd->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML(),
 			"ACTION" => $lang['Add_Template'],
 			"NAME" => "",
 			"FOLDER" => "",
 			"USABLE" => ""
 		));
-
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("add_template");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
+		
+		$tplTemplates->addToTag("template_page", $tplTemplatesAdd);
 	}
-
-
-}
-else if($_GET['func'] == "download")
-{
+} else if($_GET['func'] == "download") {
 	// TODO: DOWNLOAD INSERT SECTION
-}
-else if($_GET['func'] == "edit")
-{
-	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0))
-	{
-		error_msg($lang['Error'], $lang['Invalid_template_id']);
+} else if($_GET['func'] == "edit") {
+	// Unset token
+	unset($_SESSION['csrf_weird_token']);
+	
+	// Check if valid id.
+	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
+		$_SESSION['return_url'] = "template.php";
+		header("location: error.php?code=".ERR_CODE_TEMPLATE_INVALID_ID);
+		exit();
 	}
+	
+	// Do we receive the save?
+	if(isset($_POST['Submit'])) {
+		CSRF::validate();
 
-	if(isset($_POST['Submit']))
-	{
-		$error = "";
-
-		if(!isset($_POST['name']) || empty($_POST['name']))
-		{
-			$error .= $lang['No_Name_Entered_Error'] . "<br />";
+		// Check if name is empty.
+		if(!isset($_POST['name']) || empty($_POST['name'])) {
+			$_SESSION['return_url'] = "template.php?func=edit&id=".$_GET['id'];
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_NAME_CANT_EMPTY);
+			exit();
 		}
-		if(!isset($_POST['folder']) || empty($_POST['folder']))
-		{
-			$error .= $lang['No_Folder_Entered_Error'];
-		}
-		else
-		{
-			if(!is_dir($root_path . "/templates/".$_POST['folder']."/"))
-			{
-				$error .= $lang['Invalid_Folder_Entered_Error'];
+		
+		// Check if folder is valid.
+		if(!isset($_POST['folder']) || empty($_POST['folder'])) {
+			$_SESSION['return_url'] = "template.php?func=edit&id=".$_GET['id'];
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_FOLDER_CANT_EMPTY);
+			exit();
+		} else {
+			if(!is_dir($root_path . "/templates/".$_POST['folder']."/")) {
+				$_SESSION['return_url'] = "template.php?func=edit&id=".$_GET['id'];
+				header("location: error.php?code=".ERR_CODE_TEMPLATE_FOLDER_DOESNT_EXIST);
+				exit();
 			}
 		}
 
-		if(!empty($error))
-		{
-			$theme->new_file("edit_template", "add_edit_template.tpl");
-
-			$theme->replace_tags("edit_template", array(
-				"ACTION" => $lang['Edit_Template'],
-				"ID" => $_GET['id'],
-				"NAME" => $_POST['name'],
-				"FOLDER" => $_POST['folder'],
-				"USABLE" => (isset($_POST['usable'])) ? "checked=\"checked\"" : ""
-			));
-
-			$theme->insert_nest("edit_template", "error", array(
-				"ERROR" => $error
-			));
-			$theme->add_nest("edit_template", "error");
-
-			//
-			// Output the page header
-			//
-			include($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("edit_template");
-
-			//
-			// Output the page footer
-			//
-			include($root_path . "includes/page_footer.php");
+		$usable = isset($_POST['usable']) ? "1" : "0";
+			
+		$values = array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable, ":id" => $_GET['id']);
+		$db2->query("UPDATE `_PREFIX_templates` SET `template_name`=:name, `template_folder`=:older, `template_usable`=:usable WHERE `template_id`=:id", $values);
+		$ok = $db2->rowCount() > 0;
+		
+		// Check result.
+		if($ok) {
+			$_SESSION['return_url'] = "template.php";
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_EDIT_SUCCESS);
+			exit();
+		} else {
+			$_SESSION['return_url'] = "template.php?func=edit&id=".$_GET['id'];
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_EDIT_FAILED);
+			exit();			
 		}
-		else
-		{
-			if(isset($_POST['usable']))
-			{
-				$usable = "1";
-			}
-			else
-			{
-				$usable = "0";
-			}
-			$values = array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable, ":id" => $_GET['id']);
-			$db2->query("UPDATE `_PREFIX_templates` SET `template_name`=:name, `template_folder`=:older, `template_usable`=:usable WHERE `template_id`=:id", $values);
-
-			info_box($lang['Edit_Template'], $lang['Template_Edited_Msg'], "template.php");
-		}
-
-
-	}
-	else
-	{
-		$theme->new_file("edit_template", "add_edit_template.tpl");
+	} else {
+		// SHOW EDIT FORM
+		$tplTemplatesEdit = new Template("templates_edit.tpl");
 
 		$db2->query("SELECT `template_id`, `template_name`, `template_folder`, `template_usable` FROM `_PREFIX_templates` WHERE `template_id`=:id", array(":id" => $_GET['id']));
 
-		if($result = $db2->fetch())
-		{
-			$theme->replace_tags("edit_template", array(
+		if($result = $db2->fetch()) {
+			$tplTemplatesEdit->setVars(array(
+			    "CSRF_TOKEN" => CSRF::getHTML(),
 				"ACTION" => $lang['Edit_Template'],
 				"ID" => $result['template_id'],
 				"NAME" => $result['template_name'],
 				"FOLDER" => $result['template_folder'],
 				"USABLE" => ($result['template_usable'] == 1) ? "checked=\"checked\"" : ""
 			));
+		} else {
+			$_SESSION['return_url'] = "template.php";
+			header("location: error.php?code=".ERR_CODE_TEMPLATE_INVALID_ID);
+			exit();		
 		}
-		else
-		{
-			error_msg($lang['Error'], $lang['Invalid_template_id']);
-		}
-
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("edit_template");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
+		
+		$tplTemplates->addToTag("template_page", $tplTemplatesEdit);
 	}
-
-}
-else if($_GET['func'] == "delete")
-{
-	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0))
-	{
-		error_msg($lang['Error'], $lang['Invalid_template_id']);
+	
+} else if($_GET['func'] == "delete") {
+	/**
+	 * Delete a template.
+	 */ 
+	 
+	// A bit hacky, since it's _GET request.
+	if(!isset($_SESSION['csrf_weird_token'])) {
+		CSRF::validate();
 	}
+	// Unset token.
+	unset($_SESSION['csrf_weird_token']);
+	
+	// Check if id is valid.
+	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
+		$_SESSION['return_url'] = "template.php";
+		header("location: error.php?code=".ERR_CODE_TEMPLATE_INVALID_ID);
+		exit();
+	}
+	
 	$db2->query("SELECT count(`template_id`) AS 'count' FROM `_PREFIX_templates`");
 	$result = $db2->fetch();
+	// Check if last template.
 	if($result['count'] <= 1) {
-		error_msg($lang['Error'], $lang['Cannot_Delete_Last_Template_Msg']);
+		$_SESSION['return_url'] = "template.php";
+		header("location: error.php?code=".ERR_CODE_TEMPLATE_CANT_DELETE_LAST);
+		exit();
 	}
 
-	if(isset($_GET['confirm']) && $_GET['confirm'] == 1)
-	{
-		$values = array(":default" => $config['default_template'], ":id" => $_GET['id']);
-		$db2->query("UPDATE `_PREFIX_users` SET `user_template`=:default WHERE `user_template`=:id");
-		$db2->query("DELETE FROM `_PREFIX_templates` WHERE `template_id`=:id", array(":id" => $_GET['id']));
-
-		info_box($lang['Delete_Template'], $lang['Template_Deleted_Msg'], "template.php");
+	$values = array(":default" => $config['default_template'], ":id" => $_GET['id']);
+	$db2->query("UPDATE `_PREFIX_users` SET `user_template`=:default WHERE `user_template`=:id");
+	$db2->query("DELETE FROM `_PREFIX_templates` WHERE `template_id`=:id", array(":id" => $_GET['id']));
+	$ok = $db2->rowCount > 0;
+	
+	// Check results. 
+	if($ok) {
+		$_SESSION['return_url'] = "template.php";
+		header("location: error.php?code=".ERR_CODE_TEMPLATE_DELETE_SUCCESS);
+		exit();		
+	} else {
+		$_SESSION['return_url'] = "template.php";
+		header("location: error.php?code=".ERR_CODE_TEMPLATE_CANT_DELETE);
+		exit();
 	}
-	else
-	{
-		confirm_msg($lang['Delete_Template'], $lang['Delete_Template_Confirm_Msg'], "template.php?func=delete&id=".$_GET['id']."&confirm=1", "template.php");
-	}
+	
+} else {
+	
+	$_SESSION['csrf_weird_token'] = CSRF::getHTML();
+	
+	/**
+	 * Manage templates
+	 */
+	$tplTemplatesManage = new Template("templates_manage.tpl");
 
-}
-else
-{
-	//
-	// View installed templates
-	//
-	$theme->new_file("manage_templates", "manage_templates.tpl");
-
+	// Fetch templates and add to block.
 	$db2->query("SELECT `template_id`, `template_name`, `template_folder`, `template_usable` FROM `_PREFIX_templates`");
-
-	while($result = $db2->fetch())
-	{
-		$theme->insert_nest("manage_templates", "template_row", array(
+	while($result = $db2->fetch()) {
+		$tplTemplatesManage->addToBlock("templateslist_item", array(
 			"ID" => $result['template_id'],
 			"NAME" => $result['template_name'],
 			"FOLDER" => $result['template_folder'],
-			"USABLE" => ($result['template_usable'] == 1) ? "checked=\"checked\"" : ""
+			"USABLE" => ($result['template_usable'] == 1) ? "checked" : ""
 		));
-		$theme->add_nest("manage_templates", "template_row");
 	}
-
-	//
-	// Output the page header
-	//
-	include($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("manage_templates");
-
-	//
-	// Output the page footer
-	//
-	include($root_path . "includes/page_footer.php");
+	
+	// Add to sub-view.
+	$tplTemplates->addToTag("template_page", $tplTemplatesManage);
 }
 
+outputPage($tplTemplates);
 ?>

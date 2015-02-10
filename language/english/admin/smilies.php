@@ -7,9 +7,9 @@
 || #  navigate to the docs/ folder or visit the forums at the		  # ||
 || #  website, http://www.imperialbb.com/forums. with your questions. # ||
 || # ---------------------------------------------------------------- # ||
-|| # Name: template.php                                               # ||
+|| # Name: language.php                                               # ||
 || # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
+|| #                "Copyright Â© 2006 M-ka Network"                   # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -18,19 +18,22 @@ if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
 
-$lang['name'] = "Template name";
-$lang['folder'] = "Folder";
-$lang['usable'] = "Usable";
-$lang['symbol_number_diese'] = "Operations";
-$lang['edit'] = "Edit template";
-$lang['delete'] = "Delete template";
-$lang['add_template'] = "Add template";
-$lang['save_template'] = "Save template";
-$lang['edit_template'] = "Edit template";
+$lang['add_smiley'] = "Add smiley";
+$lang['name'] = "Name";
+$lang['code'] = "Code";
+$lang['url'] = "URL (ex. happy.gif)";
+$lang['image'] = "Image";
+$lang['image_url'] = "Image url";
+$lang['operations'] = "Operations";
+$lang['edit'] = "Edit";
+$lang['delete'] = "Delete";
+$lang['edit_smiley'] = "Edit smiley";
+$lang['save_smiley'] = "Save smiley";
+
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright Â© 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>
