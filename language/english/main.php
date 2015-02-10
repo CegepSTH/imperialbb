@@ -76,6 +76,7 @@ $lang['paginate_activepg'] = "Page#";
 $lang['Ok'] = "Ok";
 $lang['Cancel'] = "Cancel";
 $lang['Submit'] = "Submit";
+$lang['Disabled'] = "Disabled";
 $lang['Reset'] = "Reset";
 $lang['True'] = "True";
 $lang['False'] = "False";
