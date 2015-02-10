@@ -130,6 +130,8 @@ $lang['No_x_content'] = "You did not enter a %s"; // %s = An item of content (E.
 $lang['User_does_not_exist'] = "Sorry, that user does not exist";
 $lang['Title_Too_Long'] = "The title you entered must be less than 75 characters long.";
 $lang['Unable_to_select_template'] = "Unable to select template";
+$lang['post_has_too_many_chars'] = "Your post is too long. Maximum size of your post : 2000 characters.";
+$lang['Chars_left'] = "Characters left : ";
 
 // Permission Errors
 $lang['Invalid_Permissions_Mod'] = "You do not have permission to moderate this topic";
