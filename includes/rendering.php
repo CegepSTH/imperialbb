@@ -63,7 +63,7 @@ function renderAdminMenu() {
 				"NAME" => $name
 			));
 
-			$links_html .= $single_link_block->output;
+			$links_html .= $single_link_block;
 		}
 
 		$sidebar_template->addToBlock("link_block", array(

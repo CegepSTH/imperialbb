@@ -23,6 +23,6 @@ if(isset($_SESSION['return_url'])) {
 } else {
 	$tplError->setVar("RETURN_URL", "index.php");
 }
-
+unset($_SESSION['return_url']);
 outputPage($tplError);
 ?>
