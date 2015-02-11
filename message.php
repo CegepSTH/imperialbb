@@ -1,9 +1,8 @@
 <?php
 
 define("IN_IBB", 1);
-define("IN_ADMIN", 1);
 
-$root_path = "../";
+$root_path = "./";
 require_once($root_path."includes/common.php");
 $language->add_file("message");
 
