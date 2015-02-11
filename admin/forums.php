@@ -728,7 +728,7 @@ function _delete_subforums($forum_id)
 	
 	while($result = $db_sub->fetch()) {
 		_delete_subforums($result['forum_id']);
-		$db_sub->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $result['forum_id']));
+		$db2->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $result['forum_id']));
 
 		$db_del = $db2->query("SELECT `topic_id` FROM `_PREFIX_topics` WHERE `topic_forum_id`=:fid", array(":fid" => $result['forum_id']));
 		
