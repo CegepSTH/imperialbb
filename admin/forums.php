@@ -488,7 +488,7 @@ if($_GET['func'] == "add_forum") {
 					$db2->query("DELETE FROM `_PREFIX_topics` WHERE `topic_id`=:tid", array(":tid" => $topic_result['topic_id']));
 				}
 				
-				$db_sub->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $result['forum_id']));
+				$db2->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $result['forum_id']));
 			}
 			
 			$db2->query("DELETE FROM `_PREFIX_categories` WHERE `cat_id`=:cid", array(":cid" => $_GET['cid']));
