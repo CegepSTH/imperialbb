@@ -5,8 +5,7 @@ define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path."includes/common.php");
-Template::setBasePath($root_path . "templates/original/admin/");
-$language->add_file("admin/error");
+$language->add_file("message");
 
 // If no error code, just redirect to index.
 if(!isset($_GET['code']) || !is_numeric($_GET['code'])) {
@@ -14,10 +13,10 @@ if(!isset($_GET['code']) || !is_numeric($_GET['code'])) {
 	exit();
 }
 
-$tplError = new Template("error.tpl");
+$tplError = new Template("message.tpl");
 
 if(isset($lang['err_code'.$_GET['code']])) {   
-	$tplError->setVar("ERROR_MSG", $lang['err_code'.$_GET['code']]);
+	$tplError->setVar("MESSAGE_CONTENT", $lang['err_code'.$_GET['code']]);
 }
 
 if(isset($_SESSION['return_url'])) {
@@ -25,9 +24,6 @@ if(isset($_SESSION['return_url'])) {
 } else {
 	$tplError->setVar("RETURN_URL", "index.php");
 }
-
-$tplError->setVar("ERROR", $lang['error']);
-$tplError->setVar("DONT_WAIT", $lang['dont_wait_redirect']);
 
 outputPage($tplError);
 ?>

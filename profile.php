@@ -69,6 +69,14 @@ if($_GET['func'] == "edit")
 				// Check uploaded avatar dimensions
 				$error .= sprintf($lang['Avatar_Dimensions_Too_Big'], $config['avatar_max_upload_height'], $config['avatar_max_upload_width']);
 			}
+
+			// Verify MIME Type
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mime=finfo_file($finfo, $_FILES['Upload_Avatar']['tmp_name']);
+
+			if(!in_array($mime, explode(";", $config['avatar_upload_mime_types']))){
+				$error .= $lang['Invalid_Avatar_Type_Msg'] . "<br />";
+			}
 		}
 
 		if(isset($_POST['template']))
@@ -141,7 +149,7 @@ if($_GET['func'] == "edit")
 			$theme->insert_nest("edit_profile", "template_select");
 
 			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates`";
-			if($user['user_user_level'] < 5)
+			if($user['user_level'] < 5)
 			{
 				$template_sql .= " WHERE `template_usable` = '1'";
 			}
@@ -202,7 +210,7 @@ if($_GET['func'] == "edit")
 						unlink("images/avatars/uploads/".$user['user_avatar_location']);
 					}
 					
-					$oUser->setAvatarType(UPLOAD_AVATAR);
+					$oUser->setAvatarType(UPLOADED_AVATAR);
 					$oUser->setAvatarLocation($filename);
 					$oUser->setAvatarDimensions($image_size[0]."x".$image_size[1]);
 				} else {
