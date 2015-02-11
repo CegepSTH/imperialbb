@@ -75,6 +75,10 @@ if($_GET['func'] == "newtopic")
 		{
 			$error .= $lang['No_Post_Content'] . "<br />";
 		}
+		if(strlen($_POST['body']) > 2000)
+		{
+			$error .= $lang['post_has_too_many_chars'] . "<br />";
+		}
 
 		$poll_choices_blank = true;
 		foreach($_POST['pollchoice'] as $pollchoice) {
@@ -613,51 +617,55 @@ else if($_GET['func'] == "reply")
 		{
 			 $error .= $lang['No_Post_Content'] . "<br />";
 		}
+		if(strlen($_POST['body']) > 2000)
+		{
+			$error .= $lang['post_has_too_many_chars'] . "<br />";
+		}
 		if(strlen($error) > 0)
 		{
-		$theme->new_file("reply", "post.tpl", "");
+			$theme->new_file("reply", "post.tpl", "");
 
-		//
-		// Set Up Quote
-		//
-		if(isset($_GET['quote']) && is_numeric($_GET['quote']))
-		{
-
-			$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
-				FROM `_PREFIX_posts` p, `_PREFIX_users` u
-				WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
-				LIMIT 1",
-				array(
-					":pid" => $_GET['quote']
-				)
-			);
-
-			if($quote = $db2->fetch())
+			//
+			// Set Up Quote
+			//
+			if(isset($_GET['quote']) && is_numeric($_GET['quote']))
 			{
-				$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
+
+				$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
+					FROM `_PREFIX_posts` p, `_PREFIX_users` u
+					WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
+					LIMIT 1",
+					array(
+						":pid" => $_GET['quote']
+					)
+				);
+
+				if($quote = $db2->fetch())
+				{
+					$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
+				}
+				else
+				{
+					$body = "";
+				}
 			}
 			else
 			{
 				$body = "";
 			}
-		}
-		else
-		{
-			$body = "";
-		}
 
-		$theme->replace_tags("reply", array(
-			"FORUM_ID" => $forum_result['forum_id'],
-			"FORUM_NAME" => $forum_result['forum_name'],
-			"TOPIC_ID" => $_GET['tid'],
-			"TOPIC_NAME" => $forum_result['topic_title'],
-			"ACTION" => $lang['Reply'],
-			"BODY" => $body,
-			"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
-			"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
-			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
-			"CSRF_TOKEN" => CSRF::getHTML()
-		));
+			$theme->replace_tags("reply", array(
+				"FORUM_ID" => $forum_result['forum_id'],
+				"FORUM_NAME" => $forum_result['forum_name'],
+				"TOPIC_ID" => $_GET['tid'],
+				"TOPIC_NAME" => $forum_result['topic_title'],
+				"ACTION" => $lang['Reply'],
+				"BODY" => $body,
+				"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
+				"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
+				"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
+				"CSRF_TOKEN" => CSRF::getHTML()
+			));
 
 			$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $forum_result['topic_title'] . " &raquo; " . $lang['Reply'];
 

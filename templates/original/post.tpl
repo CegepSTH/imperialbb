@@ -122,7 +122,25 @@ function add_bbcode(text,attrib) {
 				</table>
 
 				<!-- HARD CODED -->
-				<p id="CharsLeft">Characters left : 2000</p>
+				<p id="CharsLeft">{L.Chars_left} 2000</p>
+				<script>
+					function getNbCharactersLeft() {
+						var nbCharsLeft = 2000 - document.getElementById("body").value.length;
+						document.getElementById("CharsLeft").innerHTML = "{L.Chars_left}" + nbCharsLeft;
+
+						<!-- HARD CODED -->
+						if(nbCharsLeft <= 0){
+							document.getElementById("Submit").disabled = true;
+							document.getElementById("Submit").value = "{L.Disabled}";
+
+							// document.getElementById("Submit").value = "Disabled";
+						}
+						else{
+							document.getElementById("Submit").disabled = false;
+							document.getElementById("Submit").value = "{L.Submit}";
+						}
+					}
+				</script>
 
 			</td>
 		</tr>
@@ -181,20 +199,4 @@ function add_bbcode(text,attrib) {
 	</table>
 </form>
 
-<script>
-	function getNbCharactersLeft() {
-		var nbCharsLeft = 2000 - document.getElementById("body").value.length;
-		document.getElementById("CharsLeft").innerHTML = "Characters left : " + nbCharsLeft;
 
-		<!-- HARD CODED -->
-		if(nbCharsLeft < 0){
-			document.getElementById("Submit").disabled = true;
-			document.getElementById("Submit").value = "Disabled";
-
-		}
-		else{
-			document.getElementById("Submit").disabled = false;
-			document.getElementById("Submit").value = "Submit";
-		}
-	}
-</script>

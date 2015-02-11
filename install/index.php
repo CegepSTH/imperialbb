@@ -1,7 +1,8 @@
 <?php
 define("IN_IBB", 1);
 if(file_exists("../includes/config.php"))
-{	include("../includes/config.php");
+{
+	include("../includes/config.php");
 
 
 	// Unset db config because we dont need it!
@@ -21,7 +22,8 @@ if(file_exists("../includes/config.php"))
 error_reporting(0);
 
 if(!isset($_POST['Submit']))
-{
+{
+
 // Attempt to guess the directory
 if(!empty($_ENV['SERVER_NAME']) || !empty($_SERVER['SERVER_NAME']))
 {
@@ -32,7 +34,8 @@ else if(!empty($_ENV['HTTP_HOST']) || !empty($_SERVER['HTTP_HOST']))
 	$server_name = (!empty($HTTP_SERVER_VARS['HTTP_HOST'])) ? $HTTP_SERVER_VARS['HTTP_HOST'] : $HTTP_ENV_VARS['HTTP_HOST'];
 }
 else
-{	$server_name = "";
+{
+	$server_name = "";
 }
 $script_path = (isset($_ENV['PHP_SELF']) && !empty($_ENV['PHP_SELF'])) ? $_ENV['PHP_SELF'] : $_SERVER['PHP_SELF'];
 
@@ -126,7 +129,8 @@ END;
 
 
 if($_POST['useftp'] == "true")
-{	include("temp_ftp.php");
+{
+	include("temp_ftp.php");
 	echo "Connecting to FTP server...  ";
 	$ftp = new ftp($_POST['ftpuser'], $_POST['ftppass']);
 
@@ -155,7 +159,7 @@ $file_data = <<<END
 || # ---------------------------------------------------------------- # ||
 || # Name: config.php                                                 # ||
 || # ---------------------------------------------------------------- # ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright Â© 2006 M-ka Network"                  # ||
 || # ---------------------------------------------------------------- # ||
 || #################################################################### ||
 \*======================================================================*/
@@ -185,7 +189,7 @@ define("INSTALLED", 1);
 
 /*======================================================================*\
 || #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
+|| #                 "Copyright Â© 2006 M-ka Network"                  # ||
 || #################################################################### ||
 \*======================================================================*/
 ?>
@@ -194,7 +198,8 @@ END;
 $db = mysql_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass']) or error_msg("Could not connect to mysql database:<br />".mysql_error());
 
 if($_POST['useftp'] == "true")
-{	echo "Uploading configuration file...  ";
+{
+	echo "Uploading configuration file...  ";
 	$tmpname = @tempnam('/tmp', 'html');
 	@unlink($tmpname);
 	$fp = @fopen($tmpname, 'w');
@@ -267,7 +272,8 @@ if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '" . $_POST['forum_pat
 echo "Done<br /><br />";
 
 if($_POST['useftp'] == "false")
-{	echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
+{
+	echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
 }
 
 echo <<<END
@@ -282,7 +288,8 @@ page_footer();
 }
 
 function page_header()
-{
+{
+
 	echo <<<END
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -343,7 +350,8 @@ END;
 }
 
 function error_msg($message)
-{	echo <<<END
+{
+	echo <<<END
 							$message
 							<br /><br /><h2>Failed to install forum</h2>
 							</td>
@@ -352,6 +360,7 @@ function error_msg($message)
 END;
 	page_footer();
 	exit();
-}
+}
+
 
 ?>
