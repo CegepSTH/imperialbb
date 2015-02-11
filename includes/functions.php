@@ -734,6 +734,7 @@ function countWord($needle, $haystack) {
  * However, this functions fixes the behavior and results:
  * 		[quote:0] [quote:1] [/quote:1] [/quote:0] [quote:0] [quote:1][/quote:1] [/quote:0]
  * 
+ * 
  * @param $code Full code as string to parse.
  * @param $opening Opening tag.
  */
@@ -796,7 +797,11 @@ function parseBirthday($str_birthday) {
 	return $res;
 }
 
-
+function showMessage($err_code, $str_returnUrl) {
+	$_SESSION['return_url'] = $str_returnUrl;
+	header("location: message.php?code=".$err_code);
+	exit();
+}
 /*======================================================================*\
 || #################################################################### ||
 || #                 "Copyright � 2006 M-ka Network"                  # ||
