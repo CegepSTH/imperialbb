@@ -592,7 +592,7 @@ else
 					"FORUM_NAME" => $forum['forum_name'],
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
 					"REDIRECTS" => sprintf($lang['X_Hits'], $forum['forum_topics']),
-					"PARENT_FORUMS" => $parent_forums
+					"PARENT_FORUMS" => ""
 				));
 			} else {
 				$category_content .= $page_master->renderBlock("regular_forum", array(
@@ -601,7 +601,7 @@ else
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
 					"TOPICS" => $forum['forum_topics'],
 					"POSTS" => $forum['forum_posts'],
-					"PARENT_FORUMS" => $parent_forums
+					"PARENT_FORUMS" => ""
 				));
 			}
 
