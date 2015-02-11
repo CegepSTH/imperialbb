@@ -647,3 +647,74 @@ so they span mutiple lines (up to three).
 	border-top: 3px solid #2b5b78;
 }
 
+.site-wrapper
+{
+	margin-left: auto;
+	margin-right: auto;
+	width: 960px;
+	background: #fff;
+}
+.site-header,
+.site-footer .info
+{
+	background: #297ACC;
+	padding: 10px;
+}
+.site-content-wrapper
+{
+	padding: 0px 10px 0px 10px;
+}
+.site-footer,
+.site-footer .info,
+.site-content-wrapper
+{
+	margin-top: 10px;
+}
+.site-footer .info
+{
+	font-size: 0.85em;
+}
+.site-header,
+.site-footer .info,
+.site-header a,
+.site-footer .info a,
+.site-header a:hover,
+.site-footer .info a:hover
+{
+	color: #fff;
+}
+.site-header .navlinks a
+{
+	text-decoration: initial;
+}
+.site-header .logo-name .name
+{
+	height: 64px;
+	display: table-cell;
+	vertical-align: middle;
+}
+.site-header .navlinks a
+{
+	margin-right: 10px;
+}
+.site-header .navlinks a:last-child
+{
+	margin-right: 0;
+}
+.site-header .logo
+{
+	float: left;
+}
+.site-header .navlinks
+{
+	float: right;
+}
+.site-footer .navlinks
+{
+	text-align: center;
+}
+.site-footer .info
+{
+	text-align: right;
+}
+
