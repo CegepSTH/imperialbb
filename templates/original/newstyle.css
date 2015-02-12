@@ -492,9 +492,14 @@ clear: both;
 .panel .panel-header
 {
 	padding-bottom: 10px;
+}
+.panel .panel-header,
+.panel .panel-footer
+{
 	text-align: center;
 }
 .panel .panel-header.panel-header-nocenter
+.panel .panel-footer.panel-footer-nocenter
 {
 	text-align: start;
 }
@@ -665,7 +670,6 @@ so they span mutiple lines (up to three).
 {
 	padding: 0px 10px 0px 10px;
 }
-.site-footer,
 .site-footer .info,
 .site-content-wrapper
 {
@@ -722,7 +726,7 @@ so they span mutiple lines (up to three).
 .site-content > .breadcrumb
 {
 	margin-top: 5px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 
 .login-panel .panel-footer,

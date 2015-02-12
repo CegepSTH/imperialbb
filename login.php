@@ -106,18 +106,13 @@ else if($_GET['func'] == "forgotten_pass")
 	}
 	else
 	{
-		$theme->new_file("forgotten_password", "forgotten_password.tpl");
-		$theme->replace_tags("forgotten_password",
-			array(
-				"CSRF_TOKEN" => CSRF::getHtml()
-			)
-		);
+		$page_master = new Template("forgotten_password.tpl");
+		$page_master->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML()
+		));
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Forgotten_Password'];
-
-		include_once($root_path . "includes/page_header.php");
-		$theme->output("forgotten_password");
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master, $page_title);
 	}
 
 }
@@ -198,7 +193,7 @@ else
 		));
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
-		outputPage($page_master);
+		outputPage($page_master, $page_title);
 	}
 }
 
