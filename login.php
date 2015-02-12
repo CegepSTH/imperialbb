@@ -23,6 +23,7 @@ require_once($root_path . "classes/password.php");
 include_once($root_path . "models/user.php");
 
 $language->add_file("login");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
@@ -191,17 +192,13 @@ else
 	}
 	else
 	{
-		$theme->new_file("login", "login.tpl", "");
-		$theme->replace_tags("login",
-			array(
-				"CSRF_TOKEN" => CSRF::getHTML()
-			)
-		);
-		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
+		$page_master = new Template("login.tpl");
+		$page_master->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML()
+		));
 
-		include_once($root_path . "includes/page_header.php");
-		$theme->output("login");
-		include_once($root_path . "includes/page_footer.php");
+		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
+		outputPage($page_master);
 	}
 }
 
