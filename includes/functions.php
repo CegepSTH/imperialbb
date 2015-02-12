@@ -797,7 +797,7 @@ function parseBirthday($str_birthday) {
 	return $res;
 }
 
-function showMessage($err_code, $str_returnUrl) {
+function showMessage($err_code, $str_returnUrl = "index.php") {
 	$_SESSION['return_url'] = $str_returnUrl;
 	header("location: message.php?code=".$err_code);
 	exit();

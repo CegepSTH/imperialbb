@@ -203,7 +203,6 @@ else
 			ORDER BY `forum_orderby`", array(":ugroup" => $user['user_usergroup'], ":cid" => $cat_result['cat_id']));
 
 		while($forum_result = $result->fetch()) {
-			var_dump($forum_result);
 			if(($forum_result['forum_read'] <= $user['user_level'] && $forum_result['ug_read'] == 0) || $forum_result['ug_read'] == 1)
 			{				
 				$theme->insert_nest("search", "catrow/forumrow", array(

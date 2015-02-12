@@ -69,6 +69,16 @@ define("ERR_CODE_RANKS_INVALIDID", 370);
 define("ERR_CODE_RANKS_DELETED", 380);
 define("ERR_CODE_RANKS_DELETE_FAILED", 390);
 
+// login.php errors.
+define("ERR_CODE_LOGIN_ACTIVATION_ERROR", 401);
+define("ERR_CODE_LOGIN_ALREADY_ACTIVATED", 411);
+define("ERR_CODE_LOGIN_RESET_PASSWORD_ERROR", 421);
+define("ERR_CODE_LOGIN_RESET_PASSWORD_SUCCESS", 431);
+define("ERR_CODE_LOGIN_RESET_PASSWORD_INVALID_ID", 441);
+define("ERR_CODE_LOGIN_SUCCESS", 451);
+define("ERR_CODE_LOGIN_INVALID_ID", 461);
+define("ERR_CODE_LOGIN_ALREADY_LOGGED_IN", 471);
+
 
 /*======================================================================*\
 || #################################################################### ||
