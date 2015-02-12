@@ -488,7 +488,7 @@ if($_GET['func'] == "add_forum") {
 					$db2->query("DELETE FROM `_PREFIX_topics` WHERE `topic_id`=:tid", array(":tid" => $topic_result['topic_id']));
 				}
 				
-				$db_sub->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $result['forum_id']));
+				$db2->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $result['forum_id']));
 			}
 			
 			$db2->query("DELETE FROM `_PREFIX_categories` WHERE `cat_id`=:cid", array(":cid" => $_GET['cid']));
@@ -592,7 +592,7 @@ else
 					"FORUM_NAME" => $forum['forum_name'],
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
 					"REDIRECTS" => sprintf($lang['X_Hits'], $forum['forum_topics']),
-					"PARENT_FORUMS" => $parent_forums
+					"PARENT_FORUMS" => ""
 				));
 			} else {
 				$category_content .= $page_master->renderBlock("regular_forum", array(
@@ -601,7 +601,7 @@ else
 					"FORUM_DESCRIPTION" => $forum['forum_description'],
 					"TOPICS" => $forum['forum_topics'],
 					"POSTS" => $forum['forum_posts'],
-					"PARENT_FORUMS" => $parent_forums
+					"PARENT_FORUMS" => ""
 				));
 			}
 
