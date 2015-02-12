@@ -15,7 +15,7 @@
 		<input type="text" name="email" id="Email" />
 	</div>
 	<div class="panel-footer">
-		<input type="Submit" name="Submit" value="{L.Login}" />&nbsp;&nbsp;
+		<input type="Submit" name="Submit" value="{L.Submit}" />&nbsp;&nbsp;
 		<input type="reset" value="{L.Reset}" />
 	</div>
 </form>
