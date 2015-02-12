@@ -195,13 +195,15 @@ else
 		));
 
 		$forum_count = 0;
-		$db2->query("SELECT f.`forum_id`, f.`forum_name`, f.`forum_read`, g.`ug_read`
+		
+		$result = $db2->query("SELECT f.`forum_id`, f.`forum_name`, f.`forum_read`, g.`ug_read`
 			FROM (`_PREFIX_forums` f
 				LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup`=:ugroup)
 			WHERE `forum_cat_id`=:cid
 			ORDER BY `forum_orderby`", array(":ugroup" => $user['user_usergroup'], ":cid" => $cat_result['cat_id']));
 
-		while($forum_result = $db2->fetch()) {
+		while($forum_result = $result->fetch()) {
+			var_dump($forum_result);
 			if(($forum_result['forum_read'] <= $user['user_level'] && $forum_result['ug_read'] == 0) || $forum_result['ug_read'] == 1)
 			{				
 				$theme->insert_nest("search", "catrow/forumrow", array(
@@ -240,11 +242,11 @@ function _generate_category_dropdown($forum_id, $prefix)
 {
 	global $db2, $theme;
 
-	$db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
+	$result = $db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
 		WHERE `forum_cat_id`=:fid AND `forum_type` = 'f'
 		ORDER BY `forum_orderby` DESC", array(":fid" => $forum_id));
 
-	while($forum_result = $db2->fetch()) {
+	while($forum_result = $result->fetch()) {
 		$theme->insert_nest("search", "catrow/forumrow", array(
 			"FORUM_ID" => $forum_result['forum_id'],
 			"PREFIX" => $prefix,
