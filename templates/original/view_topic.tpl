@@ -33,13 +33,13 @@ div#quick_reply {
 	<div class="panel-header" style="background-color:#5CB8E6;">
 		<span style="color:white;font-weight:bold;">{TOPIC_NAME}</span>
 	</div>
-	<div class="form-row">	
+	<div>	
 		<table>
 			<tr>
 				<th>{L.Author}</th>
 				<th colspan="2">{L.Message}</th>
 			</tr>
-			<!--// BLOCK topic_message_item -->
+			<!-- BLOCK topic_message_item -->
 			<tr>
 				<td rowspan="4">
 					<h3>{AUTHOR_NAME}</h3>
@@ -57,10 +57,10 @@ div#quick_reply {
 				</td>
 			</tr>
 			<tr>
-				<td>
+				<td valign="middle">
 					{DATE}
 				</td>
-				<td align="right">
+				<td align="right" valign="middle">
 					<!--// BLOCK mod_links_on -->
 					<a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
 					<a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
@@ -77,7 +77,7 @@ div#quick_reply {
 				</td>
 			</tr>
 			<tr>
-				<td valign="top" colspan="2">
+				<td valign="top" colspan="2" style="height:100%;">
 					{TEXT}<br>
 				</td>
 			</tr>
@@ -86,7 +86,7 @@ div#quick_reply {
 					{SIGNATURE}	
 				</td>
 			</tr>
-		<!--// END BLOCK topic_message_item -->
+		<!-- END BLOCK topic_message_item -->
 		</table>
 	</div>
 </div>

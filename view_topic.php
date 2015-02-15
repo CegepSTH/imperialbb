@@ -233,23 +233,27 @@ if($topic = $db2->fetch()) {
 
 
 		if(!empty($post['user_signature'])) {
-			$post['user_signature'] = "<br /><br />\n----------<br />\n".format_text($post['user_signature']);
+			$post['user_signature'] = format_text($post['user_signature']);
 		}
 		
 		if($post['post_timestamp'] > $newtime) {
 			$newtime = $post['post_timestamp'];
 		}
-		// Insert the postrow nest and assign the variables
-		$theme->insert_nest("view_topic", "postrow", array(
+		
+		$tplViewTopic->addToBlock("topic_message_item", array(
 			"DATE" => create_date("D d M Y", $post['post_timestamp']) . " " . $lang['at'] . " " . create_date("h:i a", $post['post_timestamp']),
 			"POST_ID" => $post['post_id'],
 			"AUTHOR_ID" => $post['user_id'],
-			"AUTHOR_USERNAME" => $post['username'],
+			"AUTHOR_NAME" => $post['username'],
 			"AUTHOR_RANK" => ($post['user_id'] > 0) ? $post['rank_name'] : "",
 			"TEXT" => format_text($post['post_text']),
 			"SIGNATURE" => $post['user_signature'],
+			"AUTHOR_JOINED" => create_date("D d M Y", $post['user_date_joined']),
+			"AUTHOR_POSTS" => $post['user_posts'],
+			"AUTHOR_LOCATION" => $post['user_location']
 		));
 
+		/*
 		if($post['user_id'] > 0) {
 			$theme->insert_nest("view_topic", "postrow/author_standard", array(
 				"AUTHOR_JOINED" => create_date("D d M Y", $post['user_date_joined']),
@@ -261,7 +265,7 @@ if($topic = $db2->fetch()) {
 					"AUTHOR_LOCATION" => $post['user_location']
 				));
 			}
-		}
+		}*/
 
 		if(!empty($post['rank_image'])) {
 			$theme->insert_nest("view_topic", "postrow/rank_image", array(
