@@ -833,6 +833,11 @@ so they span mutiple lines (up to three).
 	text-align: center;
 	border-left: 1px solid #dddddd;
 }
+.category-panel table tr td.topic-count,
+.category-panel table tr td.post-count
+{
+	text-align: center;
+}
 .category-panel table tr th.topic-count,
 .category-panel table tr td.topic-count,
 .category-panel table tr th.post-count,
@@ -891,6 +896,7 @@ so they span mutiple lines (up to three).
 .index-site-nav
 {
 	position: relative;
+	margin-bottom: 5px;
 }
 .index-site-nav > .site-name
 {
