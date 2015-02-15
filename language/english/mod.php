@@ -27,5 +27,5 @@ $lang['Topic_Locked_Msg'] = "Topic locked successfully.";
 $lang['Topic_Unlocked_Msg'] = "Topic unlocked successfully.";
 $lang['Change_Topic_Type'] = "Change Topic Type";
 $lang['Topic_Type_Changed_Msg'] = "Topic type changed successfully.";
-
+$lang['Invalid_Topic_Type'] = "Invalid topic type.";
 ?>

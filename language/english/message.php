@@ -21,5 +21,5 @@ $lang['err_code'.ERR_CODE_LOGIN_SUCCESS] = "You are now logged in.";
 $lang['err_code'.ERR_CODE_LOGIN_INVALID_ID] = "Sorry, the username or password you entered is invalid. If you have forgotten your password please use the 'forgotten password' link";
 $lang['err_code'.ERR_CODE_LOGIN_ALREADY_LOGGED_IN] = "Sorry, you are already logged in.";
 $lang['err_code'.ERR_CODE_LOGGED_OUT] = "You are now logged out.";
-
+$lang['err_code'.ERR_CODE_INVALID_TOPIC_ID] = "Topic specified couldn't be found.";
 ?>

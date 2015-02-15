@@ -1,25 +1,10 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: view_topic.php                                             # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
 require_once($root_path . "includes/common.php");
-
 $language->add_file("view_topic");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['tid']) || trim($_GET['tid']) == "") showMessage(ERR_CODE_NO_TOPIC_ID_SPECIFIED, "index.php");
 
@@ -259,11 +244,12 @@ if($topic = $db2->fetch()) {
 			"AUTHOR_AVATAR_LOCATION" => $post['user_avatar_location'], 
 			"block_post_mod_links" => "",
 			"block_quote_button" => "",
+			"block_topic_email_link" => "",
 			"block_topic_pm_link" => "",
 			"block_topic_profile_link" => "",
 			"block_topic_website_link" => "");
 
-		// Verify some moderation tricks.
+		// Verify some moderation tricks + if user can delete or modify message.
 		if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {
 			$blockMessageItemVars["block_post_mod_links"] = $tplViewTopic->renderBlock(
 				"post_mod_links_on", array("POST_ID" => $post['post_id'], "TOPIC_ID" => $_GET['tid']));
@@ -317,50 +303,67 @@ if($topic = $db2->fetch()) {
 			setcookie("read_topics", serialize($track_topics), 0);
 		}
 	}
-
-	if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {
-		$theme->switch_nest("view_topic", "mod_links", true);
-
-		$theme->insert_nest("view_topic", "mod_links");
-
+	
+	$blockModsVar = array("block_topic_lock" => "",
+			"block_topic_move" => "",
+			"block_topic_delete" => "",
+			"block_topic_announce" => "",
+			"block_topic_pin" => "",
+			"block_topic_general" => "");
+			
+	// If the user is moderator.
+	if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {		
+		$blockModsVar["block_topic_delete"] = $tplViewTopic->renderBlock("topic_mod_delete_link", 
+			array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
+		$blockModsVar["block_topic_move"] = $tplViewTopic->renderBlock("topic_mod_move_link",
+			array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
+		
+		// Lockable
 		if($topic['topic_status'] == "0") {
-			$theme->switch_nest("view_topic", "mod_links/lock_topic", true);
+			$blockModsVar["block_topic_lock"] = $tplViewTopic->renderBlock("lock_topic_on", 
+				array("CSRF_TOKEN" => CSRF::getHTML(),
+				"TOPIC_ID" => $_GET['tid']));
 		} else {
-			$theme->switch_nest("view_topic", "mod_links/lock_topic", false);
+			$blockModsVar["block_topic_lock"] = $tplViewTopic->renderBlock("lock_topic_off", 
+				array("CSRF_TOKEN" => CSRF::getHTML(),
+				"TOPIC_ID" => $_GET['tid']));
 		}
 		
+		// Announcable.		
 		if($topic['topic_type'] != ANNOUNCMENT) {
-			$theme->insert_nest("view_topic", "mod_links/announce_topic");
+			$blockModsVar["block_topic_announce"] = $tplViewTopic->renderBlock("announce_topic", 
+				array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
 		}
 		
+		// Pinnable.
 		if($topic['topic_type'] != PINNED) {
-			$theme->insert_nest("view_topic", "mod_links/pin_topic");
+			$blockModsVar["block_topic_pin"] = $tplViewTopic->renderBlock("pin_topic", 
+				array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
 		}
 		
+		// Generable.
 		if($topic['topic_type'] != GENERAL) {
-			$theme->insert_nest("view_topic", "mod_links/general_topic");
+			$blockModsVar["block_topic_general"] = $tplViewTopic->renderBlock("general_topic", 
+				array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
 		}
-
-		$theme->add_nest("view_topic", "mod_links");
 	}
+	
+	/* Allows user to delete his own topic; Disabled for now.
 	if($topic['topic_user_id'] == $user['user_id'] && $user['user_id'] > 0) {
 		if($topic['topic_status'] != 1) {
-//			$theme->insert_nest("view_topic", "mod_links");
-
-
+			
 			$theme->switch_nest("view_topic", "mod_links", false);
 			$theme->add_nest("view_topic", "mod_links");
 		}
-	}
+	}*/
+	
+	$tplViewTopic->setVars($blockModsVar);
 }
 else
 {
-	info_box($lang['Error'], $lang['Invalid_Topic_Id'], "index.php");
+	// Couldn't find topic with specified id in db.
+	showMessage(ERR_CODE_INVALID_TOPIC_ID);
 }
+
 outputPage($tplViewTopic);
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>
