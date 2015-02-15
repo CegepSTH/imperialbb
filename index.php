@@ -20,8 +20,9 @@ $root_path = "./";
 include($root_path . "includes/common.php");
 
 $language->add_file("board_home");
+Template::addNamespace("L", $lang);
 
-$theme->new_file("board_home", "board_home.tpl", "");
+$page_master = new Template("board_home.tpl");
 
 if($user['user_id'] > 0)
 {
@@ -46,23 +47,29 @@ if($user['user_id'] > 0)
 		$pm_info = $lang['You_have_no_new_pms'];
 	}
 
-	$theme->replace_tags("board_home",  array(
+	$page_master->addToBlock("logged_in",  array(
 		"PRIVATE_MESSAGE_INFO" => $pm_info,
 		"CURRENT_TIME" => create_date("D d M Y", time()),
 		"ALL_TIMES_ARE_TIMEZONE" => sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$user['user_timezone']])
 	));
+	$page_master->setVar("ALL_TIMES_ARE_TIMEZONE",
+		sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$user['user_timezone']])
+	);
 }
 else
 {
-	$theme->replace_tags("board_home",  array(
+	$page_master->addToBlock("guest",  array(
 		"CURRENT_TIME" => create_date("D d M Y", time()),
 		"ALL_TIMES_ARE_TIMEZONE" => sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$config['timezone']]),
 		"CSRF_TOKEN" => CSRF::getHTML()
 	));
+	$page_master->setVar("ALL_TIMES_ARE_TIMEZONE",
+		sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$config['user_timezone']])
+	);
 }
 
 //Fetch the forum stats//
-load_forum_stats();
+load_forum_stats($page_master);
 
 $cat_no = "0";
 $cat_sql = $db2->query("SELECT `cat_id`, `cat_name`
@@ -71,10 +78,7 @@ $cat_sql = $db2->query("SELECT `cat_id`, `cat_name`
 
 while ($category = $cat_sql->fetch())
 {
-	$theme->insert_nest("board_home", "catrow", array(
-		"CAT_ID" => $category['cat_id'],
-		"CAT_NAME" => $category['cat_name']
-	));
+	$category_contents = "";
 
 	$forum_no = 0;
 	if(!isset($_GET['cid']) || $_GET['cid'] == $category['cat_id'])
@@ -90,24 +94,15 @@ while ($category = $cat_sql->fetch())
 			{
 				if($forum['forum_redirect_url'] != null)
 				{
-					$theme->switch_nest("board_home", "catrow/forumrow", false, array(
+					$category_contents .= $page_master->renderBlock("forumrow_redir", array(
 						"FORUM_ID" => $forum['forum_id'],
 						"FORUM_NAME" => $forum['forum_name'],
 						"FORUM_DESCRIPTION" => $forum['forum_description'],
 						"REDIRECT_HITS" => sprintf($lang['Redirect_Hits_X'], $forum['forum_topics']),
 					));
-					$theme->add_nest("board_home", "catrow/forumrow");
 				}
 				else
 				{
-
-					$theme->switch_nest("board_home", "catrow/forumrow", true, array(
-						"FORUM_ID" => $forum['forum_id'],
-						"FORUM_NAME" => $forum['forum_name'],
-						"FORUM_DESCRIPTION" => $forum['forum_description'],
-						"TOPICS" => $forum['forum_topics'],
-						"POSTS" => $forum['forum_posts']
-					));
 	
 					// List the subforums of each forum.
 					$subforums_query = $db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
@@ -117,8 +112,8 @@ while ($category = $cat_sql->fetch())
 							':forum_id' => $forum['forum_id']
 						)
 					);
-					
-	
+
+					$subforum_contents = "";
 					$subforum_count = 0;
 					$subforum_data = "";
 					while($subforums_result = $subforums_query->fetch())
@@ -131,16 +126,17 @@ while ($category = $cat_sql->fetch())
 					{
 						$subforum_data = substr($subforum_data, 0, -2);
 	
-						$theme->insert_nest("board_home", "catrow/forumrow/subforums_list", array(
+						$subforum_contents = $page_master->renderBlock("subforums_list", array(
 							"SUBFORUMS" => sprintf($lang['Subforums_List'], $subforum_data)
 						));
-						$theme->add_nest("board_home", "catrow/forumrow/subforums_list");
 					}
-	
+
+					$new_posts_contents = "";
+					$last_post_contents = "";
 					if($forum['forum_last_post'] == 0)
 					{
-						$theme->switch_nest("board_home", "catrow/forumrow/last_post", false, "", 2);
-						$theme->switch_nest("board_home", "catrow/forumrow/new_posts", false, "", 2);
+						$new_posts_contents = $page_master->renderBlock("no_new_posts", array());
+						$last_post_contents = $page_master->renderBlock("no_last_post", array());
 					}
 					else
 					{
@@ -179,18 +175,23 @@ while ($category = $cat_sql->fetch())
 	
 							if($new_posts)
 							{
-								$theme->switch_nest("board_home", "catrow/forumrow/new_posts", true);
+								$new_posts_contents = $page_master->renderBlock("new_posts", array());
 							}
 							else
 							{
-								$theme->switch_nest("board_home", "catrow/forumrow/new_posts", false);
+								$new_posts_contents = $page_master->renderBlock("no_new_posts", array());
 							}
 	
-							$theme->switch_nest("board_home", "catrow/forumrow/last_post", true, array(
+							$last_post_contents = $page_master->renderBlock("last_post", array(
 								"LAST_POST_ID" => $last_post['post_topic_id'],
 								"LAST_POST_TITLE" => shortentext($last_post['topic_title'], 20, false),
-								"LAST_POST_DATE" => create_date("D d M Y ", $last_post['post_timestamp']) . " at " . create_date("h:i a", $last_post['post_timestamp']),
-								"LAST_POST_AUTHOR" => ( $last_post['post_user_id'] == -1 ) ? "<b>".$last_post['username']."</b>" : "<a href=\"profile.php?id=" . $last_post['post_user_id'] . "\">".$last_post['username']."</a>"), 2);
+								"LAST_POST_DATE" => create_date("D d M Y ", $last_post['post_timestamp']) .
+									" at " . create_date("h:i a", $last_post['post_timestamp']),
+								"LAST_POST_AUTHOR" => ( $last_post['post_user_id'] == -1 ) ?
+									"<b>".$last_post['username']."</b>" :
+									"<a href=\"profile.php?id=" . $last_post['post_user_id'] . "\">" .
+									$last_post['username']."</a>"
+							));
 						}
 						else
 						{
@@ -201,43 +202,47 @@ while ($category = $cat_sql->fetch())
 									':forum_id' => $forum['forum_id']
 								)
 							);
-							$theme->switch_nest("board_home", "catrow/forumrow/last_post", false, "", 2);
-							$theme->switch_nest("board_home", "catrow/forumrow/new_posts", false, "", 2);
+							$new_posts_contents = $page_master->renderBlock("no_new_posts", array());
+							$last_post_contents = $page_master->renderBlock("no_last_post", array());
 						}
 					}
-	                $theme->add_nest("board_home", "catrow/forumrow");
+
+					$category_contents .= $page_master->renderBlock("forumrow_normal", array(
+						"FORUM_ID" => $forum['forum_id'],
+						"FORUM_NAME" => $forum['forum_name'],
+						"FORUM_DESCRIPTION" => $forum['forum_description'],
+						"TOPICS" => $forum['forum_topics'],
+						"POSTS" => $forum['forum_posts'],
+						"NEW_POSTS_INDICATOR" => $new_posts_contents,
+						"LAST_POST" => $last_post_contents,
+						"SUBFORUMS" => $subforums_contents
+					));
 				}
 				$forum_no++;
 			}
 		}
 
-		if($forum_no == 0)
-		{
-			$theme->switch_nest("board_home", "catrow/forum_titles", false, "");
-		}
-		else
-		{
-			$theme->switch_nest("board_home", "catrow/forum_titles", true, "");
-		}
-
+		$break_line = "";
 		if($cat_no > 0)
 		{
-			$theme->insert_nest("board_home", "catrow/break_line");
-			$theme->add_nest("board_home", "catrow/break_line");
+			$break_line = $page_master->renderBlock("break_line", array());
 		}
 
 		$cat_no++;
 
 		if($forum_no != 0)
 		{
-			$theme->add_nest("board_home", "catrow");
+			$page_master->addToBlock("catrow", array(
+				"CAT_ID" => $category['cat_id'],
+				"CAT_NAME" => $category['cat_name'],
+				"BREAK_LINE" => $break_line,
+				"CATEGORY_CONTENTS" => $category_contents
+			));
 		}
 	}
 }
 
-include($root_path . "includes/page_header.php");
-$theme->output("board_home");
-include($root_path . "includes/page_footer.php");
+outputPage($page_master);
 
 /*======================================================================*\
 || #################################################################### ||

@@ -1,4 +1,4 @@
-<!-- BEGIN SWITCH logged_in -->
+<!-- BLOCK logged_in -->
 <table width="100%">
 	<tr>
 		<td><a href="pm.php">{PRIVATE_MESSAGE_INFO}</a><br />{CURRENT_TIME} |  {ALL_TIMES_ARE_TIMEZONE}</td>
@@ -8,7 +8,8 @@
 		<td align="right"><a href="search.php?func=new">{L.Search_New}</a> | <a href="search.php?func=unanswered">{L.Search_Unanswered}</a><br /><a href="posting.php?mark=0">{L.Mark_All_Forums_As_Read}</a></td>
 	</tr>
 </table>
-<!-- SWITCH logged_in -->
+<!-- END BLOCK logged_in -->
+<!-- BLOCK guest -->
 <table width="100%">
 	<tr>
 		<td colspan="2">{CURRENT_TIME}</td>
@@ -34,15 +35,16 @@
 	</tr>
 </table>
 <br />
-<!-- END SWITCH logged_in -->
+<!-- END BLOCK guest -->
 <script src="{C.jscripts_dir}/js_toggle.js" tyle="text/javascript"></script>
 <table width="100%" align="center" cellpadding="0" cellspacing="0">
 	<tr>
 		<td>
-			<!-- BEGIN catrow -->
-			<!-- BEGIN break_line -->
+			<!-- BLOCK catrow -->
+			<!-- BLOCK break_line -->
 			<br />
-			<!-- END break_line -->
+			<!-- END BLOCK break_line -->
+			{BREAK_LINE}
 			<div id="cat_h{CAT_ID}">
 				<table width="100%" align="center" class="maintable">
 					<tr>
@@ -71,33 +73,40 @@
 					<tr>
 						<td class="desc_row" height="25"></td><td align="center" class="desc_row">{L.Forum}</td><td align="center" class="desc_row">{L.Topics}</td><td align="center" class="desc_row">{L.Posts}</td><td align="center" class="desc_row">{L.Last_Post}</td>
 					</tr>
-					<!-- BEGIN SWITCH forumrow -->
+					{CATEGORY_CONTENTS}
+					<!-- BLOCK forumrow_normal -->
 					<tr>
 						<td class="cell2" height="45" width="45" align="center">
-							<!-- BEGIN SWITCH new_posts -->
+							<!-- BLOCK new_posts -->
 							<img src="{T.TEMPLATE_PATH}/images/new_posts.gif" alt="{L.New_Posts}" title="{L.New_Posts}" border="0" />
-							<!-- SWITCH new_posts -->
+							<!-- END BLOCK new_posts -->
+							<!-- BLOCK no_new_posts -->
 							<img src="{T.TEMPLATE_PATH}/images/no_new_posts.gif" alt="{L.No_New_Posts}" title="{L.No_New_Posts}" border="0" />
-							<!-- END SWITCH new_posts -->
+							<!-- END BLOCK no_new_posts -->
+							{NEW_POSTS_INDICATOR}
 						</td>
 						<td class="cell1" height="45" onclick="location.href='view_forum.php?fid={FORUM_ID}'" onmouseover="this.className='cell2'" onmouseout="this.className='cell1'">
 							<a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a><br />
 							<i>{FORUM_DESCRIPTION}</i>
-							<!-- BEGIN subforums_list --><br /><span style="font-size: 10px;">{SUBFORUMS}</span><!-- END subforums_list -->
+							<!-- BLOCK subforums_list --><br /><span style="font-size: 10px;">{SUBFORUMS}</span><!-- END BLOCK subforums_list -->
+							{SUBFORUMS}
 						</td>
 						<td width="50" align="center" class="cell2">{TOPICS}</td>
 						<td width="50" align="center" class="cell1">{POSTS}</td>
 						<td width="200" align="center" valign="middle" class="cell2">
-							<!-- BEGIN SWITCH last_post -->
+							<!-- BLOCK last_post -->
 							<a href="view_topic.php?tid={LAST_POST_ID}">{LAST_POST_TITLE}</a><br />
 							{LAST_POST_DATE}<br />
 							{LAST_POST_AUTHOR}
-							<!-- SWITCH last_post -->
+							<!-- END BLOCK last_post -->
+							<!-- BLOCK no_last_post -->
 							<b>{L.None}</b>
-							<!-- END SWITCH last_post -->
+							<!-- END BLOCK no_last_post -->
+							{LAST_POST}
 						</td>
 					</tr>
-					<!-- SWITCH forumrow -->
+					<!-- END BLOCK forumrow_normal -->
+					<!-- BLOCK forumrow_redir -->
 					<tr>
 						<td class="cell2" height="45" align="center">
 							<img src="{T.TEMPLATE_PATH}/images/no_new_posts.gif" alt="Redirect Forum" width="26" height="25" />
@@ -105,11 +114,10 @@
 						<td class="cell1" onclick="location.href='view_forum.php?fid={FORUM_ID}'" onmouseover="this.className='cell2'" onmouseout="this.className='cell1'">
 							<a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a><br />
 							<i>{FORUM_DESCRIPTION}</i>
-							<!-- BEGIN subforums_list --><br /><span style="font-size: 10px;">{SUBFORUMS}</span><!-- END subforums_list -->
 						</td>
 						<td colspan="3" align="center" class="cell2">{REDIRECT_HITS}</td>
 					</tr>
-					<!-- END SWITCH forumrow -->
+					<!-- END BLOCK forumrow_redir -->
 					</tr>
 					<tr>
 						<th colspan="5" height="5"></th>
@@ -126,7 +134,7 @@
 				}
 				</script>
 			</div>
-			<!-- END catrow -->
+			<!-- END BLOCK catrow -->
 		</td>
 	</tr>
 </table>
@@ -179,7 +187,7 @@
 				{NEWEST_MEMBER}<br />
 			</td>
 		</tr>
-        <!-- BEGIN forumstats_birthdays -->
+        <!-- BLOCK forumstats_birthdays -->
 		<tr>
 			<td class="desc_row" colspan="2" width="100%" style="padding:4px;">{L.stats_birthdays}</td>
 		</tr>
@@ -191,7 +199,7 @@
 				{BDAY_LIST}
 			</td>
 		</tr>
-	    <!-- END forumstats_birthdays -->
+	    <!-- END BLOCK forumstats_birthdays -->
 		<tr>
 			<td class="desc_row" colspan="2" width="100%" style="padding:4px;">{TODAY_TOTAL}</td>
 		</tr>
