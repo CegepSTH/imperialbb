@@ -21,7 +21,7 @@ require_once($root_path . "includes/common.php");
 
 $language->add_file("view_topic");
 
-if(!isset($_GET['tid'])) info_box("Error", "No topic ID specified, if you typed the link manually please go to the forum index and try find it from there", "index.php");
+if(!isset($_GET['tid']) || trim($_GET['tid']) == "") showMessage(ERR_CODE_NO_TOPIC_ID_SPECIFIED, "index.php");
 
 if(isset($_POST['vote'])) {
 	CSRF::validate();
@@ -29,12 +29,14 @@ if(isset($_POST['vote'])) {
 	$cookie_vote_array = isset($_COOKIE['poll_votes']) ? unserialize($_COOKIE['poll_votes']) : array();
     if(!isset($_SESSION['poll_votes'])) $_SESSION['poll_votes'] = array();
 
+	// Check for vote cast validity.
 	if(in_array($_GET['tid'], $cookie_vote_array) || in_array($_GET['tid'], $_SESSION['poll_votes'])) {
-		error_msg($lang['Error'], $lang['vote_already_cast_msg']);
+		showMessage(ERR_CODE_VOTE_ALREADY_CASTED, "view_topic.php?tid=".$_GET['tid']);
 	}
 
+	// Check for invalid vote id.
 	if(!preg_match("#([0-9]|1[0-5])#", $_POST['poll_vote_choice']) || $_POST['poll_vote_choice'] < 1 || $_POST['poll_vote_choice'] > 15) {
-		error_msg($lang['Error'], $lang['invalid_vote_id_msg']);
+		showMessage(ERR_CODE_INVALID_VOTE_ID, "view_topic.php?tid=".$_GET['tid']);
 	}
 	
 	$db2->query("UPDATE `_PREFIX_pollvotes` 
@@ -45,7 +47,7 @@ if(isset($_POST['vote'])) {
 	$vote_array[] = $_GET['tid'];
     setcookie("poll_votes", serialize($cookie_vote_array), (time() + 7776000));
 	$_SESSION['poll_votes'][] = $_GET['tid'];
-	info_box($lang['Vote'], $lang['vote_completion_msg'], "view_topic.php?tid=".$_GET['tid']."");
+	showMessage(ERR_CODE_VOTE_CASTED_SUCCESS, "view_topic.php?tid=".$_GET['tid']."");
 }
 
 $topic_sql = $db2->query("SELECT count(p.`post_id`) AS 'post_count', t.*, f.`forum_id`, f.`forum_name`, f.`forum_cat_id`, f.`forum_type`, f.`forum_read`, f.`forum_reply`, f.`forum_mod`, g.`ug_read`, g.`ug_reply`, g.`ug_mod`
@@ -59,7 +61,7 @@ $topic_sql = $db2->query("SELECT count(p.`post_id`) AS 'post_count', t.*, f.`for
 if($topic = $db2->fetch()) {
 	if(!(($topic['forum_read'] <= $user['user_level'] && $topic['ug_read'] == 0) || $topic['ug_read'] == 1)) {
 		if($user['user_id'] > 0) {
-			error_msg($lang['Error'], $lang['Invalid_Permissions_Read']);
+			showMessage(ERR_CODE_NEED_READ_PERMISSIONS, "index.php");
 		} else {
 			header("Location: login.php");
 			exit();
@@ -70,8 +72,8 @@ if($topic = $db2->fetch()) {
 	
 	$db2->query("UPDATE `_PREFIX_topics` SET `topic_views`=:ntopic WHERE `topic_id`=:tid",
 		array(":ntopic" => $new_topic_views, ":tid" => $topic['topic_id']));
-		
-	$theme->new_file("view_topic", "view_topic.tpl", "");
+	
+	$tplViewTopic = new Template("view_topic.tpl");
 
 	$forum_route = array();
 	$forum_route[1]['id'] = $topic['forum_id'];
@@ -116,8 +118,7 @@ if($topic = $db2->fetch()) {
     // Setup pagination
     //==================================
 	$pagination = $pp->paginate($topic['post_count'], $config['posts_per_page']);
-
-	$theme->replace_tags("view_topic", array(
+	$tplViewTopic->setVars(array(
 		"TOPIC_ID" => $topic['topic_id'],
 		"FORUM_ID" => $topic['forum_id'],
 		"FORUM_NAME" => $topic['forum_name'],
@@ -127,17 +128,15 @@ if($topic = $db2->fetch()) {
 	));
 
 	for($i = count($forum_route); $i >= 1; $i--) {
-		$theme->insert_nest("view_topic", "location_top_forum", array(
+		$tplViewTopic->addToBlock("location_top_forum", array(
 			"LOCATION_FORUM_ID" => $forum_route[$i]['id'],
 			"LOCATION_FORUM_NAME" => $forum_route[$i]['name']
 		));
-		$theme->add_nest("view_topic", "location_top_forum");
 
-		$theme->insert_nest("view_topic", "location_bottom_forum", array(
+		$tplViewTopic->addToBlock("location_bottom_forum", array(
 			"LOCATION_FORUM_ID" => $forum_route[$i]['id'],
 			"LOCATION_FORUM_NAME" => $forum_route[$i]['name']
 		));
-		$theme->add_nest("view_topic", "location_bottom_forum");
 	}
 
  	$page_title = $config['site_name'];
@@ -149,7 +148,7 @@ if($topic = $db2->fetch()) {
 	$page_title .= " &raquo; " . $topic['topic_title'];
 
 	if(!empty($topic['topic_poll_title'])) {
-		$theme->insert_nest("view_topic", "poll", array(
+		$tplViewTopic->addToBlock("poll", array(
 			"POLL_TITLE" => $topic['topic_poll_title']
 		));
 
@@ -170,6 +169,7 @@ if($topic = $db2->fetch()) {
 				array(":tid" => $_GET['tid'], ":tidd" => $_GET['tid']));
 				
 			while($poll = $db2->fetch()) {
+				
 				$theme->switch_nest("view_topic", "poll/poll_choice", false, array(
 					"POLL_CHOICE_NAME" => $poll['poll_choice_name'],
 					"POLL_CHOICE_WIDTH" => strval(round((($poll['poll_choice_votes'] / $poll['poll_total_votes']) * 100), 2)),
@@ -380,22 +380,7 @@ else
 {
 	info_box($lang['Error'], $lang['Invalid_Topic_Id'], "index.php");
 }
-
-//
-// Output the page header
-//
-include_once($root_path . "includes/page_header.php");
-
-//
-// Output the main page
-//
-$theme->output("view_topic");
-
-//
-// Output the page footer
-//
-include_once($root_path . "includes/page_footer.php");
-
+outputPage($tplViewTopic);
 /*======================================================================*\
 || #################################################################### ||
 || #                 "Copyright © 2006 M-ka Network"                  # ||

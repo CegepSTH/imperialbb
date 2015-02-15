@@ -29,3 +29,7 @@ $lang['Votes'] = "Votes";
 $lang['View_Results'] = "View Results";
 $lang['vote_completion_msg'] = "Your vote has been cast. Thank you for taking the time to vote.";
 $lang['vote_already_cast_msg'] = "You have already voted in this poll.";
+$lang['error'] = "Error";
+$lang['no_topic_id_error'] = "No topic ID specified, if you typed the link manually please go to the forum index and try find it from there";
+
+?>

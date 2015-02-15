@@ -69,6 +69,12 @@ define("ERR_CODE_RANKS_INVALIDID", 370);
 define("ERR_CODE_RANKS_DELETED", 380);
 define("ERR_CODE_RANKS_DELETE_FAILED", 390);
 
+// Public errors
+define("ERR_CODE_NO_TOPIC_ID_SPECIFIED", 400);
+define("ERR_CODE_VOTE_ALREADY_CASTED", 410);
+define("ERR_CODE_INVALID_VOTE_ID", 420);
+define("ERR_CODE_VOTE_CASTED_SUCCESS", 430);
+define("ERR_CODE_NEED_READ_PERMISSIONS", 440);
 
 /*======================================================================*\
 || #################################################################### ||

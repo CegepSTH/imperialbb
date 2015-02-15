@@ -5,6 +5,7 @@ define("IN_IBB", 1);
 $root_path = "./";
 require_once($root_path."includes/common.php");
 $language->add_file("message");
+Template::addNamespace("L", $lang);
 
 // If no error code, just redirect to index.
 if(!isset($_GET['code']) || !is_numeric($_GET['code'])) {
