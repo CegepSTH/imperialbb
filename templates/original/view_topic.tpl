@@ -1,13 +1,13 @@
 <!--// BLOCKS DEFINITIONS -->
-<!-- BLOCK mods_links_on -->
+<!-- BLOCK post_mod_links_on -->
 <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
 <a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
-<!-- END BLOCK mod_links_on -->
+<!-- END BLOCK post_mod_links_on -->
 
-<!-- BLOCK mod_links_off -->
+<!-- BLOCK post_mod_links_off -->
 <a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
 <a href="posting.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
-<!-- END BLOCK mod_links_off -->
+<!-- END BLOCK post_mod_links_off -->
 			
 <!-- BLOCK quote_button -->
 <a href="posting.php?func=reply&tid={TOPIC_ID}&quote={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/quote.gif" /></a>
@@ -56,7 +56,7 @@ div#quick_reply {
 	<div>	
 		<table>
 			<tr>
-				<th>{L.Author}</th>
+				<th style="width:25%;">{L.Author}</th>
 				<th colspan="2">{L.Message}</th>
 			</tr>
 			<!-- BLOCK topic_message_item -->
@@ -81,7 +81,7 @@ div#quick_reply {
 					{DATE}
 				</td>
 				<td align="right" valign="middle">
-					{block_mod_links}					
+					{block_post_mod_links}					
 					{block_quote_button}
 				</td>
 			</tr>

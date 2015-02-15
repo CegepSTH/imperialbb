@@ -257,7 +257,7 @@ if($topic = $db2->fetch()) {
 			"AUTHOR_RANK" => $post['rank_name'],
 			"RANK_IMG_URL" => $post['rank_image'],
 			"AUTHOR_AVATAR_LOCATION" => $post['user_avatar_location'], 
-			"block_mod_links" => "",
+			"block_post_mod_links" => "",
 			"block_quote_button" => "",
 			"block_topic_pm_link" => "",
 			"block_topic_profile_link" => "",
@@ -265,9 +265,11 @@ if($topic = $db2->fetch()) {
 
 		// Verify some moderation tricks.
 		if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {
-			$blockMessageItemVars["block_mod_links"] = $tplViewTopic->renderBlock("mod_links_on", array("POST_ID" => $post['post_id']));
+			$blockMessageItemVars["block_post_mod_links"] = $tplViewTopic->renderBlock(
+				"post_mod_links_on", array("POST_ID" => $post['post_id'], "TOPIC_ID" => $_GET['tid']));
 		} else if($post['user_id'] == $user['user_id'] && $user['user_id'] > 0 && $topic['topic_status'] != 1) {
-			$blockMessageItemVars["block_mod_links"] = $tplViewTopic->renderBlock("mod_links_off", array("POST_ID" => $post['post_id']));
+			$blockMessageItemVars["block_post_mod_links"] = $tplViewTopic->renderBlock(
+				"post_mod_links_off", array("POST_ID" => $post['post_id'], "TOPIC_ID" => $_GET['tid']));
 		}
 
 		// Can we quote?
@@ -296,6 +298,7 @@ if($topic = $db2->fetch()) {
 		$tplViewTopic->addToBlock("topic_message_item", $blockMessageItemVars);
 	}
 
+	// Cookies.
 	if($user['user_id'] > 0) {
 		$set_new_posts = false;
 		
