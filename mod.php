@@ -18,7 +18,6 @@ define("IN_IBB", 1);
 
 $root_path = "./";
 require_once($root_path . "includes/common.php");
-
 $language->add_file("mod");
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
@@ -46,15 +45,14 @@ if($_GET['func'] == "delete")
 			if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1))
 			{
 				if($user['user_id'] > 0) {
-					error_msg($lang['Error'], $lang['Invalid_Permissions_Mod']);
+					showMessage(ERR_CODE_INVALID_PERMISSION_MOD, "view_topic.php?tid=".$_GET['tid']);
 				} else {
-					header("Location: login.php");
-					exit;
+					showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 				}
 			}
 			$fid = $ug_auth['forum_id'];
 		} else {			
-			error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+			showMessage(ERR_CODE_INVALID_TOPIC_ID, "index.php");
 		}
 		
 		if(!isset($_GET['confirm']) || $_GET['confirm'] != "1") {			
@@ -63,6 +61,7 @@ if($_GET['func'] == "delete")
 				WHERE `topic_id`=:tid
 				LIMIT 1", array(":tid" => $_GET['tid']));
 			$result = $db2->fetch();
+			
 			confirm_msg($lang['Delete_Topic'], sprintf($lang['Delete_Topic_Confirm_Msg'], $result['topic_title']), "mod.php?func=delete&tid=".$_GET['tid']."&confirm=1", "view_topic.php?tid=".$_GET['tid']."");
 		} else {
 			CSRF::validate();
@@ -89,7 +88,8 @@ if($_GET['func'] == "delete")
 			} else {
 				$db2->query("UPDATE `_PREFIX_forums` SET `forum_last_post` = '0' WHERE `forum_id`=:fid", array(":fid" => $fid));
 			}
-			info_box($lang['Delete_Topic'], $lang['Topic_Deleted_Msg'], "view_forum.php?fid=$fid");
+			
+			showMessage(ERR_CODE_TOPIC_DELETE_SUCCESS, "view_forum.php?fid=".$fid);
 		}
 	}
 	else if(isset($_GET['pid']))
@@ -105,23 +105,22 @@ if($_GET['func'] == "delete")
 		if($ug_auth = $db2->fetch()) {
 			if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {
 				if($user['user_id'] > 0) {
-					error_msg($lang['Error'], $lang['Invalid_Permissions_Mod']);
+					showMessage(ERR_CODE_INVALID_PERMISSION_MOD, "view_topic.php?tid=".$ug_auth['topic_id']);
 				} else {
-					header("Location: login.php");
-					exit;
+					showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 				}
 			}
 			
 			$tid = $ug_auth['topic_id'];
 			$fid = $ug_auth['forum_id'];
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_Post_Id']);
+			showMessage(ERR_CODE_INVALID_POST_ID, "index.php");
 		}
 
 		$db2->query("SELECT count(*) AS `cc` FROM `_PREFIX_posts` WHERE `post_topic_id`=:tid", array(":tid" => $tid));
 		if($result = $db2->fetch()) {
 			if($result["cc"] == 1) {
-				error_msg($lang['Error'], sprintf($lang['Delete_Last_Post_In_Topic_Msg'], "<a href=\"view_topic.php?tid=$tid\">", "</a>"));
+				showMessage(ERR_CODE_TOPIC_CANT_DELETE_LAST_MSG, "view_topic.php?tid=".$tid);
 			}
 		}
 		
@@ -151,7 +150,7 @@ if($_GET['func'] == "delete")
 					WHERE `topic_id`=:tid", 
 					array("pid" => $result['post_id'], ":time" => $result['post_timestamp'], ":tid" => $tid));
 			} else {
-				error_msg($lang['Error'], $lang['Select_last_post_in_topic_error']);
+				showMessage(ERR_CODE_TOPIC_CANT_DELETE_LAST_MSG, "view_topic.php?tid=".$tid);
 			}
 			
 			$db2->query("SELECT p.`post_id`
@@ -163,15 +162,17 @@ if($_GET['func'] == "delete")
 				$db2->query("UPDATE `_PREFIX_forums` SET `forum_last_post`=:pid WHERE `forum_id`=:fid",
 					array(":pid" => $result['pid'], ":fid" => $fid));
 			} else {
-				error_msg($lang['Error'], $lang['Select_last_post_in_forum_error']);
+				showMessage(ERR_CODE_LAST_POST_IN_FORUM);
 			}
-
-			info_box($lang['Delete_Post'], $lang['Post_Deleted_Msg'], "view_topic.php?tid=$tid");
+			
+			showMessage(ERR_CODE_POST_DELETE_SUCCESS, "view_topic.php?tid=".$tid);
 		}
 	}
 } else if($_GET['func'] == "move")
 {
-	if(!isset($_GET['tid']) || !preg_match("/^[0-9]+$/", $_GET['tid'])) error_msg("Critical Error", "Invalid topic ID specified");
+	if(!isset($_GET['tid']) || !preg_match("/^[0-9]+$/", $_GET['tid'])) {
+		showMessage(ERR_CODE_INVALID_TOPIC_ID, "index.php");
+	}
 
 	if(!isset($_POST['Submit'])) {
 		$theme->new_file("move_topic", "move_topic.tpl");
@@ -201,27 +202,18 @@ if($_GET['func'] == "delete")
 				$theme->add_nest("move_topic", "forumrow");
 			}
 
-			//
-			// Output the page header
-			//
 			include_once($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
 			$theme->output("move_topic");
-
-			//
-			// Output the page footer
-			//
 			include_once($root_path . "includes/page_footer.php");
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+			showMessage(ERR_CODE_INVALID_TOPIC_ID);
 		}
 	} else {
 		CSRF::validate();
 
-		if(!isset($_POST['fid']) || !preg_match("/^[0-9]+$/", $_POST['fid'])) error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
+		if(!isset($_POST['fid']) || !preg_match("/^[0-9]+$/", $_POST['fid'])) {
+			showMessage(ERR_CODE_INVALID_FORUM_ID);
+		} 
 
 		$db2->query("SELECT t.`topic_id`, f.`forum_id`, f.`forum_name`
 			FROM (`_PREFIX_topics` t
@@ -230,21 +222,22 @@ if($_GET['func'] == "delete")
 			array(":fid" => $_POST['fid'], ":tid" => $_GET['tid']));
 			
 		if($result = $db2->fetch()) {			
-			if(!$result['forum_id']) error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
+			if(!$result['forum_id']) {
+				showMessage(ERR_CODE_INVALID_FORUM_ID);
+			}
 			
 			$db2->query("UPDATE `_PREFIX_topics` SET `topic_forum_id`=:fid WHERE `topic_id`=:tid",
 				array(":fid" => $result['forum_id'], ":tid" => $result['topic_id']));
-			info_box("Move Topic", "Topic successfully moved to '".$result['forum_name']."'", "view_topic.php?tid=".$result['topic_id']."");#
+			showMessage(ERR_CODE_TOPIC_MOVE_SUCCESS, "view_topic.php?tid=".$result['topic_id']);
 		} else {			
-			error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+			showMessage(ERR_CODE_INVALID_TOPIC_ID);
 		}
 	}
-
 }
 else if($is_mod_action_post && $_POST['func'] == "lock")
 {
 	if(!(isset($_POST['tid']) && is_numeric($_POST['tid']))) {
-		error_msg("Critical Error", "Invalid topic ID specified");
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
 	}
 
 	$db2->query("SELECT t.`topic_id`, t.`topic_status`, f.`forum_mod`, g.`ug_mod`
@@ -257,30 +250,30 @@ else if($is_mod_action_post && $_POST['func'] == "lock")
 	if($ug_auth = $db2->fetch()) {		
 		if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {
 			if($user['user_id'] > 0) {
-				error_msg($lang['Error'], $lang['Invalid_Permission_Mod']);
+				showMessage(ERR_CODE_INVALID_PERMISSION_MOD, "view_topic.php?tid=".$_POST['tid']);
 			} else {
-				header("Location: login.php");
-				exit();
+				showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 			}
 		}
+		
 		$tid = $ug_auth['topic_id'];
 	}
 
-	if(empty($tid)) error_msg("Critical Error", "Invalid topic ID specified");
+	if(empty($tid)) {
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
+	} 
+	
 	$db2->query("UPDATE `_PREFIX_topics`
 		SET `topic_status` = '1'
 		WHERE `topic_id`=:tid",
-		array(
-			":tid" => $tid
-		)
-	);
-
-	info_box($lang['Lock_Topic'], $lang['Topic_Locked_Msg'], "view_topic.php?tid=$tid");
+		array(":tid" => $tid));
+	
+	showMessage(ERR_CODE_TOPIC_LOCK_SUCCESS, "view_topic.php?tid=".$tid);
 }
 else if($is_mod_action_post && $_POST['func'] == "unlock")
 {
 	if(!(isset($_POST['tid']) && is_numeric($_POST['tid']))) {
-		error_msg("Critical Error", "Invalid topic ID specified");
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
 	}
 
 	$db2->query("SELECT t.`topic_id`, t.`topic_status`, f.`forum_mod`, g.`ug_mod`
@@ -292,30 +285,31 @@ else if($is_mod_action_post && $_POST['func'] == "unlock")
 
 	if($ug_auth = $db2->fetch()) {		
 		if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {			
-			if($user['user_id'] > 0) {				
-				error_msg($lang['Error'], $lang['Invalid_Permission_Mod']);
-			} else {				
-				header("Location: login.php");
-				exit();
+			if($user['user_id'] > 0) {			
+				showMessage(ERR_CODE_INVALID_PERMISSION_MOD);	
+			} else {			
+				showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");	
 			}
 		}
 		$tid = $ug_auth['topic_id'];
 	}
 
-	if(empty($tid)) error_msg("Critical Error", "Invalid topic ID specified");
-
+	if(empty($tid)) {
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
+	}
+	
 	$db2->query("UPDATE `_PREFIX_topics` SET `topic_status` = '0' WHERE `topic_id`=:tid", array(":tid" => $tid));
 
-	info_box($lang['Unlock_Topic'], $lang['Topic_Unlocked_Msg'], "view_topic.php?tid=$tid");
+	showMessage(ERR_CODE_TOPIC_UNLOCK_SUCCESS, "view_topic.php?tid=".$tid);
 }
 else if($is_mod_action_post && $_POST['func'] == "topic_type")
 {
 	if(!(isset($_POST['tid']) && is_numeric($_POST['tid']))) {
-		error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
 	}
 
 	if(!(isset($_POST['type']) && is_numeric($_POST['type']))) {
-		error_msg($lang['Error'], $lang['Invalid_Topic_Type']);
+		showMessage(ERR_CODE_TOPIC_INVALID_TYPE, "view_topic.php?tid=".$_POST['tid']);
 	}
 
 	$db2->query("SELECT t.`topic_id`, t.`topic_status`, f.`forum_mod`, g.`ug_mod`
@@ -328,21 +322,23 @@ else if($is_mod_action_post && $_POST['func'] == "topic_type")
 	if($ug_auth = $db2->fetch()) {
 		if(!(($ug_auth['forum_mod'] <= $user['user_level'] && $ug_auth['ug_mod'] == 0) || $ug_auth['ug_mod'] == 1)) {
 			if($user['user_id'] > 0) {
-				error_msg($lang['Error'], $lang['Invalid_Permission_Mod']);
+				showMessage(ERR_CODE_INVALID_PERMISSION_MOD, "view_topic.php?tid=".$_POST['tid']);
 			} else {
-				header("Location: login.php");
-				exit();
+				showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 			}
 		}
+		
 		$tid = $ug_auth['topic_id'];
 	}
 
-	if(empty($tid)) error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+	if(empty($tid)) {
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
+	} 
 
 	$db2->query("UPDATE `_PREFIX_topics` SET `topic_type`=:type WHERE `topic_id`=:tid",
 		array(":type" => $_POST['type'], ":tid" => $tid));
 
-	info_box($lang['Change_Topic_Type'], $lang['Topic_Type_Changed_Msg'], "view_topic.php?tid=$tid");
+	showMessage(ERR_CODE_TOPIC_TYPE_CHANGE_SUCCESS, "view_topic.php?tid=".$tid);
 }
 else
 {	header("Location: index.php");
