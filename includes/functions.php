@@ -538,9 +538,9 @@ function format_membername($member_rank, $member_id, $member_name)
 // @Name: function load_forum_stats();
 // @Desc: Loads the forums stats,online,etc.
 //===========================================
-function load_forum_stats()
+function load_forum_stats($page_master)
 {
-	global $config, $user, $theme, $lang, $db2;
+	global $config, $user, $lang, $db2;
 
 	//Online Listing
 	$db2->query("SELECT u.* FROM `_PREFIX_sessions` s LEFT JOIN `_PREFIX_users` u ON (u.`user_id` = s.`user_id`)");
@@ -657,7 +657,6 @@ function load_forum_stats()
 
 	//Forums Member Birthdays
 	$bdaycount = 0;
-	$theme->insert_nest("board_home", "forumstats_birthdays");
 	$bdaytime = time();
 	$currentdate = create_date('m-d', $bdaytime);
 	$currentyear = intval(create_date('Y', $bdaytime));
@@ -681,10 +680,12 @@ function load_forum_stats()
 	}
 	
 	if($bdaycount > 0) {
-		$theme->add_nest("board_home", "forumstats_birthdays");
+		$page_master->addToBlock("forumstats_birthdays", array(
+			"BDAY_LIST" => $bdaybit
+		));
 	}
 
-	$theme->replace_tags("board_home", array(
+	$page_master->setVars(array(
 		"TOTAL_ONLINE" => strval($total_online),
 		"USERS_ONLINE" => strval($users_online),
 		"GUESTS_ONLINE" => strval($guests_online),
@@ -696,8 +697,7 @@ function load_forum_stats()
 		"TOTAL_USERS" => $total_users,
 		"RANKS_LIST" => $rank_list,
 		"TODAY_TOTAL" => $online_today,
-		"ONLINE_TODAY" => $todaylist,
-		"BDAY_LIST" => $bdaybit,
+		"ONLINE_TODAY" => $todaylist
 	));
 }
 
