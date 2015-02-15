@@ -15,7 +15,7 @@
 		<input type="password" name="PassWord" id="PassWord" />
 	</div>
 	<div class="links">
-		[ <a href="register.php">{L.Register}</a> | <a href="login.php? func=forgotten_pass">{L.Forgotten_Password}</a> ]
+		[ <a href="register.php">{L.Register}</a> | <a href="login.php?func=forgotten_pass">{L.Forgotten_Password}</a> ]
 	</div>
 	<div class="panel-footer">
 		<input type="Submit" name="Submit" value="{L.Login}" />&nbsp;&nbsp;
