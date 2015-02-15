@@ -54,10 +54,7 @@ while($result = $sql->fetch())
 
 
 $page_title = $config['site_name'] . " &raquo; " . $lang['Members_List'];
-
-include($root_path . "includes/page_header.php");
-echo($page_master->render());
-include($root_path . "includes/page_footer.php");
+outputPage($page_master, $page_title);
 
 /*======================================================================*\
 || #################################################################### ||

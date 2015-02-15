@@ -513,7 +513,7 @@ div.table h4 {
 .panel .panel-footer.alt
 {
 	background-color: #5CB8E6;
-	border-top: 4px solid #376E8A;
+	border-top: 3px solid #376E8A;
 }
 .panel .panel-header,
 .panel .panel-footer,
@@ -913,5 +913,62 @@ so they span mutiple lines (up to three).
 	margin-top: 10px;
 	margin-bottom: 10px;
 	text-align: center;
+}
+.nav-breadcrumb
+{
+	margin-bottom: 5px;
+}
+
+.members-panel table
+{
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	font-size: 1em;
+	margin-bottom: 0px;
+}
+.members-panel table tr th
+{
+	text-align: left;
+}
+.members-panel table tr th.user-id,
+.members-panel table tr td.user-id
+{
+	width: 50px;
+}
+.members-panel table tr th.user-name,
+.members-panel table tr td.user-name
+{
+	width: 100%;
+}
+.members-panel table tr th.user-contact,
+.members-panel table tr td.user-contact
+{
+	width: 200px;
+}
+.members-panel table tr th.post-count,
+.members-panel table tr td.post-count
+{
+	width: 80px
+}
+.members-panel table tr th.date-joined,
+.members-panel table tr td.date-joined
+{
+	width: 160px;
+}
+.members-panel table tr th.user-name,
+.members-panel table tr td.user-name,
+.members-panel table tr th.user-contact,
+.members-panel table tr td.user-contact,
+.members-panel table tr th.post-count,
+.members-panel table tr td.post-count,
+.members-panel table tr th.date-joined,
+.members-panel table tr td.date-joined
+{
+	border-left: 1px solid #ddd;
+}
+.members-footer
+{
+	margin-bottom: 10px;
 }
 
