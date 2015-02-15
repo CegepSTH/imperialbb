@@ -19,6 +19,7 @@ define("IN_IBB", 1);
 $root_path = "./";
 require_once($root_path . "includes/common.php");
 $language->add_file("mod");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
@@ -175,7 +176,7 @@ if($_GET['func'] == "delete")
 	}
 
 	if(!isset($_POST['Submit'])) {
-		$theme->new_file("move_topic", "move_topic.tpl");
+		$tplMoveTopic = new Template("move_topic.tpl");
 
 		$db2->query("SELECT t.`topic_id`, t.`topic_title`, f.`forum_id`, f.`forum_name`
 			FROM ((`_PREFIX_topics` t
@@ -184,7 +185,7 @@ if($_GET['func'] == "delete")
 			WHERE t.`topic_id`=:tid", array(":tid" => $_GET['tid']));
 
 		if($result = $db2->fetch()) {
-			$theme->replace_tags("move_topic", array(
+			$tplMoveTopic->setVars(array(
 				"FORUM_ID" => $result['forum_id'],
 				"FORUM_NAME" => $result['forum_name'],
 				"TOPIC_ID" => $result['topic_id'],
@@ -195,16 +196,13 @@ if($_GET['func'] == "delete")
 			
 			$db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`");
 			while($result = $db2->fetch()) {
-				$theme->insert_nest("move_topic", "forumrow", array(
+				$tplMoveTopic->addToBlock("move_topic_forumrow",array(
 					"FID" => $result['forum_id'],
 					"FNAME" => $result['forum_name']
 				));
-				$theme->add_nest("move_topic", "forumrow");
 			}
 
-			include_once($root_path . "includes/page_header.php");
-			$theme->output("move_topic");
-			include_once($root_path . "includes/page_footer.php");
+			outputPage($tplMoveTopic);
 		} else {
 			showMessage(ERR_CODE_INVALID_TOPIC_ID);
 		}
