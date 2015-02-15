@@ -113,6 +113,7 @@
 * {
 	margin:0;
 	padding:0;
+	box-sizing: border-box;
 }
 body {
 	background:#E6E6E6;
@@ -491,9 +492,14 @@ clear: both;
 .panel .panel-header
 {
 	padding-bottom: 10px;
+}
+.panel .panel-header,
+.panel .panel-footer
+{
 	text-align: center;
 }
 .panel .panel-header.panel-header-nocenter
+.panel .panel-footer.panel-footer-nocenter
 {
 	text-align: start;
 }
@@ -664,7 +670,6 @@ so they span mutiple lines (up to three).
 {
 	padding: 0px 10px 0px 10px;
 }
-.site-footer,
 .site-footer .info,
 .site-content-wrapper
 {
@@ -716,5 +721,39 @@ so they span mutiple lines (up to three).
 .site-footer .info
 {
 	text-align: right;
+}
+
+.site-content > .breadcrumb
+{
+	margin-top: 5px;
+	margin-bottom: 10px;
+}
+
+.login-panel .panel-footer,
+.login-panel .links
+{
+	text-align: center;
+}
+.login-panel .links
+{
+	margin: 10px auto 10px auto;
+}
+.form-row
+{
+	width: 25em;
+	margin-left: auto;
+	margin-right: auto;
+	margin: 5px auto 5px auto;
+}
+.form-row input,
+.form-row .value-input
+{
+	width: 49%;
+}
+.form-row label
+{
+	width: 49%;
+	display: inline-block;
+	text-align: center;
 }
 

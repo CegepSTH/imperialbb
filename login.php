@@ -23,26 +23,32 @@ require_once($root_path . "classes/password.php");
 include_once($root_path . "models/user.php");
 
 $language->add_file("login");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 
 if($_GET['func'] == "activate")
 {
-	if(!isset($_GET['user_id'])) error_msg($lang['Error'], $lang['Activation_Error_Msg']);
-	if(!isset($_GET['key'])) error_msg($lang['Error'], $lang['Activation_Error_Msg']);
+	if(!isset($_GET['user_id'])) {
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
+	}
+	if(!isset($_GET['key'])) {
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
+	}
 	
 	$activationStatus = User::activate(intval($_GET['user_id']), $_GET['key']);
 	
 	// If done properly, show message.
 	if($activationStatus == 0) {
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_SUCCESS);
 		info_box($lang['Activation_Successful'], 
 			sprintf($lang['Activation_Successful_Msg'], 
 			$result['username']), "login.php");
 	} elseif ($activationStatus == 1) {
-		error_msg($lang['Activation_Error'], $lang['Already_Activated_Msg']);
+		showMessage(ERR_CODE_LOGIN_ALREADY_ACTIVATED);
 	} else {
-		error_msg($lang['Activation_Error'], $lang['Activation_Error_Msg']);
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
 }
 else if($_GET['func'] == "logout")
@@ -56,7 +62,7 @@ else if($_GET['func'] == "logout")
 		WHERE `ip` = :remote_ip",
 		array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
 	
-	info_box($lang['Logout'], $lang['Logged_Out_Msg'], "index.php");
+	showMessage(ERR_CODE_LOGGED_OUT);
 }
 else if($_GET['func'] == "forgotten_pass")
 {
@@ -64,7 +70,10 @@ else if($_GET['func'] == "forgotten_pass")
 	{
 		CSRF::validate();
 
-		if(!isset($_POST['username']) || !isset($_POST['email'])) error_msg($lang['Error'], $lang['Invalid_username_or_email']);
+		if(!isset($_POST['username']) || !isset($_POST['email'])) {
+			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_INVALID_ID);
+		}
+
 		$query = $db2->query("SELECT `user_id`, `username`, `user_email`
 			FROM `_PREFIX_users`
 			WHERE `username` = :username AND `user_email` = :email",
@@ -100,30 +109,30 @@ else if($_GET['func'] == "forgotten_pass")
 		}
 		else
 		{
-			error_msg($lang['Error'], $lang['Invalid_username_or_email']);
+			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_INVALID_ID);
 		}
 	}
 	else
 	{
-		$theme->new_file("forgotten_password", "forgotten_password.tpl");
-		$theme->replace_tags("forgotten_password",
-			array(
-				"CSRF_TOKEN" => CSRF::getHtml()
-			)
-		);
+		$page_master = new Template("forgotten_password.tpl");
+		$page_master->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML()
+		));
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Forgotten_Password'];
-
-		include_once($root_path . "includes/page_header.php");
-		$theme->output("forgotten_password");
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master, $page_title);
 	}
 
 }
 else if($_GET['func'] == "activate_new_pass")
 {
-	if(!isset($_GET['user_id'])) error_msg($lang['Error'], $lang['Activate_New_Pass_Error']);
-	if(!isset($_GET['key'])) error_msg($lang['Error'], $lang['Activate_New_Pass_Error']);
+	if(!isset($_GET['user_id'])) {
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
+	}
+	if(!isset($_GET['key'])) {
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
+	}
+
 	$sql = $db2->query("SELECT `user_id` FROM `_PREFIX_users`
 		WHERE `user_id` = :user_id && `user_activation_key` = :key
 		LIMIT 1",
@@ -144,20 +153,19 @@ else if($_GET['func'] == "activate_new_pass")
 				":user_id" => $_GET['user_id']
 			)
 		);
-		info_box($lang['Activation_Successful'], $lang['New_Pass_Activation_Successful_Msg'], "login.php");
+
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_SUCCESS);
 	}
 	else
 	{
-		error_msg($lang['Error'], $lang['Activate_New_Pass_Error']);
+		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
-
-
 }
 else
 {
 	if($user['user_id'] > 0)
 	{
-		error_msg($lang['Error'], sprintf($lang['Already_Logged_in'], $user['username'], "<a href=\"login.php?func=logout\">", "</a>"), "index.php");
+		showMessage(ERR_CODE_LOGIN_ALREADY_LOGGED_IN);
 	}
 	if(isset($_POST['Submit']))
 	{
@@ -181,27 +189,24 @@ else
 					":session_id" => session_id()
 				)
 			);
-			info_box($lang['Login'], sprintf($lang['Successful_Login_Msg'], $oUser->getUsername()), "index.php");
+
+			showMessage(ERR_CODE_LOGIN_SUCCESS);
 
 		}
 		else
 		{
-			info_box($lang['Error'], $lang['Invalid_Login_Msg'], "login.php");
+			showMessage(ERR_CODE_LOGIN_INVALID_ID);
 		}
 	}
 	else
 	{
-		$theme->new_file("login", "login.tpl", "");
-		$theme->replace_tags("login",
-			array(
-				"CSRF_TOKEN" => CSRF::getHTML()
-			)
-		);
-		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
+		$page_master = new Template("login.tpl");
+		$page_master->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML()
+		));
 
-		include_once($root_path . "includes/page_header.php");
-		$theme->output("login");
-		include_once($root_path . "includes/page_footer.php");
+		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
+		outputPage($page_master, $page_title);
 	}
 }
 
