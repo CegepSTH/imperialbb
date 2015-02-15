@@ -1,3 +1,23 @@
+<!--// BLOCKS DEFINITIONS -->
+<!-- BLOCK mods_links_on -->
+<a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
+<a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
+<!-- END BLOCK mod_links_on -->
+
+<!-- BLOCK mod_links_off -->
+<a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
+<a href="posting.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
+<!-- END BLOCK mod_links_off -->
+			
+<!-- BLOCK quote_button -->
+<a href="posting.php?func=reply&tid={TOPIC_ID}&quote={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/quote.gif" /></a>
+<!-- END BLOCK quote_button -->					
+
+<!-- BLOCK topic_pm_link --><a href="pm.php?func=send&username={AUTHOR_USERNAME}"><img src="{T.TEMPLATE_PATH}/images/pm.gif" title="{L.PM}" alt="{L.PM}" /></a><!-- END BLOCK topic_pm_link -->&nbsp;&nbsp;
+<!-- BLOCK topic_email_link --><a href="pm.php?func=send&action=email&username={AUTHOR_USERNAME}"><img src="{T.TEMPLATE_PATH}/images/email.gif" title="{L.Email}" alt="{L.Email}" /></a><!-- END BLOCK topic_email_link -->&nbsp;&nbsp;<br />
+<!-- BLOCK topic_profile_link --><a href="profile.php?id={AUTHOR_ID}"><img src="{T.TEMPLATE_PATH}/images/profile.gif" title="{L.Profile}" alt="{L.Profile}" /></a><!-- END BLOCK topic_profile_link -->&nbsp;&nbsp;
+<!-- BLOCK topic_website_link --><a href="{AUTHOR_WEBSITE}"><img src="{T.TEMPLATE_PATH}/images/website.gif" title="{L.Website}" alt="{L.Website}" /></a><!-- END BLOCK topic_website_link -->&nbsp;&nbsp;
+
 
 <script language="javascript" type="text/javascript">
 function quick_reply() {
@@ -49,11 +69,11 @@ div#quick_reply {
 					<span style="font-weight:bold; line-height: 20px;">{L.Posts}:</span> {AUTHOR_POSTS}<br>
 					<span style="font-weight:bold; line-height: 20px;">{L.Date_Joined}:</span> {AUTHOR_JOINED}<br>
 					<span style="font-weight:bold; line-height: 20px;">{L.Location}:</span> {AUTHOR_LOCATION}
-					<hr style="margin-top:5px;margin-bottom:5px;">
-					<!--// BLOCK topic_pm_link --><a href="pm.php?func=send&username={AUTHOR_USERNAME}"><img src="{T.TEMPLATE_PATH}/images/pm.gif" title="{L.PM}" alt="{L.PM}" /></a><!-- END BLOCK topic_pm_link -->&nbsp;&nbsp;
-					<!--// BLOCK topic_email_link --><a href="pm.php?func=send&action=email&username={AUTHOR_USERNAME}"><img src="{T.TEMPLATE_PATH}/images/email.gif" title="{L.Email}" alt="{L.Email}" /></a><!-- END BLOCK topic_email_link -->&nbsp;&nbsp;<br />
-					<!--// BLOCK topic_profile_link --><a href="profile.php?id={AUTHOR_ID}"><img src="{T.TEMPLATE_PATH}/images/profile.gif" title="{L.Profile}" alt="{L.Profile}" /></a><!-- END BLOCK topic_profile_link -->&nbsp;&nbsp;
-					<!--// BLOCK topic_website_link --><a href="{AUTHOR_WEBSITE}"><img src="{T.TEMPLATE_PATH}/images/website.gif" title="{L.Website}" alt="{L.Website}" /></a><!-- END BLOCK topic_website_link -->&nbsp;&nbsp;
+					<hr style="margin-top:5px;margin-bottom:5px;padding:0px;margin-left:0px;margin-right:0px;min-width:0px;">
+					{block_topic_pm_link}
+					{block_topic_email_link}<br />
+					{block_topic_profile_link}
+					{block_topic_website_link}
 				</td>
 			</tr>
 			<tr>
@@ -61,19 +81,8 @@ div#quick_reply {
 					{DATE}
 				</td>
 				<td align="right" valign="middle">
-					<!--// BLOCK mod_links_on -->
-					<a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
-					<a href="mod.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
-					<!--// END BLOCK mod_links_on -->
-      
-					<!--// BLOCK mod_links_off -->
-					<a href="posting.php?func=edit&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/edit_post.gif" /></a>
-					<a href="posting.php?func=delete&pid={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/delete_post.gif" /></a>
-					<!--// END BLOCK mod_links_off -->
-      
-					<!--// BLOCK quote_button -->
-					<a href="posting.php?func=reply&tid={TOPIC_ID}&quote={POST_ID}"><img src="{T.TEMPLATE_PATH}/images/quote.gif" /></a>
-					<!--// END BLOCK quote_button -->
+					{block_mod_links}					
+					{block_quote_button}
 				</td>
 			</tr>
 			<tr>
@@ -82,9 +91,12 @@ div#quick_reply {
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2" valign="top">
+				<td colspan="2" valign="top" style="padding-bottom: 30px;">
 					{SIGNATURE}	
 				</td>
+			</tr>
+			<tr>
+				<td style="width: 100%; height:30px;" colspan="3"></td>
 			</tr>
 		<!-- END BLOCK topic_message_item -->
 		</table>
