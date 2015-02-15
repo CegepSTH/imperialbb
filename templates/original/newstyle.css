@@ -469,25 +469,49 @@ div.table h4 {
 .clearfix:before,
 .clearfix:after
 {
-content: " ";
-display: table;
+	content: " ";
+	display: table;
 }
 .clearfix:after
 {
-clear: both;
+	clear: both;
+}
+.pull-left
+{
+	float: left;
+}
+.pull-right
+{
+	float: right;
 }
 
 .panel
 {
-	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+.panel.bottom-border
+{
+	border-bottom: 1px solid #ddd;
 }
 .panel .panel-header,
 .panel .panel-footer
 {
 	background-color: #297acc;
-	color: #fff;
 	padding: 5px;
 	border-top: 3px solid #2b5b78;
+}
+.panel .panel-header.alt,
+.panel .panel-footer.alt
+{
+	background-color: #5CB8E6;
+	border-top: 4px solid #376E8A;
+}
+.panel .panel-header,
+.panel .panel-footer,
+.panel .panel-header a,
+.panel .panel-footer a
+{
+	color: #fff;
 }
 .panel .panel-header
 {
@@ -498,8 +522,8 @@ clear: both;
 {
 	text-align: center;
 }
-.panel .panel-header.panel-header-nocenter
-.panel .panel-footer.panel-footer-nocenter
+.panel .panel-header.nocenter,
+.panel .panel-footer.nocenter
 {
 	text-align: start;
 }
@@ -722,6 +746,10 @@ so they span mutiple lines (up to three).
 {
 	text-align: right;
 }
+.site-content-wrapper .connected-as
+{
+	margin-bottom: 5px;
+}
 
 .site-content > .breadcrumb
 {
@@ -754,6 +782,121 @@ so they span mutiple lines (up to three).
 {
 	width: 49%;
 	display: inline-block;
+	text-align: center;
+}
+
+.category-panel table
+{
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	font-size: 1em;
+	margin-bottom: 0px;
+}
+.category-panel table tr th.read-indicator,
+.category-panel table tr td.read-indicator
+{
+	width: 50px;
+}
+.category-panel table tr th.forum-name,
+.category-panel table tr td.forum-name
+{
+	width: 100%;
+}
+.category-panel table tr th.topic-count,
+.category-panel table tr td.topic-count
+{
+	width: 70px;
+}
+.category-panel table tr th.post-count,
+.category-panel table tr td.post-count
+{
+	width: 70px
+}
+.category-panel table tr th.last-post,
+.category-panel table tr td.last-post
+{
+	width: 250px;
+	text-align: center;
+}
+.category-panel table tr td.redir-count
+{
+	text-align: center;
+	border-left: 1px solid #dddddd;
+}
+.category-panel table tr th.topic-count,
+.category-panel table tr td.topic-count,
+.category-panel table tr th.post-count,
+.category-panel table tr td.post-count
+{
+	border-left: 1px solid #dddddd;
+	border-right: 1px solid #dddddd;
+}
+.category-panel table tr.forum
+{
+	height: 5em;
+}
+
+.forum-stats
+{
+	border-bottom: 1px solid #ddd;
+}
+.forum-stats .stat-header
+{
+	font-weight: bold;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 5px;
+}
+.forum-stats .stat-content
+{
+	margin-bottom: 10px;
+}
+.forum-stats .panel-header
+{
+	margin-bottom: 5px;
+}
+.forum-stats .stat-content > .pull-left > img
+{
+	padding: 10px 10px 0 10px;
+}
+.forum-stats .online-stats .rank-list
+{
+	margin-bottom: 3px;
+}
+.forum-stats .board-stats > .clearfix
+{
+	position: relative;
+}
+.forum-stats .board-stats > .clearfix > .pull-right
+{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+.index-time,
+.tz-ind-bottom
+{
+	margin-bottom: 5px;
+}
+.index-site-nav
+{
+	position: relative;
+}
+.index-site-nav > .site-name
+{
+	position: absolute;
+	bottom: 0;
+}
+.index-site-nav > .site-navsearch
+{
+	text-align: right;
+}
+
+.login-panel-index .panel-body
+{
+	margin-top: 10px;
+	margin-bottom: 10px;
 	text-align: center;
 }
 

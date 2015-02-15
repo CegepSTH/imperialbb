@@ -222,12 +222,6 @@ while ($category = $cat_sql->fetch())
 			}
 		}
 
-		$break_line = "";
-		if($cat_no > 0)
-		{
-			$break_line = $page_master->renderBlock("break_line", array());
-		}
-
 		$cat_no++;
 
 		if($forum_no != 0)
@@ -235,7 +229,6 @@ while ($category = $cat_sql->fetch())
 			$page_master->addToBlock("catrow", array(
 				"CAT_ID" => $category['cat_id'],
 				"CAT_NAME" => $category['cat_name'],
-				"BREAK_LINE" => $break_line,
 				"CATEGORY_CONTENTS" => $category_contents
 			));
 		}
