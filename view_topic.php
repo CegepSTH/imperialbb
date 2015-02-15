@@ -1,25 +1,10 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: view_topic.php                                             # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
 require_once($root_path . "includes/common.php");
-
 $language->add_file("view_topic");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['tid']) || trim($_GET['tid']) == "") showMessage(ERR_CODE_NO_TOPIC_ID_SPECIFIED, "index.php");
 
@@ -240,7 +225,10 @@ if($topic = $db2->fetch()) {
 			$newtime = $post['post_timestamp'];
 		}
 		
-		$tplViewTopic->addToBlock("topic_message_item", array(
+		if($post['user_avatar_type'] == UPLOADED_AVATAR) {
+			$post['user_avatar_location'] = $root_path . $config['avatar_upload_dir'] . "/" . $post['user_avatar_location'];
+		}
+		$blockMessageItemVars = array(
 			"DATE" => create_date("D d M Y", $post['post_timestamp']) . " " . $lang['at'] . " " . create_date("h:i a", $post['post_timestamp']),
 			"POST_ID" => $post['post_id'],
 			"AUTHOR_ID" => $post['user_id'],
@@ -250,82 +238,53 @@ if($topic = $db2->fetch()) {
 			"SIGNATURE" => $post['user_signature'],
 			"AUTHOR_JOINED" => create_date("D d M Y", $post['user_date_joined']),
 			"AUTHOR_POSTS" => $post['user_posts'],
-			"AUTHOR_LOCATION" => $post['user_location']
-		));
+			"AUTHOR_LOCATION" => $post['user_location'],
+			"AUTHOR_RANK" => $post['rank_name'],
+			"RANK_IMG_URL" => $post['rank_image'],
+			"AUTHOR_AVATAR_LOCATION" => $post['user_avatar_location'], 
+			"block_post_mod_links" => "",
+			"block_quote_button" => "",
+			"block_topic_email_link" => "",
+			"block_topic_pm_link" => "",
+			"block_topic_profile_link" => "",
+			"block_topic_website_link" => "");
 
-		/*
-		if($post['user_id'] > 0) {
-			$theme->insert_nest("view_topic", "postrow/author_standard", array(
-				"AUTHOR_JOINED" => create_date("D d M Y", $post['user_date_joined']),
-				"AUTHOR_POSTS" => $post['user_posts']
-			));
-
-			if(!empty($post['user_location'])) {
-				$theme->insert_nest("view_topic", "postrow/author_location", array(
-					"AUTHOR_LOCATION" => $post['user_location']
-				));
-			}
-		}*/
-
-		if(!empty($post['rank_image'])) {
-			$theme->insert_nest("view_topic", "postrow/rank_image", array(
-				"AUTHOR_RANK" => $post['rank_name'],
-				"AUTHOR_RANK_IMG" => $post['rank_image']
-			));
-		}
-
-		if($post['user_avatar_type'] == UPLOADED_AVATAR || $post['user_avatar_type'] == REMOTE_AVATAR) {
-			if($post['user_avatar_type'] == UPLOADED_AVATAR) {
-				$post['user_avatar_location'] = $root_path . $config['avatar_upload_dir'] . "/" . $post['user_avatar_location'];
-			}
-			
-			$theme->insert_nest("view_topic", "postrow/avatar", array(
-				"AUTHOR_AVATAR_LOCATION" => $post['user_avatar_location']
-			));
-		}
-
+		// Verify some moderation tricks + if user can delete or modify message.
 		if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {
-			$theme->switch_nest("view_topic", "postrow/mod_links", true, array(
-				"POST_ID" => $post['post_id']
-			));
-		} else if($post['user_id'] == $user['user_id'] && $user['user_id'] > 0) {
-			// Vérifier ici si le thread est verouillé pour cacher les boutons ou non.
-			// topic status 1 = topic closed (verouillé)
-			if($topic['topic_status'] != 1) {
-				$theme->switch_nest("view_topic", "postrow/mod_links", false);
-			}
+			$blockMessageItemVars["block_post_mod_links"] = $tplViewTopic->renderBlock(
+				"post_mod_links_on", array("POST_ID" => $post['post_id'], "TOPIC_ID" => $_GET['tid']));
+		} else if($post['user_id'] == $user['user_id'] && $user['user_id'] > 0 && $topic['topic_status'] != 1) {
+			$blockMessageItemVars["block_post_mod_links"] = $tplViewTopic->renderBlock(
+				"post_mod_links_off", array("POST_ID" => $post['post_id'], "TOPIC_ID" => $_GET['tid']));
 		}
 
+		// Can we quote?
 		if(($topic['forum_reply'] <= $user['user_level'] && $topic['ug_reply'] == 0) || $topic['ug_reply'] == 1) {
-			$theme->insert_nest("view_topic", "postrow/quote_button");
-			$theme->add_nest("view_topic", "postrow/quote_button");
+			$blockMessageItemVars["block_quote_button"] = $tplViewTopic->renderBlock("quote_button", 
+				array("POST_ID" => $post['post_id'], "TOPIC_ID" => $_GET['tid']));
 		}
 
+		// Verify if user has websites and stuff.
 		if($post['user_id'] > 0) {
-			$theme->insert_nest("view_topic", "postrow/pm_link", array(
-				"AUTHOR_USERNAME" => $post['username'],
-			));
-			$theme->add_nest("view_topic", "postrow/pm_link");
-
-			$theme->insert_nest("view_topic", "postrow/email_link", array(
-				"AUTHOR_USERNAME" => $post['username'],
-			));
-			$theme->insert_nest("view_topic", "postrow/profile_link", array(
-				"AUTHOR_ID" => $post['user_id'],
-			));
+			$blockMessageItemVars["block_topic_pm_link"] = $tplViewTopic->renderBlock("topic_pm_link", array(
+				"AUTHOR_USERNAME" => $post['username']));
+				
+			$blockMessageItemVars["block_topic_email_link"] = $tplViewTopic->renderBlock("topic_email_link", array(
+				"AUTHOR_USERNAME" => $post['username']));
+			
+			$blockMessageItemVars["block_topic_profile_link"] = $tplViewTopic->renderBlock(
+				"topic_profile_link", array("AUTHOR_ID" => $post['user_id']));
 			
 			if(!empty($post['user_website'])) {
-				$theme->insert_nest("view_topic", "postrow/website_link", array(
-					"AUTHOR_WEBSITE" => $post['user_website']
-				));
-				$theme->add_nest("view_topic", "postrow/website_link");
+				$blockMessageItemVars["block_topic_website_link"] = $tplViewTopic->renderBlock(
+					"topic_website_link", array("AUTHOR_WEBSITE" => $post['user_website']));
 			}
 		}
-		// Add the nest to the page..
-		$theme->add_nest("view_topic", "postrow");
-
+	
+		$tplViewTopic->addToBlock("topic_message_item", $blockMessageItemVars);
 	}
 
+	// Cookies.
 	if($user['user_id'] > 0) {
 		$set_new_posts = false;
 		
@@ -344,50 +303,67 @@ if($topic = $db2->fetch()) {
 			setcookie("read_topics", serialize($track_topics), 0);
 		}
 	}
-
-	if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {
-		$theme->switch_nest("view_topic", "mod_links", true);
-
-		$theme->insert_nest("view_topic", "mod_links");
-
+	
+	$blockModsVar = array("block_topic_lock" => "",
+			"block_topic_move" => "",
+			"block_topic_delete" => "",
+			"block_topic_announce" => "",
+			"block_topic_pin" => "",
+			"block_topic_general" => "");
+			
+	// If the user is moderator.
+	if(($topic['forum_mod'] <= $user['user_level'] && $topic['ug_mod'] == 0) || $topic['ug_mod'] == 1) {		
+		$blockModsVar["block_topic_delete"] = $tplViewTopic->renderBlock("topic_mod_delete_link", 
+			array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
+		$blockModsVar["block_topic_move"] = $tplViewTopic->renderBlock("topic_mod_move_link",
+			array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
+		
+		// Lockable
 		if($topic['topic_status'] == "0") {
-			$theme->switch_nest("view_topic", "mod_links/lock_topic", true);
+			$blockModsVar["block_topic_lock"] = $tplViewTopic->renderBlock("lock_topic_on", 
+				array("CSRF_TOKEN" => CSRF::getHTML(),
+				"TOPIC_ID" => $_GET['tid']));
 		} else {
-			$theme->switch_nest("view_topic", "mod_links/lock_topic", false);
+			$blockModsVar["block_topic_lock"] = $tplViewTopic->renderBlock("lock_topic_off", 
+				array("CSRF_TOKEN" => CSRF::getHTML(),
+				"TOPIC_ID" => $_GET['tid']));
 		}
 		
+		// Announcable.		
 		if($topic['topic_type'] != ANNOUNCMENT) {
-			$theme->insert_nest("view_topic", "mod_links/announce_topic");
+			$blockModsVar["block_topic_announce"] = $tplViewTopic->renderBlock("announce_topic", 
+				array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
 		}
 		
+		// Pinnable.
 		if($topic['topic_type'] != PINNED) {
-			$theme->insert_nest("view_topic", "mod_links/pin_topic");
+			$blockModsVar["block_topic_pin"] = $tplViewTopic->renderBlock("pin_topic", 
+				array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
 		}
 		
+		// Generable.
 		if($topic['topic_type'] != GENERAL) {
-			$theme->insert_nest("view_topic", "mod_links/general_topic");
+			$blockModsVar["block_topic_general"] = $tplViewTopic->renderBlock("general_topic", 
+				array("CSRF_TOKEN" => CSRF::getHTML(), "TOPIC_ID" => $_GET['tid']));
 		}
-
-		$theme->add_nest("view_topic", "mod_links");
 	}
+	
+	/* Allows user to delete his own topic; Disabled for now.
 	if($topic['topic_user_id'] == $user['user_id'] && $user['user_id'] > 0) {
 		if($topic['topic_status'] != 1) {
-//			$theme->insert_nest("view_topic", "mod_links");
-
-
+			
 			$theme->switch_nest("view_topic", "mod_links", false);
 			$theme->add_nest("view_topic", "mod_links");
 		}
-	}
+	}*/
+	
+	$tplViewTopic->setVars($blockModsVar);
 }
 else
 {
-	info_box($lang['Error'], $lang['Invalid_Topic_Id'], "index.php");
+	// Couldn't find topic with specified id in db.
+	showMessage(ERR_CODE_INVALID_TOPIC_ID);
 }
+
 outputPage($tplViewTopic);
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>

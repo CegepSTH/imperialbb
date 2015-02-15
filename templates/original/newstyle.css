@@ -304,6 +304,15 @@ form input.formbutton {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
 }
 
+input.formbutton {
+	background:#246BB2 none repeat-x scroll bottom left;
+	border:1px solid #2B5B78;
+	color:#ffffff;
+	font-size:0.9em;
+	padding:6px 14px;
+	font-weight:bold;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+}
 /* default tables */ 
 table {
 	width:100.25%;
