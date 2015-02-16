@@ -1,17 +1,15 @@
-<form method="post" action="{URL}">
+<form method="post" action="{URL}" class="panel login-panel">
 {CSRF_TOKEN}
-<table width="75%" align="center" class="maintable">
- <tr>
-  <th height="25">{TITLE}</th>
- </tr>
- <tr>
-  <td align="center" class="cell1" valign="center" height="75">
-   {MESSAGE}<br /><br />
-   <!-- BEGIN hidden_row -->
-   <input type="hidden" name="{NAME}" value="{VALUE}" />
-   <!-- END hidden_row -->
-   <input type="submit" name="confirm" value="{L.Yes}" />&nbsp;&nbsp;<input type="button" name="confirm" value="{L.No}" onclick="window.location.href='{NO_URL}'" />
-  </td>
- </tr>
-</table>
+	<div class="panel-header">
+		{TITLE}
+	</div>
+	<div class="form-row" style="text-align:center;">
+		{MESSAGE}<br /><br />
+		<!-- BLOCK hidden_row -->
+		<input type="hidden" name="{NAME}" value="{VALUE}" />
+		<!-- END BLOCK hidden_row -->
+	</div>
+	<div class="panel-footer">
+		<input type="submit" name="confirm" value="{L.Yes}" />&nbsp;&nbsp;<input type="button" name="confirm" value="{L.No}" onclick="window.location.href='{NO_URL}'" />
+	</div>
 </form>
