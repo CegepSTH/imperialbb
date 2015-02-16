@@ -113,7 +113,7 @@ while ($category = $cat_sql->fetch())
 						)
 					);
 
-					$subforum_contents = "";
+					$subforums_contents = "";
 					$subforum_count = 0;
 					$subforum_data = "";
 					while($subforums_result = $subforums_query->fetch())
@@ -126,7 +126,7 @@ while ($category = $cat_sql->fetch())
 					{
 						$subforum_data = substr($subforum_data, 0, -2);
 	
-						$subforum_contents = $page_master->renderBlock("subforums_list", array(
+						$subforums_contents = $page_master->renderBlock("subforums_list", array(
 							"SUBFORUMS" => sprintf($lang['Subforums_List'], $subforum_data)
 						));
 					}

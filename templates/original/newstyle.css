@@ -513,7 +513,7 @@ div.table h4 {
 .panel .panel-footer.alt
 {
 	background-color: #5CB8E6;
-	border-top: 4px solid #376E8A;
+	border-top: 3px solid #376E8A;
 }
 .panel .panel-header,
 .panel .panel-footer,
@@ -833,6 +833,11 @@ so they span mutiple lines (up to three).
 	text-align: center;
 	border-left: 1px solid #dddddd;
 }
+.category-panel table tr td.topic-count,
+.category-panel table tr td.post-count
+{
+	text-align: center;
+}
 .category-panel table tr th.topic-count,
 .category-panel table tr td.topic-count,
 .category-panel table tr th.post-count,
@@ -891,6 +896,7 @@ so they span mutiple lines (up to three).
 .index-site-nav
 {
 	position: relative;
+	margin-bottom: 5px;
 }
 .index-site-nav > .site-name
 {
@@ -907,5 +913,126 @@ so they span mutiple lines (up to three).
 	margin-top: 10px;
 	margin-bottom: 10px;
 	text-align: center;
+}
+.nav-breadcrumb
+{
+	margin-bottom: 5px;
+}
+
+.members-panel table
+{
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	font-size: 1em;
+	margin-bottom: 0px;
+}
+.members-panel table tr th
+{
+	text-align: left;
+}
+.members-panel table tr th.user-id,
+.members-panel table tr td.user-id
+{
+	width: 50px;
+}
+.members-panel table tr th.user-name,
+.members-panel table tr td.user-name
+{
+	width: 100%;
+}
+.members-panel table tr th.user-contact,
+.members-panel table tr td.user-contact
+{
+	width: 200px;
+}
+.members-panel table tr th.post-count,
+.members-panel table tr td.post-count
+{
+	width: 80px
+}
+.members-panel table tr th.date-joined,
+.members-panel table tr td.date-joined
+{
+	width: 160px;
+}
+.members-panel table tr th.user-name,
+.members-panel table tr td.user-name,
+.members-panel table tr th.user-contact,
+.members-panel table tr td.user-contact,
+.members-panel table tr th.post-count,
+.members-panel table tr td.post-count,
+.members-panel table tr th.date-joined,
+.members-panel table tr td.date-joined
+{
+	border-left: 1px solid #ddd;
+}
+.members-footer
+{
+	margin-bottom: 10px;
+}
+
+.pm-list-panel table
+{
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	font-size: 1em;
+	margin-bottom: 0px;
+}
+.pm-list-panel table tr th.read-indicator,
+.pm-list-panel table tr td.read-indicator
+{
+	width: 50px;
+}
+.pm-list-panel table tr th.title,
+.pm-list-panel table tr td.title
+{
+	width: 100%;
+}
+.pm-list-panel table tr th.author,
+.pm-list-panel table tr td.author
+{
+	width: 200px;
+}
+.pm-list-panel table tr th.date,
+.pm-list-panel table tr td.date
+{
+	width: 200px;
+}
+.pm-list-panel table tr th.actions,
+.pm-list-panel table tr td.actions
+{
+	width: 150px;
+}
+.pm-list-panel table tr td.read-indicator img
+{
+	vertical-align: middle;
+}
+.pm-list-panel .no-pms
+{
+	font-weight: bold;
+	text-align: center;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #ddd;
+}
+.pm-menu-panel
+{
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 30px;
+}
+.pm-menu-panel .panel-body
+{
+	text-align: center;
+}
+.pm-menu-panel .panel-body a
+{
+	margin-top: 5px;
+	margin-bottom: 5px;
+	display: inline-block;
+	width: 24%;
 }
 
