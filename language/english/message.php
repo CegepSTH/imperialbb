@@ -36,4 +36,7 @@ $lang['err_code'.ERR_CODE_TOPIC_LOCK_SUCCESS] = "Topic was locked successfully."
 $lang['err_code'.ERR_CODE_TOPIC_UNLOCK_SUCCESS] = "Topic was unlocked successfully.";
 $lang['err_code'.ERR_CODE_TOPIC_INVALID_TYPE] = "Topic type is invalid.";
 $lang['err_code'.ERR_CODE_TOPIC_TYPE_CHANGE_SUCCESS] = "Topic's type was changed successfully.";
+$lang['err_code'.ERR_CODE_PROFILE_CANT_CHANGE_AVATAR] = "Couldn't change avatar.";
+$lang['err_code'.ERR_CODE_PROFILE_UPDATE_SUCCESS] = "Profile updated successfully.";
+$lang['err_code'.ERR_CODE_INVALID_USER_ID] = "Invalid user id.";
 ?>
