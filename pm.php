@@ -21,6 +21,7 @@ include($root_path . "includes/common.php");
 
 $language->add_file("pm");
 $language->add_file("view_topic");
+Template::addNamespace("L", $lang);
 
 if($user['user_id'] <= 0)
 {
@@ -729,7 +730,7 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 }
 else
 {
-	$theme->new_file("manage_pm", "manage_pm.tpl", "");
+	$page_master = new Template("manage_pm.tpl");
 
 	if($_GET['func'] == "sentbox")
 	{
@@ -753,9 +754,7 @@ else
 	$count_array = $count_sql->fetch();
 	$pagination = $pp->paginate($count_array['pm_count'], $config['pm_per_page']);
 	
-	$theme->replace_tags("manage_pm", array(
-		"PAGINATION" => $pagination
-	));
+	$page_master->setVar("PAGINATION", $pagination);
 
 	$pm_query = $db2->query("SELECT pm.*,
 		u.`username`
@@ -769,81 +768,72 @@ else
 		)
 	);
 
+	$pm_rows = "";
 	$pm_count = 0;
 	while($pm = $pm_query->fetch())
 	{
-		$theme->insert_nest("manage_pm", "pm_row", array(
-			"ID" => $pm['pm_id'],
-			"NAME" => $pm['pm_title'],
-			"AUTHOR" => $pm['username'],
-			"DATE" => create_date("D d M Y", $pm['pm_date'])
-		));
-
+		$read_indicator = "";
 		if($pm['pm_unread'] == 1)
 		{
-			$theme->switch_nest("manage_pm", "pm_row/unread", true);
+			$read_indicator = $page_master->renderBlock("unread_pm", array());
 		}
 		else
 		{
-			$theme->switch_nest("manage_pm", "pm_row/unread", false);
+			$read_indicator = $page_master->renderBlock("read_pm", array());
 		}
 
+		$edit_button = "";
 		if($_GET['func'] == "outbox")
 		{
-			$theme->insert_nest("manage_pm", "pm_row/pm_edit", array(
+			$edit_button = $page_master->renderBlock("edit_pm", array(
 				"ID" => $pm['pm_id']
 			));
 		}
 
-		$theme->add_nest("manage_pm", "pm_row");
+		$pm_rows .= $page_master->renderBlock("pm_row", array(
+			"ID" => $pm['pm_id'],
+			"NAME" => $pm['pm_title'],
+			"AUTHOR" => $pm['username'],
+			"DATE" => create_date("D d M Y", $pm['pm_date']),
+			"READ_INDICATOR"  => $read_indicator,
+			"EDIT_BUTTON" => $edit_button
+		));
 		$pm_count++;
 	}
+
 	if($_GET['func'] == "sentbox")
 	{
 		$location = strtolower($lang['Sent_Box']);
-		$theme->replace_tags("manage_pm", array(
-			"LOCATION" => $lang['Sent_Box']
-		));
-	} else if($_GET['func'] == "outbox")
+		$page_master->setVar("LOCATION", $lang['Sent_Box']);
+	}
+	else if($_GET['func'] == "outbox")
 	{
 		$location = strtolower($lang['Outbox']);
-		$theme->replace_tags("manage_pm", array(
-			"LOCATION" => $lang['Outbox']
-		));
+		$page_master->setVar("LOCATION", $lang['Outbox']);
 	}
 	else
 	{
 		$location = strtolower($lang['Inbox']);
-		$theme->replace_tags("manage_pm", array(
-			"LOCATION" => $lang['Inbox']
-		));
+		$page_master->setVar("LOCATION", $lang['Inbox']);
 	}
 	if($pm_count > 0)
 	{
-		$theme->switch_nest("manage_pm", "pm_titles", true);
-		$theme->add_nest("manage_pm", "pm_titles");
+		$page_master->setVar("PM_PANEL_CONTENT",
+			$page_master->renderBlock("pms_table", array(
+				"PM_ROWS" => $pm_rows
+			))
+		);
 	}
 	else
 	{
-		$theme->switch_nest("manage_pm", "pm_titles", false, array(
-			"NO_PM" => sprintf($lang['You_currently_have_no_PMs_in_your'], $location)
-		));
-		$theme->add_nest("manage_pm", "pm_titles");
+		$page_master->setVar("PM_PANEL_CONTENT",
+			$page_master->renderBlock("no_pms", array(
+				"NO_PM" => sprintf($lang['You_currently_have_no_PMs_in_your'], $location)
+			))
+		);
 	}
-	//
-	// Output the page header
-	//
-	include($root_path . "includes/page_header.php");
 
-	//
-	// Output the main page
-	//
-	$theme->output("manage_pm");
-
-	//
-	// Output the page footer
-	//
-	include($root_path . "includes/page_footer.php");
+	outputPage($page_master);
 }
 
 /*======================================================================*\

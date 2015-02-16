@@ -16,6 +16,7 @@ if(!defined("IN_IBB")) {
 
 $lang['PM'] = "PM";
 $lang['PM_Manager'] = "PM Manager";
+$lang['PM_Menu'] = "Menu";
 $lang['View_PM'] = "View PM";
 $lang['Edit_PM'] = "Edit PM";
 $lang['Manage_PM'] = "Manage PM";
