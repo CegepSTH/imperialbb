@@ -23,6 +23,7 @@ $lang['Already_Activated_Msg'] = "Your account has already been previously activ
 $lang['Already_Logged_in'] = "Sorry, you are already logged in as %s. If this is not you please %slogout%s and return to this page."; // First %s = Username -- Others are links
 $lang['Successful_Login_Msg'] = "You are now logged in as %s."; // %s = The users username
 $lang['Invalid_Login_Msg'] = "Sorry, the username or password you entered is invalid. If you have forgotten your password please use the 'forgotten password' link";
+$lang['Account_Disabled'] = "Sorry, this account is disabled, if you think this is an error please contact an administrator";
 $lang['Invalid_Activation_Key'] = "Sorry the activation key you entered is invalid. If you typed it manually please retry.";
 $lang['Account_Activated'] = "Your account has been successfully activated. You may now login to your account.";
 $lang['Must_Be_Logged_In'] = "Sorry, you must be logged in to use this feature.";

@@ -221,6 +221,7 @@ if($_GET['func'] == "edit")
 			$oUser->update();
 			showMessage(ERR_CODE_PROFILE_UPDATE_SUCCESS, "profile.php?id=".$user['user_id']);
 		}
+
 	} else {
 		$sql = $db2->query("SELECT *
 			FROM `_PREFIX_users`
@@ -317,11 +318,73 @@ if($_GET['func'] == "edit")
 			exit();
 		}
 	}
+}else if($_GET['func'] == "CloseAccount"){
+	if($user['user_id'] < 0) {
+		info_box($lang['Error'], $lang['Must_Be_Logged_In'], "login.php");
+	}
+	if(isset($_GET['token'])){
+		// TODO : Delete account
+		// GET WHO'S THE TOKEN GIVEN TO
+
+		$token = $_GET['token'];
+		$retrieve_user_id_template = "SELECT * FROM `_PREFIX_users_token` where `token` = '$token'";
+
+		$db2->query($retrieve_user_id_template);
+
+		$user_token = $db2->fetch();
+		$user_id = $user_token['user_id'];
+
+		if(isset($user_id)){
+			// Remove the user email and set the account as "inactive"
+			$remove_account = "UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id` = '$user_id'";
+			$db2->query($remove_account);
+
+			// remove the token
+			$remove_token_template = "DELETE FROM `_PREFIX_users_token`
+									  WHERE `user_id` = '$user_id'";
+
+			$db2->query($remove_token_template);
+
+
+			// Then logout user
+			setcookie("UserName");
+			setcookie("Password");
+			$_SESSION['user_id'] = -1;
+			session_regenerate_id();
+
+			$db2->query("DELETE FROM `_PREFIX_sessions`
+						 WHERE `ip` = :remote_ip",
+						 array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
+
+			info_box($lang['Account_Has_Been_Removed'], $lang['Account_Has_Been_Removed_Message'], "index.php");
+		}
+		else{
+			info_box($lang['Error'], $lang['Invalid_Token_Id'], "profile.php?func=edit");
+		}
+	} else {
+		$oUser = User::findUser($user['user_id']);
+
+		// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
+		$token = md5(time().$user['user_id']);
+
+		$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
+						 VALUES (:user_id, :token, :token_type)";
+		$params = [
+			':user_id' => $user['user_id'],
+			':token' => $token,
+			':token_type' => 1
+		];
+
+		$db2->query($template_sql, $params);
+
+		info_box($lang['Edit_Profile'], $lang['Check_Mail'], "profile.php?func=edit");
+	}
+
 } else {
 	if(!isset($_GET['id']) || $_GET['id'] < 0) {
 		showMessage(ERR_CODE_INVALID_USER_ID, "index.php");
     }
-    
+
     $oUser = User::findUser($_GET['id']);
 	$db2->query("SELECT `rank_name` FROM `_PREFIX_ranks` WHERE `rank_id`=:rid", array(":rid" => $oUser->getRankId()));
 	$result = $db2->fetch();
