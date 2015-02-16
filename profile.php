@@ -336,14 +336,14 @@ if($_GET['func'] == "edit")
 
 		if(isset($user_id)){
 			// Remove the user email and set the account as "inactive"
-			$remove_account = "UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id` = '$user_id'";
+			$remove_account = "UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid";
 			$db2->query($remove_account);
 
 			// remove the token
 			$remove_token_template = "DELETE FROM `_PREFIX_users_token`
-									  WHERE `user_id` = '$user_id'";
+									  WHERE `user_id` = :userid";
 
-			$db2->query($remove_token_template);
+			$db2->query($remove_token_template, array(":userid" => $user_id));
 
 
 			// Then logout user
