@@ -18,11 +18,12 @@
 						<!-- BEGIN SWITCH online -->{L.Online}<!-- SWITCH online -->{L.Offline}<!-- END SWITCH online -->
 					</td>
 					<td style="width: 25%; text-align: right;" valign="middle">
-						<!-- BEGIN SWITCH avatar -->
+						<!-- BLOCK avatar_on -->
 						<img src="{AUTHOR_AVATAR_LOCATION}" alt="" border="0" />
-						<!-- SWITCH avatar -->
+						<!-- END BLOCK avatar_on -->
+						<!-- BLOCK avatar_off -->
 						<img src="./images/avatars/blank_avatar.gif" alt="" border="0" />
-						<!-- END SWITCH avatar -->
+						<!-- END BLOCK avatar_off -->
 					</td>
 				</tr>
 			</table>
@@ -42,7 +43,7 @@
 				</tr>
 				<tr>
 					<td class="cell2" style="width: 40%;">{L.Status}</td>
-					<td class="cell1" style="width: 60%;"><!-- BEGIN SWITCH online -->{L.Online}<!-- SWITCH online -->{L.Offline}<!-- END SWITCH online --></td>
+					<td class="cell1" style="width: 60%;">{USER_ONLINE}</td>
 				</tr>
 				<tr>
 					<td class="cell2" style="width: 40%;">{L.lastvisit}</td>

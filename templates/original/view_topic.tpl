@@ -173,11 +173,13 @@ div#quick_reply {
 <table width="100%">
  <tr>
   <td width="360"><a href="posting.php?func=newtopic&fid={FORUM_ID}"><img src="{T.TEMPLATE_PATH}/images/new_topic.gif" /></a>&nbsp;&nbsp;&nbsp;<a href="posting.php?func=reply&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/reply.gif" /></a>&nbsp;&nbsp;&nbsp;<a href="javascript:quick_reply();"><img src="{T.TEMPLATE_PATH}/images/fast_reply.gif" /></a></td>
-  <td align="left"><a href="index.php">{C.site_name}</a><!-- BLOCK location_bottom_forum --> &raquo; <a href="view_forum.php?fid={LOCATION_FORUM_ID}">{LOCATION_FORUM_NAME}</a><!-- END BLOCK location_bottom_forum --> &raquo; <b>{TOPIC_NAME}</b></td>
   <td width="75" align="right">{PAGINATION}</td>
  </tr>
  <tr>
-  <td colspan="3">
+   <td align="left" colspan="2"><a href="index.php">{C.site_name}</a><!-- BLOCK location_bottom_forum --> &raquo; <a href="view_forum.php?fid={LOCATION_FORUM_ID}">{LOCATION_FORUM_NAME}</a><!-- END BLOCK location_bottom_forum --> &raquo; <b>{TOPIC_NAME}</b></td>
+ </tr>
+ <tr>
+  <td colspan="2">
    <div id="quick_reply">
     <table width="100%" class="maintable">
      <tr>

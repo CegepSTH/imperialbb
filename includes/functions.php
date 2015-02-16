@@ -66,9 +66,9 @@ function error_msg($name, $message)
 function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 {
 	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
+	$tplConfirmMsg = new Template("confirm_msg.tpl");
 
-	$theme->new_file("confirm_msg", "confirm_msg.tpl");
-	$theme->replace_tags("confirm_msg", array(
+	$tplConfirmMsg->setVars(array(
 		"TITLE"     => $name,
 		"MESSAGE"   => $message,
 		"URL"       => $url,
@@ -78,15 +78,14 @@ function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 	
 	if(is_array($values)) {
 		foreach($values as $name => $value) {
-			$theme->replace_tags("confirm_msg", array(
+			$tplConfirmMsg->addToBlock("hidden_row", array(
 				"NAME"  => $name,
 				"VALUE" => $value
 			));
 		}
 	}
-	include_once($root_path . "includes/page_header.php");
-	$theme->output("confirm_msg");
-	include_once($root_path . "includes/page_footer.php");
+	
+	outputPage($tplConfirmMsg);
 }
 
 //===========================================

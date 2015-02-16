@@ -15,6 +15,16 @@ if(!defined("IN_IBB")) {
 }
 
 //
+// Close account button
+//
+$lang['Close_Account'] = "Close your account";
+$lang['Must_Be_Logged_In'] = "You are not connected, please connect first";
+$lang['Check_Mail'] = "Please check your email for next step";
+$lang['Account_Has_Been_Removed'] = "Account has been removed";
+$lang['Account_Has_Been_Removed_Message'] = "Your account is now inactive, we have removed your email from our database.";
+$lang['Invalid_Token_Id'] = "Invalid token ID, please try again";
+
+//
 // Edit Profile
 //
 

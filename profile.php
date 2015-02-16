@@ -1,37 +1,21 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: profile.php                                                # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright � 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
 require_once($root_path . "includes/common.php");
 require_once($root_path."models/user.php");
-
 $language->add_file("profile");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 if($_GET['func'] == "edit")
 {
 	if($user['user_id'] < 0) {
-		info_box($lang['Error'], $lang['Must_Be_Logged_In'], "login.php");
+		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 	}
 	
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		$error = "";
 		if(strlen($_POST['PassWord']) > 0) {
 			$oUser = User::findUser($user['user_id']);
@@ -72,51 +56,44 @@ if($_GET['func'] == "edit")
 
 			// Verify MIME Type
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
-			$mime=finfo_file($finfo, $_FILES['Upload_Avatar']['tmp_name']);
+			$mime = finfo_file($finfo, $_FILES['Upload_Avatar']['tmp_name']);
 
 			if(!in_array($mime, explode(";", $config['avatar_upload_mime_types']))){
 				$error .= $lang['Invalid_Avatar_Type_Msg'] . "<br />";
 			}
 		}
 
-		if(isset($_POST['template']))
-		{
+		if(isset($_POST['template'])) {
 			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates` WHERE `template_id` = :template_id";
-			if($user['user_level'] < 5)
-			{
+			
+			if($user['user_level'] < 5) {
 				$template_sql .= " AND `template_usable` = '1'";
 			}
 			$template_query = $db2->query($template_sql, array(":template_id" => $_POST['template']));
-			if(!$template_result = $template_query->fetch())
-			{
+			
+			if(!$template_result = $template_query->fetch()) {
 				$error .= $lang['Invalid_Template_Selected'];
 			}
-		}
-		else
-		{
+		} else {
 			$_POST['template'] = $user['user_template'];
 		}
 
 		if(isset($_POST['language'])) {
 			$language_sql = "SELECT `language_id`, `language_name` FROM `_PREFIX_languages` WHERE `language_id` = :language_id";
-			if($user['user_level'] < 5)
-			{
+			if($user['user_level'] < 5) {
 				$language_sql .= " AND `language_usable` = '1'";
 			}
 			$language_query = $db2->query($language_sql, array(":language_id" => $_POST['language']));
-			if(!$language_result = $language_query->fetch())
-			{
+			if(!$language_result = $language_query->fetch()) {
 				$error .= $lang['Invalid_Language_Selected'];
 			}
-		}
-		else
-		{
+		} else {
 			$_POST['language'] = $user['user_language'];
 		}
 
 		if(strlen($error) > 0) {
-			$theme->new_file("edit_profile", "edit_profile.tpl", "");
-			$theme->replace_tags("edit_profile", array(
+			$tplEditProfile = new Template("edit_profile.tpl");
+			$tplEditProfile->setVars(array(
 				"EMAIL" => $_POST['Email'],
 				"EMAIL2" => $_POST['Email2'],
 				"SIGNATURE" => $_POST['signature'],
@@ -127,50 +104,32 @@ if($_GET['func'] == "edit")
 				"REMOTE_AVATAR_URL" => $_POST['Remote_Avatar_URL'],
 				"LOCATION" => $_POST['location'],
 				"WEBSITE" => $_POST['website'],
-				"EOP_TRUE" => ($_POST['email_on_pm'] == "1") ? "CHECKED" : "",
-				"EOP_FALSE" => ($_POST['email_on_pm'] == "0") ? "CHECKED" : "",
+				"EOP_TRUE" => ($_POST['email_on_pm'] == "1") ? "checked" : "",
+				"EOP_FALSE" => ($_POST['email_on_pm'] == "0") ? "checked" : "",
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 			
 			if($user['user_avatar_type'] == 0) {
-				$theme->switch_nest("edit_profile", "current_avatar", false);
-				$theme->add_nest("edit_profile", "current_avatar");
+				$tplEditProfile->addToBlock("current_avatar_off", array());
 			} else {
-				$theme->switch_nest("edit_profile", "current_avatar", true);
-				$theme->add_nest("edit_profile", "current_avatar");
+				$tplEditProfile->addToBlock("current_avatar_on", array());
 			}
 			
-			$theme->insert_nest("edit_profile", "error", array(
-				"ERRORS" => $error
-			));
-			$theme->add_nest("edit_profile", "error");
-
-			$template_count = 0;
-			$theme->insert_nest("edit_profile", "template_select");
+			$tplEditProfile->addToBlock("error", array("ERRORS" => $error));
 
 			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates`";
-			if($user['user_level'] < 5)
-			{
+			if($user['user_level'] < 5) {
 				$template_sql .= " WHERE `template_usable` = '1'";
 			}
 			
 			$template_query = $db2->query($template_sql);
 			while($template_result = $template_query->fetch()) {
-				$theme->insert_nest("edit_profile", "template_select/template_select_option", array(
+				$tplEditProfile->addToBlock("template_select_option", array(
 					"TEMPLATE_ID" => $template_result['template_id'],
 					"TEMPLATE_NAME" => $template_result['template_name'],
 					"TEMPLATE_SELECTED" => ($template_result['template_id'] == $_POST['template']) ? "selected=\"selected\"" : ""
 				));
-				$theme->add_nest("edit_profile", "template_select/template_select_option");
-				$template_count++;
 			}
-
-			if($template_count > 1) {
-				$theme->add_nest("edit_profile", "template_select");
-			}
-
-			$language_count = 0;
-			$theme->insert_nest("edit_profile", "language_select");
 
 			$language_sql = "SELECT `language_id`, `language_name` FROM `_PREFIX_languages`";
 			if($user['user_level'] < 5) {
@@ -178,25 +137,16 @@ if($_GET['func'] == "edit")
 			}
 			
 			$language_query = $db2->query($language_sql);
-			while($language_result = $language_query->fetch())
-			{
-				$theme->insert_nest("edit_profile", "language_select/language_select_option", array(
+			while($language_result = $language_query->fetch()) {
+				$tplEditProfile->addToBlock("language_select_option", array(
 					"LANGUAGE_ID" => $language_result['language_id'],
 					"LANGUAGE_NAME" => $language_result['language_name'],
 					"LANGUAGE_SELECTED" => ($language_result['language_id'] == $_POST['language']) ? "selected=\"selected\"" : ""
 				));
-				$theme->add_nest("edit_profile", "language_select/language_select_option");
-				$language_count++;
 			}
 
-			if($language_count > 1) {
-				$theme->add_nest("edit_profile", "language_select");
-			}
-
-			include_once($root_path . "includes/page_header.php");
-			$theme->output("edit_profile");
-			include_once($root_path . "includes/page_footer.php");
-			
+			outputPage($tplEditProfile);
+			exit();
 		} else {
 			$oUser = User::findUser($user['user_id']);
 			
@@ -214,7 +164,7 @@ if($_GET['func'] == "edit")
 					$oUser->setAvatarLocation($filename);
 					$oUser->setAvatarDimensions($image_size[0]."x".$image_size[1]);
 				} else {
-					error_msg($lang['Error'], $lang['Unable_To_Change_Avatar_Msg']);
+					showMessage(ERR_CODE_PROFILE_CANT_CHANGE_AVATAR, "profile.php?func=edit");
 				}
 			} else if(isset($_POST['Delete_Avatar'])) {
 				if($user['user_avatar_type'] == "2") {
@@ -231,7 +181,6 @@ if($_GET['func'] == "edit")
 				
 				$oUser->setAvatarType(REMOTE_AVATAR);
 				$oUser->setAvatarLocation($_POST['Remote_Avatar_URL']);
-
 			}
 			
 			$oUser->setMail($_POST['Email']);
@@ -270,22 +219,20 @@ if($_GET['func'] == "edit")
 			$oUser->setBirthday($birthdate);
 
 			$oUser->update();
-			info_box($lang['Edit_Profile'], $lang['Profile_Updated'], "index.php");
+			showMessage(ERR_CODE_PROFILE_UPDATE_SUCCESS, "profile.php?id=".$user['user_id']);
 		}
+
 	} else {
 		$sql = $db2->query("SELECT *
 			FROM `_PREFIX_users`
 			WHERE `user_id` = :user_id",
-			array(
-				":user_id" => $user['user_id']
-			)
-		);
+			array(":user_id" => $user['user_id']));
 		
 		$oUser = User::findUser($user['user_id']);
 		if($oUser != null) {
 			$ims = $oUser->getMessengers();
-			$theme->new_file("edit_profile", "edit_profile.tpl", "");
-			$theme->replace_tags("edit_profile", array(
+			$tplEditProfile = new Template("edit_profile.tpl");
+			$tplEditProfile->setVars(array(
 				"EMAIL" => $oUser->getEmail(),
 				"EMAIL2" => $oUser->getEmail(),
 				"SIGNATURE" => $oUser->getSignature(),
@@ -302,12 +249,12 @@ if($_GET['func'] == "edit")
 			));
 
 			$birthday = explode("-", $oUser->getBirthday());
-			$day 	  = $birthday[2];
-			$month 	  = $birthday[1];
-			$year 	  = ifelse($birthday[0], $birthday[0], '');
+			$day = $birthday[2];
+			$month = $birthday[1];
+			$year = $birthday[0] ?: '';//ifelse($birthday[0], $birthday[0], '');
 			$day_options = '';
 			for($i = 1; $i<=31; $i++) {
-                $day_options   .= fetch_make_options($i, $i, $day);
+                $day_options .= fetch_make_options($i, $i, $day);
             }
             
 			$month_options = '';
@@ -319,31 +266,25 @@ if($_GET['func'] == "edit")
 			for($i = 1905; $i <= 2020; $i++) {
                 $year_options .= fetch_make_options($i, $i, $year);
             }
-            
-			$theme->replace_tags("edit_profile", array(
+            $tplEditProfile->setVars(array(
 				"DAY_OPTS"   => $day_options,
 				"MONTH_OPTS" => $month_options,
 				"YEAR_OPTS"  => $year_options,
 			));
 
 			if($oUser->getAvatarType() == NO_AVATAR) {
-				$theme->switch_nest("edit_profile", "current_avatar", false);
-				$theme->add_nest("edit_profile", "current_avatar");
+				$tplEditProfile->addToBlock("current_avatar_off", array());
 			} else {
 				list($user['user_avatar_width'], $user['user_avatar_height']) = explode("x", $user['user_avatar_dimensions']);
 				if($oUser->getAvatarType() == UPLOADED_AVATAR) {
 					$avatar_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
 				}
-				$theme->switch_nest("edit_profile", "current_avatar", true, array(
+				$tplEditProfile->addToBlock("current_avatar_on", array(
 					"AVATAR_LOCATION" => $avatar_loc,
 					"AVATAR_HEIGHT" => $user['user_avatar_height'],
 					"AVATAR_WIDTH" => $user['user_avatar_width']
 				));
-				$theme->add_nest("edit_profile", "current_avatar");
 			}
-
-			$template_count = 0;
-			$theme->insert_nest("edit_profile", "template_select");
 
 			$template_sql = "SELECT `template_id`, `template_name` FROM `_PREFIX_templates`";
 			if($user['user_level'] < 5) {
@@ -352,21 +293,12 @@ if($_GET['func'] == "edit")
 			
 			$template_query = $db2->query($template_sql);
 			while($template_result = $template_query->fetch()) {
-				$theme->insert_nest("edit_profile", "template_select/template_select_option", array(
+				$tplEditProfile->addToBlock("template_select_option", array(
 					"TEMPLATE_ID" => $template_result['template_id'],
 					"TEMPLATE_NAME" => $template_result['template_name'],
 					"TEMPLATE_SELECTED" => ($template_result['template_id'] == $oUser->getTemplateId()) ? "selected=\"selected\"" : ""
 				));
-				$theme->add_nest("edit_profile", "template_select/template_select_option");
-				$template_count++;
 			}
-
-			if($template_count > 1) {
-				$theme->add_nest("edit_profile", "template_select");
-			}
-
-			$language_count = 0;
-			$theme->insert_nest("edit_profile", "language_select");
 
 			$language_sql = "SELECT `language_id`, `language_name` FROM `_PREFIX_languages`";
 			if($user['user_level'] < 5) {
@@ -375,37 +307,91 @@ if($_GET['func'] == "edit")
 			
 			$language_query = $db2->query($language_sql);
 			while($language_result = $language_query->fetch()) {
-				$theme->insert_nest("edit_profile", "language_select/language_select_option", array(
+				$tplEditProfile->addToBlock("language_select_option", array(
 					"LANGUAGE_ID" => $language_result['language_id'],
 					"LANGUAGE_NAME" => $language_result['language_name'],
 					"LANGUAGE_SELECTED" => ($language_result['language_id'] == $oUser->getLanguageId()) ? "selected=\"selected\"" : ""
 				));
-				$theme->add_nest("edit_profile", "language_select/language_select_option");
-				$language_count++;
 			}
 
-			if($language_count > 1) {
-				$theme->add_nest("edit_profile", "language_select");
-			}
-
-			include_once($root_path . "includes/page_header.php");
-			$theme->output("edit_profile");
-			include_once($root_path . "includes/page_footer.php");
+			outputPage($tplEditProfile);
+			exit();
 		}
 	}
+}else if($_GET['func'] == "CloseAccount"){
+	if($user['user_id'] < 0) {
+		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
+	}
+	if(isset($_GET['token'])){
+		// TODO : Delete account
+		// GET WHO'S THE TOKEN GIVEN TO
+
+		$token = $_GET['token'];
+		$retrieve_user_id_template = "SELECT * FROM `_PREFIX_users_token` where `token`=:token";
+
+		$db2->query($retrieve_user_id_template, array(":token" => $token));
+
+		$user_token = $db2->fetch();
+		$user_id = $user_token['user_id'];
+
+		if(isset($user_id)){
+			// Remove the user email and set the account as "inactive"
+			$remove_account = "UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid";
+			$db2->query($remove_account, array(":userid" => $user_id));
+
+			// remove the token
+			$remove_token_template = "DELETE FROM `_PREFIX_users_token`
+									  WHERE `user_id` = :userid";
+
+			$db2->query($remove_token_template, array(":userid" => $user_id));
+
+
+			// Then logout user
+			setcookie("UserName");
+			setcookie("Password");
+			$_SESSION['user_id'] = -1;
+			session_regenerate_id();
+
+			$db2->query("DELETE FROM `_PREFIX_sessions`
+						 WHERE `ip` = :remote_ip",
+						 array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
+
+			showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
+		}
+		else{
+			showMessage(ERR_CODE_INVALID_TOKEN_ID, "profile.php?func=edit");
+		}
+	} else {
+		$oUser = User::findUser($user['user_id']);
+
+		// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
+		$token = md5(time().$user['user_id']);
+
+		$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
+						 VALUES (:user_id, :token, :token_type)";
+		$params = array(
+			':user_id' => $user['user_id'],
+			':token' => $token,
+			':token_type' => 1);
+
+		$db2->query($template_sql, $params);
+
+		showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
+	}
+
 } else {
 	if(!isset($_GET['id']) || $_GET['id'] < 0) {
-        error_msg($lang['Error'], $lang['Invalid_User_Id']);
+		showMessage(ERR_CODE_INVALID_USER_ID, "index.php");
     }
-    
+
     $oUser = User::findUser($_GET['id']);
 	$db2->query("SELECT `rank_name` FROM `_PREFIX_ranks` WHERE `rank_id`=:rid", array(":rid" => $oUser->getRankId()));
 	$result = $db2->fetch();
 
 	if($oUser != null && isset($result["rank_name"])) {
 		$ims = $oUser->getMessengers();
-		$theme->new_file("view_profile", "view_profile.tpl", "");
-		$theme->replace_tags("view_profile", array(
+		$tplViewProfile = new Template("view_profile.tpl");
+		$tplViewProfile->setVars(array(
 			"USER_ID" => $oUser->getId(),
 			"USERNAME" => $oUser->getUsername(),
 			"ABOUT_USER" => sprintf($lang['About_X'], $oUser->getUsername()),
@@ -448,7 +434,7 @@ if($_GET['func'] == "edit")
     	if(!$age) {
     		$age = '';
     	}
-    	$theme->replace_tags("view_profile", array(
+    	$tplViewProfile->setVars(array(
     		"BIRTHDAY" => $birthday,
     		"USER_AGE" => $age,
     	));
@@ -458,13 +444,9 @@ if($_GET['func'] == "edit")
     	// ===========================
     	$sig = $oUser->getSignature();
     	if(!empty($sig)) {
-        	$theme->replace_tags("view_profile", array(
-    			"SIGNATURE" => format_text($sig)
-        	));
+			$tplViewProfile->setVar("SIGNATURE", format_text($sig));
     	} else {
-        	$theme->replace_tags("view_profile", array(
-    			"SIGNATURE" => $lang['None']
-        	));
+			$tplViewProfile->setVar("SIGNATURE", $lang['None']);
     	}
 
     	// ===========================
@@ -474,13 +456,12 @@ if($_GET['func'] == "edit")
     		if($oUser->getAvatarType() == UPLOADED_AVATAR) {
     			$av_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
     		}
-    		$theme->switch_nest("view_profile", "avatar", true, array(
+    		$tplViewProfile->addToBlock("avatar_on", array(
     			"AUTHOR_AVATAR_LOCATION" => $av_loc
     		));
     	} else {
-    		$theme->switch_nest("view_profile", "avatar", false);
+			$tplViewProfile->addToBlock("avatar_off", array());
     	}
-    	$theme->add_nest("view_profile", "avatar");
 
     	// ===========================
     	// Profile Online Status
@@ -488,32 +469,21 @@ if($_GET['func'] == "edit")
     	$online_sql = $db2->query("SELECT *
 			FROM `_PREFIX_sessions`
 			WHERE `user_id` = :user_id",
-			array(
-				":user_id" => intval($_GET['id'])
-			)
-		);
+			array(":user_id" => intval($_GET['id'])));
 		
     	if($online_sql->fetch()) {
-    		$theme->switch_nest("view_profile", "online", true);
+			$tplViewProfile->setVar("USER_ONLINE", $lang['Online']);
     	} else {
-    		$theme->switch_nest("view_profile", "online", false);
+			$tplViewProfile->setVar("USER_ONLINE", $lang['Offline']);
     	}
-    	$theme->add_nest("view_profile", "online");
 
     	// ===========================
     	// Profile Page Output
     	// ===========================
-    	include_once($root_path . "includes/page_header.php");
-    	$theme->output("view_profile");
-    	include_once($root_path . "includes/page_footer.php");
+    	outputPage($tplViewProfile);
+    	exit();
     } else {
-    	error_msg($lang['Error'] , $lang['Invalid_User_Id']);
+		showMessage(ERR_CODE_INVALID_USER_ID, "index.php");
     }
 }
-
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright � 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>
