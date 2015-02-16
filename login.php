@@ -176,6 +176,12 @@ else
 
 		if($user_id > -1)
 		{
+			if($oUser->getLevel() == -1)
+			{
+				// Compte fermé
+				info_box($lang['Error'], $lang['Account_Disabled'], "login.php");
+			}
+
 			setcookie("UserName", $oUser->getUsername(), time()+604800);
 			setcookie("Password", "What happens after midnight stays secret :^)", time()+604800);
 			$_SESSION['user_id'] = $oUser->getId();
