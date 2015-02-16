@@ -75,6 +75,45 @@ function renderAdminMenu() {
 	return $sidebar_template->render();
 }
 
+function renderSmiliePicker() {
+	global $db2;
+
+	$smilie_picker = new Template("smilie_picker.tpl");
+
+	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
+	$smilie_count = 1;
+	$smilie_url = array();
+	while($smilie = $smilie_query->fetch())
+	{
+		// Check if the smilie has already been displayed
+		if(!in_array($emotion['smilie_url'], $smilie_url))
+		{
+			// Add smilie to the array
+			$smilie_url[] = $smilie['smilie_url'];
+
+			$smilie_picker->addToBlock("smilie_button", array(
+				"EMOTICON_CODE" => $smilie['smilie_code'],
+				"EMOTICON_URL" => $smilie['smilie_url'],
+				"EMOTICON_TITLE" => $smilie['smilie_name']
+			));
+
+			$smilie_count++;
+			if($smilie_count > 20)
+			{
+				break;
+			}
+		}
+	}
+
+	return $smilie_picker->render();
+}
+
+function renderBBCodeEditor() {
+	$bbcode_editor = new Template("bbcode_editor.tpl");
+
+	return $bbcode_editor->render();
+}
+
 /**
  * outputPage Outputs the page master with the specified master layout.
  * 
