@@ -24,6 +24,11 @@ $lang['Account_Has_Been_Removed'] = "Account has been removed";
 $lang['Account_Has_Been_Removed_Message'] = "Your account is now inactive, we have removed your email from our database.";
 $lang['Invalid_Token_Id'] = "Invalid token ID, please try again";
 
+$lang['Body_On_Pm'] = "Hi, please consider closing my account, [url=http://";
+$lang['Body_On_Pm_2'] = "]by clicking on this link[/url]. Thank you.";
+$lang['Title_On_Pm'] = "Please disable my account";
+
+
 //
 // Edit Profile
 //

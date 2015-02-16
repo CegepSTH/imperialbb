@@ -1,19 +1,13 @@
-<table width="100%">
- <tr>
-  <td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <b>{L.Edit_Profile}</b></td>
- </tr>
-</table>
+<div class="breadcrumb">
+	<a href="index.php">{C.site_name}</a> &raquo; <b>{L.Edit_Profile}</b>
+</div>
 
 <!-- BLOCK error -->
-<table width="100%" class="maintable">
- <tr>
-  <th>{L.Error}</th>
- <tr>
-  <td class="cell2">
-   {ERRORS}
-  </td>
- </tr>
-</table>
+<div class="block-form-admin" style="text-align:center;">
+	<h3>{L.error}</h3>
+	<br />
+	{ERRORS}
+</div>
 <br />
 <!-- END BLOCK error -->
 
@@ -147,7 +141,7 @@
 	<div class="form-admin-row">
 		<label for="close_account">{L.Close_Account}</label>
 		<label>
-			<a href="profile.php?func=CloseAccount" name="close_account">Click here</a>
+			<a href="profile.php?func=CloseAccount" name="close_account" id="close_account">Click here</a>
 		</label>
 	</div>
 	<h4>

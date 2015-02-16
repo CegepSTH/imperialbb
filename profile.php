@@ -347,14 +347,17 @@ if($_GET['func'] == "edit")
 
 
 			// Then logout user
-			setcookie("UserName");
-			setcookie("Password");
-			$_SESSION['user_id'] = -1;
-			session_regenerate_id();
+			if($user['user_level'] < 5) {
 
-			$db2->query("DELETE FROM `_PREFIX_sessions`
+				setcookie("UserName");
+				setcookie("Password");
+				$_SESSION['user_id'] = -1;
+				session_regenerate_id();
+
+				$db2->query("DELETE FROM `_PREFIX_sessions`
 						 WHERE `ip` = :remote_ip",
-						 array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
+					array(":remote_ip" => $_SERVER['REMOTE_ADDR']));
+			}
 
 			showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
 		}
@@ -364,7 +367,7 @@ if($_GET['func'] == "edit")
 	} else {
 		$oUser = User::findUser($user['user_id']);
 
-		// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
+
 		$token = md5(time().$user['user_id']);
 
 		$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
@@ -376,7 +379,47 @@ if($_GET['func'] == "edit")
 
 		$db2->query($template_sql, $params);
 
+		// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
+		// Sinon.. Envoyer un PM aux admin.
+
+		$get_smtp_config = "SELECT *
+							FROM `ibb_config`
+							WHERE `config_name` = :use_smtp";
+		$db2->query($get_smtp_config, array(":use_smtp" => "use_smtp"));
+		$use_smtp = $db2->fetch();
+
+		if($use_smtp['config_value'] == 0) {
+
+			// Get all administrators
+			$db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
+
+			$body = $lang['Body_On_Pm'].$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].'&token='.$token.$lang['Body_On_Pm_2'];
+
+			while($administrator = $db2->fetch()) {
+				$db2->query("INSERT INTO `" . $db_prefix . "pm`
+						VALUES (
+						'',
+						:title,
+						:body,
+						:receiver,
+						:sender,
+						'1',
+						'1',
+						:pm_time
+						)",
+					array(
+						":title" => $lang['Title_On_Pm'],
+						":body" => $body,
+						":receiver" => $administrator['user_id'],
+						":sender" => $user['user_id'],
+						":pm_time" => time()
+					)
+				);
+			}
+		}
+		// Ça me dit fuckall ces err code là avec le show message...
 		showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
+
 	}
 
 } else {
