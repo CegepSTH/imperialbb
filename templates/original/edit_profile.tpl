@@ -144,6 +144,12 @@
 			{L.False}<input type="radio" name="email_on_pm" value="0" {EOP_FALSE}>
 		</label>
 	</div>
+	<div class="form-admin-row">
+		<label for="close_account">{L.Close_Account}</label>
+		<label>
+			<a href="profile.php?func=CloseAccount" name="close_account">Click here</a>
+		</label>
+	</div>
 	<h4>
 	   <input type="submit" name="Submit" value="{L.Submit}" />&nbsp;&nbsp;<input type="reset" value="{L.Reset}" />
 	</h4>
