@@ -369,11 +369,10 @@ if($_GET['func'] == "edit")
 
 		$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
 						 VALUES (:user_id, :token, :token_type)";
-		$params = [
+		$params = array(
 			':user_id' => $user['user_id'],
 			':token' => $token,
-			':token_type' => 1
-		];
+			':token_type' => 1);
 
 		$db2->query($template_sql, $params);
 
