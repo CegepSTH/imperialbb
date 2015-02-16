@@ -39,4 +39,7 @@ $lang['err_code'.ERR_CODE_TOPIC_TYPE_CHANGE_SUCCESS] = "Topic's type was changed
 $lang['err_code'.ERR_CODE_PROFILE_CANT_CHANGE_AVATAR] = "Couldn't change avatar.";
 $lang['err_code'.ERR_CODE_PROFILE_UPDATE_SUCCESS] = "Profile updated successfully.";
 $lang['err_code'.ERR_CODE_INVALID_USER_ID] = "Invalid user id.";
+$lang['err_code'.ERR_CODE_INVALID_TOKEN_ID] = "Invalid token id.";
+$lang['err_code'.ERR_CODE_ACCOUNT_DELETED_SUCCESS] = "Account was deleted with success.";
+$lang['err_code'.ERR_CODE_DELETION_CHECK_MAIL] = "A confirmation mail has been sent.";
 ?>

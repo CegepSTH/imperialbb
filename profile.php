@@ -356,10 +356,10 @@ if($_GET['func'] == "edit")
 						 WHERE `ip` = :remote_ip",
 						 array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
 
-			info_box($lang['Account_Has_Been_Removed'], $lang['Account_Has_Been_Removed_Message'], "index.php");
+			showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
 		}
 		else{
-			info_box($lang['Error'], $lang['Invalid_Token_Id'], "profile.php?func=edit");
+			showMessage(ERR_CODE_INVALID_TOKEN_ID, "profile.php?func=edit");
 		}
 	} else {
 		$oUser = User::findUser($user['user_id']);
@@ -376,7 +376,7 @@ if($_GET['func'] == "edit")
 
 		$db2->query($template_sql, $params);
 
-		info_box($lang['Edit_Profile'], $lang['Check_Mail'], "profile.php?func=edit");
+		showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
 	}
 
 } else {
