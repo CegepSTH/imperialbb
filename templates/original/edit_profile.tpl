@@ -72,16 +72,16 @@
 		<em>{L.Only_fill_in_if_you_want_to_change_your_avatar}</em>
 	</div>
 	<div class="form-admin-row">
-		<label>{L.Current_Avatar}</label>
-		<label>
+		<label style="vertical-align:top;">{L.Current_Avatar}</label>
 		  	<!-- BLOCK current_avatar_on -->
 			<img src="{AVATAR_LOCATION}" height="{AVATAR_HEIGHT}" width="{AVATAR_WIDTH}" /><br />
-			<label for="Delete_Avatar">{L.Delete_Avatar}&nbsp;<input type="checkbox" name="Delete_Avatar" id="Delete_Avatar" /></label>
+			<label></label>
+			<span style="vertical-align:middle;">{L.Delete_Avatar}&nbsp;&nbsp;
+			<input style="vertical-align:middle;" type="checkbox" name="Delete_Avatar" id="Delete_Avatar" /></span>
 			<!-- END BLOCK current_avatar_on -->
 			<!-- BLOCK current_avatar_off -->
-			{L.No_Current_Avatar_Msg}
+			<label><span>{L.No_Current_Avatar_Msg}</span></label>
 			<!-- END BLOCK current_avatar_off -->
-		</label>
 	</div>
 	<div class="form-admin-row">
 		<label for="Remote_Avatar_URL">{L.Remote_Avatar}</label>
