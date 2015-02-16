@@ -320,16 +320,16 @@ if($_GET['func'] == "edit")
 	}
 }else if($_GET['func'] == "CloseAccount"){
 	if($user['user_id'] < 0) {
-		info_box($lang['Error'], $lang['Must_Be_Logged_In'], "login.php");
+		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 	}
 	if(isset($_GET['token'])){
 		// TODO : Delete account
 		// GET WHO'S THE TOKEN GIVEN TO
 
 		$token = $_GET['token'];
-		$retrieve_user_id_template = "SELECT * FROM `_PREFIX_users_token` where `token` = '$token'";
+		$retrieve_user_id_template = "SELECT * FROM `_PREFIX_users_token` where `token`=:token";
 
-		$db2->query($retrieve_user_id_template);
+		$db2->query($retrieve_user_id_template, array(":token" => $token));
 
 		$user_token = $db2->fetch();
 		$user_id = $user_token['user_id'];
@@ -337,7 +337,7 @@ if($_GET['func'] == "edit")
 		if(isset($user_id)){
 			// Remove the user email and set the account as "inactive"
 			$remove_account = "UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid";
-			$db2->query($remove_account);
+			$db2->query($remove_account, array(":userid" => $user_id));
 
 			// remove the token
 			$remove_token_template = "DELETE FROM `_PREFIX_users_token`
