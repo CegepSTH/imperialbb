@@ -13,7 +13,7 @@
 	<b>{ACTION}</b>
 </div>
 <!-- END BLOCK nav_reply -->
-<!-- BEGIN error -->
+<!-- BLOCK error -->
 <div class="panel bottom-border editor-error-panel post-error-panel">
 	<div class="panel-header">
 		{L.The_following_errors_occoured}:
@@ -22,7 +22,7 @@
 		{ERRORS}
 	</div>
 </div>
-<!-- END error -->
+<!-- END BLOCK error -->
 <form name="new_topic" method="post" action="" class="panel editor-panel post-edit-panel">
 	{CSRF_TOKEN}
 	<input type="hidden" name="current_poll_choices" value="{CURRENT_POLL_CHOICES}" />
@@ -95,19 +95,19 @@
 			{SMILIES_ENABLED_MSG}<br >
 		</div>
 		<div class="value">
-			<!-- BEGIN disable_html -->
+			<!-- BLOCK disable_html -->
 			<label for="disable_html"><input type="checkbox" name="disable_html" id="disable_html" />{L.Disable_HTML}</label><br />
-			<!-- END disable_html -->
-			<!-- BEGIN disable_bbcode -->
+			<!-- END BLOCK disable_html -->
+			<!-- BLOCK disable_bbcode -->
 			<label for="disable_bbcode"><input type="checkbox" name="disable_bbcode" id="disable_bbcode" />{L.Disable_BBCode}</label><br />
-			<!-- END disable_bbcode -->
-			<!-- BEGIN disable_smilies -->
+			<!-- END BLOCK disable_bbcode -->
+			<!-- BLOCK disable_smilies -->
 			<label for="disable_smilies"><input type="checkbox" name="disable_smilies" id="disable_smilies" />{L.Disable_Smilies}</label><br />
-			<!-- END disable_smilies -->
-			<!-- BEGIN logged_in -->
+			<!-- END BLOCK disable_smilies -->
+			<!-- BLOCK logged_in -->
 			<label for="subscribe_to_topic"><input type="checkbox" name="subscribe_to_topic" id="subscribe_to_topic" />{L.Subscribe_To_Topic}</label><br />
 			<label for="attach_signature"><input type="checkbox" name="attach_signature" id="attach_signature" checked="checked" />{L.Attach_Signature}</label><br />
-			<!-- END logged_in -->
+			<!-- END BLOCK logged_in -->
 		</div>
 	</div>
 
@@ -129,7 +129,7 @@
 	</div>
 	<!-- END BLOCK poll_header -->
 
-	<!-- BEGIN pollchoice_row -->
+	<!-- BLOCK pollchoice_row -->
 	<div class="editor-row">
 		<div class="label">
 			{POLL_CHOICE_DESC}
