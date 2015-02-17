@@ -1,19 +1,4 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: functions.php                                              # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright � 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 if(!defined("IN_IBB")) {
 	die("Hacking Attempt");
 }
@@ -152,6 +137,8 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
     }
 
 	if($insert_bbcode) {
+		$text = bbcode($text);
+		/*
 		// [b]Bold Text[/b]
 		$bb_search[] = "#\[b\]((\[(?!/b\])|(\n|.))*?)\[/b\]#is";
 		$bb_replace[] = "<b>\\1</b>";
@@ -219,6 +206,7 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 		$text = preg_replace($bb_search, $bb_replace, $text);
 
 		$text = preg_replace("#\r\n#i", "<br />", $text); // Je ne sais pas si ça fonctionne...
+		* */
 	}
 	return $text;
 }
@@ -239,86 +227,107 @@ function insertsmilies($post)
     return $post;
 }
 
+function bbcode_fixed_replace($op, $end, array &$matches, $post) {
+	foreach($matches as $key => $value) {
+		$curr_value = substr($value, strpos($value, ":")+1, -1);
+		
+		if(intval($curr_value) < 0) {
+			$post = str_replace($value, substr($value, 0, strpos($value, ":"))."]", $post);
+			break;
+		}
+		
+		$needle = "[". (strpos($value, "/") === false ? "/" : "") .substr($value, 1, strpos($value, ":")).$curr_value."]";
+		
+		if(in_array($needle, $matches)) {
+			$post = str_replace($value, $op, $post);
+			$post = str_replace($needle, $end, $post);
+		} 
+	}
+	
+	return $post;
+}
+
 //===========================================
 // @Name: function bbcode();
 // @Desc: Handles BBCode methods
 //===========================================
-function bbcode($post, $change_html = true)
-{
-    global $lang;
-    // Change HTML to none HTML //
-    if($change_html) {
-		$post = preg_replace("#<#i", "&lt;", $post);
-		$post = preg_replace("#>#i", "&gt;", $post);
-    }
+function bbcode($post)
+{	
+	global $lang;
+	$matches = array();
 
-    // [b]Bold Text[/b]
-    $bb_search[] = "#\[b\]([\w\#$%&~/.\-;:=,?@\r\n \[\]+]*?)\[/b\]#is";
-    $bb_replace[] = "<b>\\1</b>";
+	// Code
+	$matches = array();
+	$post = match_nested_tags($post, "[code]", "[/code]", $matches);
+	
+	$subs = array();
+	preg_match_all("#\[code:0\](.*?)\[\/code:0\]#s", $post, $subs);
+	
+	// Anti-parse code muahauhau
+	foreach($subs as $key => $value) {
+		$filtered = str_replace("[", "&#91;", $value[0]);
+		$filtered = str_replace("]", "&#93;", $filtered);
+		$post = str_replace("[code:0]".$value[0]."[/code:0]", 
+			"<div class=\"quotetable\"><strong>".$lang['Code']."</strong><br><div style=\"font-family: monospace, serif;margin-left:1.25%;\">".$filtered."</div></div>",
+			$post);
+	}
+	// Replace all occurences like [code:-1] :^)
+	$post = preg_replace("#&\#91;code:-?[1-9]\&\#93;#", "[code]", $post);
+	$post = preg_replace("#&\#91;\/code:-?[1-9]\&\#93;#", "[/code]", $post);
 
-    // [u]Underlined Text[/u]
-    $bb_search[] = "#\[u\]([\w\#$%&~/.\-;:=,?@\r\n \[\]+]*?)\[/u\]#is";
-    $bb_replace[] = "<u>\\1</u>";
+	// Bold tag. 
+	$post = match_nested_tags($post, "[b]", "[/b]", $matches);
+	$post = bbcode_fixed_replace("<strong>", "</strong>", $matches, $post);
+		
+	// Italic tag.
+	$matches = array();
+	$post = match_nested_tags($post, "[i]", "[/i]", $matches);
+	$post = bbcode_fixed_replace("<em>", "</em>", $matches, $post);
 
-    // [i]Italics Text[/i]
-    $bb_search[] = "#\[i\]([\w\#$%&~/.\-;:=,?@\r\n \[\]+]*?)\[/i\]#is";
-    $bb_replace[] = "<i>\\1</i>";
+	// Underline tag.
+	$matches = array();
+	$post = match_nested_tags($post, "[u]", "[/u]", $matches);
+	$post = bbcode_fixed_replace("<span style=\"text-decoration:underline;\">", "</span>", $matches, $post);
 
-    // [hr]
-    $bb_search[] = "#\[hr\]#is";
-    $bb_replace[] = "<hr />";
+	// HR
+	$post = str_replace("[hr]", "<hr>", $post);
+		
+	//[img]
+	$post = preg_replace("#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#s",
+		"<img src=\"$1$2\">", $post);
 
-	// [img]http://www.domain.com[/img]
-    $bb_search[] = "#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#is";
-    $bb_replace[] = "<img src=\"\\1\\2\" />";
-
-    // [url=http://www.domain.com]Domain[/url] (With xxxx:// prefix)
-    $bb_search[] = "#\[url=(([\w]+?://)?[\#$\w%~/&.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#is";
-    $bb_replace[] = "<a href=\"\\1\" target=\"blank\">\\3</a>";
-
+	// [url=]
+	$post = preg_replace("#\[url=(([\w]+?://)?[\#$\w%~/&.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#s", 
+		"<a href=\"\\1\" target=\"blank\">\\3</a>", $post);
+	
     // [url=www.domain.com]Domain[/url] (Without xxxx:// prefix)
-    $bb_search[] = "#\[url=([\w\#$%&~/.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#is";
-    $bb_replace[] = "<a href=\"http://\\1\" target=\"blank\">\\2</a>";
+    $post = preg_replace("#\[url=([\w\#$%&~/.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#is", 
+		"<a href=\"http://\\1\" target=\"blank\">\\2</a>", $post);
 
-    // [url]http://www.domain.com[/url] (With xxxx:// prefix)
-    $bb_search[] = "#\[url\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is";
-    $bb_replace[] = "<a href=\"\\1\\2\" target=\"blank\">\\2</a>";
+	$post = preg_replace("#\[url\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is",
+		"<a href=\"\\1\\2\" target=\"blank\">\\2</a>", $post);
 
     // [url]www.domain.com[/url] (Without xxxx:// prefix)
-    $bb_search[] = "#\[url\]((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is";
-    $bb_replace[] = "<a href=\"http://\\1\" target=\"blank\">\\1</a>";
+    $post = preg_replace("#\[url\]((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is", "<a href=\"http://$1\" target=\"blank\">$1</a>", $post);
 
     // [color=xxx]Text[/color]
-    $bb_search[] = "#\[color=([a-zA-Z]+|\#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))\]((\[(?!/color\])|(\n|.))*?)\[/color\]#is";
-    $bb_replace[] = "<span style=\"color:\\1\">\\3</span>";
+    $post = preg_replace("#\[color=([a-zA-Z]+|\#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))\]((\[(?!/color\])|(\n|.))*?)\[/color\]#s", 
+		"<span style=\"color:$1;\">$3</span>", $post);
 
     // [size=xxx]Text[/size]
-    $bb_search[] = "#\[size=([1-4](\.5)?)\]((\[(?!/size\])|(\n|.))*?)\[/size\]#is";
-    $bb_replace[] = "<span style=\"font-size:\\1ex\">\\3</span>";
+    $post = preg_replace("#\[size=([1-4](\.5)?)\]((\[(?!/size\])|(\n|.))*?)\[/size\]#s", 
+		"<span style=\"font-size:$1em;\">$3</span>", $post);
 
     // [align=xxx]Text[/align]
-    $bb_search[] = "#\[align=(left|center|right)\]((\[(?!/align\])|(\n|.))*?)\[/align\]#is";
-    $bb_replace[] = "<div align=\"\\1\">\\2</div>";
+    $post = preg_replace("#\[align=(left|center|right)\]((\[(?!/align\])|(\n|.))*?)\[/align\]#s", 
+		"<span style=\"display: block;text-align:$1;\">$2</span>", $post);
 
-    // [quote]Text[/quote]
-    $bb_search[] = "#\[quote\]((\[(?!/quote\])|(\n|.))*?)\[/quote\]#is";
-    $bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Quote']."</b></td></tr><tr><td>\\1</td></table>";
-
-    // [quote=xxx]Text[/quote]
-    $bb_search[] = "#\[quote=([\w\#$%&~/.\-;:=,?@\r\n \[\]\(\)\?+]*?)\]((\[(?!/quote\])|(\n|.))*?)\[/quote\]#is";
-    $bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Quote']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
-
-    // [code]Text[/code]
-    $bb_search[] = "#\[code\]((\[(?!/code\])|(\n|.))*?)\[/code\]#is";
-    $bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b></td></tr><tr><td>\\1</td></table>";
-
-    // [code=zzz]Text[/code]
-    $bb_search[] = "#\[code=([\w\#$%&~/.\-;:=,?@\r\n \[\]\(\)\?+]*?)\]((\[(?!/code\])|(\n|.))*?)\[/code\]#is";
-    $bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
-
-    $post = preg_replace($bb_search, $bb_replace, $post);
-
-	$post = preg_replace("##i", "<br />", $post); 
+	// Quotes
+	$matches = array();
+	$post = match_nested_tags($post, "[quote]", "[/quote]", $matches);
+	$post = bbcode_fixed_replace("<div class=\"quotetable\"><strong>".$lang['Quote']."</strong><br><div style=\"margin-left:1.25%;\">", 
+		"</div></div>", $matches, $post);
+	
     return $post;
 }
 
@@ -801,8 +810,5 @@ function showMessage($err_code, $str_returnUrl = "index.php") {
 	header("location: message.php?code=".$err_code);
 	exit();
 }
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright � 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
+
+?>
