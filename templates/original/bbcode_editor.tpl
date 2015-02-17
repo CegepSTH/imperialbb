@@ -22,56 +22,58 @@
 	}
 </script>
 <div class="bbcode-editor">
-	<input
-		type="button"
-		name="bold"
-		value="{L.B}"
-		accesskey="b"
-		onclick="javascript:add_bbcode('b');" />
 
-	<input
-		type="button"
-		name="underline"
-		value="{L.U}"
-		accesskey="u"
-		onclick="javascript:add_bbcode('u');" />
+	<div class="button-row">
 
-	<input
-		type="button"
-		name="italics"
-		value="{L.I}"
-		accesskey="i"
-		onclick="javascript:add_bbcode('i');" />
+		<input
+			type="button"
+			name="bold"
+			value="{L.B}"
+			accesskey="b"
+			onclick="javascript:add_bbcode('b');" />
 
-	<input
-		type="button"
-		name="quote"
-		value="{L.Quote}"
-		accesskey="q"
-		onclick="javascript:add_bbcode('quote');" />
+		<input
+			type="button"
+			name="underline"
+			value="{L.U}"
+			accesskey="u"
+			onclick="javascript:add_bbcode('u');" />
 
-	<input
-		type="button"
-		name="code"
-		value="{L.Code}"
-		accesskey="c"
-		onclick="javascript:add_bbcode('code');" />
+		<input
+			type="button"
+			name="italics"
+			value="{L.I}"
+			accesskey="i"
+			onclick="javascript:add_bbcode('i');" />
 
-	<input
-		type="button"
-		name="url"
-		value="{L.URL}"
-		accesskey=""
-		onclick="javascript:add_bbcode('url');" />
+		<input
+			type="button"
+			name="quote"
+			value="{L.Quote}"
+			accesskey="q"
+			onclick="javascript:add_bbcode('quote');" />
 
-	<input
-		type="button"
-		name="image"
-		value="{L.Img}"
-		accesskey=""
-		onclick="javascript:add_bbcode('img');" />
+		<input
+			type="button"
+			name="code"
+			value="{L.Code}"
+			accesskey="c"
+			onclick="javascript:add_bbcode('code');" />
 
-	<br />
+		<input
+			type="button"
+			name="url"
+			value="{L.URL}"
+			accesskey=""
+			onclick="javascript:add_bbcode('url');" />
+
+		<input
+			type="button"
+			name="image"
+			value="{L.Img}"
+			accesskey=""
+			onclick="javascript:add_bbcode('img');" />
+	</div>
 
 	<div class="font-size-selector">
 		{L.Font_Size}

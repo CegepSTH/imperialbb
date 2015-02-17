@@ -21,11 +21,16 @@
 	<div class="panel-body">
 		<!-- BLOCK smilie_button -->
 		<div class="smilie">
-			<a onclick="javascript:add_emoticon('{EMOTICON_CODE}');">
+			<a onclick="add_emoticon('{EMOTICON_CODE}');">
 				<img src="{C.smilies_url}/{EMOTICON_URL}" alt="{EMOTICON_TITLE}" title="{EMOTICON_TITLE}" />
 			</a>
 		</div>
 		<!-- END BLOCK smilie_button -->
+		<!-- BLOCK smilie_row -->
+		<div class="smilie-row">
+			{ROW_CONTENTS}
+		</div>
+		<!-- END BLOCK smilie_row -->
 	</div>
 	<div class="panel-footer">
 		{L.Show_All_Emoticons}
