@@ -1108,3 +1108,32 @@ so they span mutiple lines (up to three).
 	margin: 5px;
 }
 
+.pm-view-panel .panel-body .pm-body-wrapper
+{
+	padding-top: 5px;
+}
+.pm-view-panel .panel-body .user
+{
+	padding: 10px 5px 5px 5px;
+}
+.pm-view-panel .panel-body .user
+{
+	background: #f0f0f0;
+	width: 250px;
+}
+.pm-view-panel .panel-body .user-display
+{
+	text-align: center;
+}
+.pm-view-panel .panel-body .pm-body-wrapper
+{
+	margin-left: 255px;
+}
+.pm-view-panel .panel-body .pm-body-wrapper .date
+{
+	margin-top: 5px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 5px;
+}
+

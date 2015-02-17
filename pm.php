@@ -433,14 +433,14 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 
 	if($result = $sql->fetch())
 	{
-		$theme->new_file("view_pm", "view_pm.tpl");
+		$page_master = new Template("view_pm.tpl");
 
 		if(!empty($result['user_signature']))
 		{
 			$result['user_signature'] = "<br /><br />\n----------<br />\n".format_text($result['user_signature']);
 		}
 
-		$theme->replace_tags("view_pm", array(
+		$page_master->setVars(array(
 			"AUTHOR_USERNAME" => $result['username'],
 			"AUTHOR_RANK" => ($result['user_id'] > 0) ? $result['rank_name'] : "",
 			"AUTHOR_SIGNATURE" => $result['user_signature'],
@@ -451,28 +451,25 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 
 		if($result['user_id'] > 0)
 		{
-			$theme->insert_nest("view_pm", "author_standard", array(
+			$page_master->addToBlock("author_standard", array(
 				"AUTHOR_JOINED" => create_date("D d M Y", $result['user_date_joined']),
 				"AUTHOR_POSTS" => $result['user_posts']
 			));
-			$theme->add_nest("view_pm", "author_standard");
 
 			if(!empty($result['user_location']))
 			{
-				$theme->insert_nest("view_pm", "author_location", array(
+				$page_master->addToBlock("author_location", array(
 					"AUTHOR_LOCATION" => $result['user_location']
 				));
-				$theme->add_nest("view_pm", "author_location");
 			}
 		}
 
 		if(!empty($result['rank_image']))
 		{
-			$theme->insert_nest("view_pm", "rank_image", array(
+			$page_master->addToBlock("rank_image", array(
 				"AUTHOR_RANK" => $result['rank_name'],
 				"AUTHOR_RANK_IMG" => $result['rank_image']
 			));
-			$theme->add_nest("view_pm", "rank_image");
 		}
 
 		if($result['user_avatar_type'] == UPLOADED_AVATAR || $result['user_avatar_type'] == REMOTE_AVATAR)
@@ -481,10 +478,10 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 			{
 				$result['user_avatar_location'] = $root_path . $config['avatar_upload_dir'] . "/" . $result['user_avatar_location'];
 			}
-			$theme->insert_nest("view_pm", "avatar", array(
+
+			$page_master->addToBlock("avatar", array(
 				"AUTHOR_AVATAR_LOCATION" => $result['user_avatar_location']
 			));
-			$theme->add_nest("view_pm", "avatar");
 		}
 
 		if($result['pm_unread'] == "1")
@@ -500,21 +497,7 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 			}
 		}
 
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("view_pm");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
-
+		outputPage($page_master);
 	}
 	else
 	{
