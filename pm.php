@@ -30,7 +30,10 @@ if($user['user_id'] <= 0)
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 if($_GET['func'] == "send")
-{	$language->add_file("posting");
+{
+	$language->add_file("posting");
+	Template::addNamespace("L", $lang);
+
 	if(isset($_POST['Submit'])) {
 		CSRF::validate();
 
@@ -47,97 +50,45 @@ if($_GET['func'] == "send")
 		{
 			$error .= $lang['No_Post_Content'] . "<br />";
 		}
-		if(!isset($_POST['action']) || strlen($_POST['action']) < 1) {
+		if(!isset($_POST['action']) || strlen($_POST['action']) < 1)
+		{
 			$error .= $lang['Select_An_Action_PM'] . "<br />";
 		}
 		if(strlen($error) > 0)
 		{
-			$theme->new_file("send_pm", "send_pm.tpl", "");
-			$theme->replace_tags("send_pm", array(
+			$page_master = new Template("send_pm.tpl");
+
+			$page_master->setVars(array(
 				"ACTION" => $lang['Send_PM'],
-				"USERNAME" => $_POST['username'],
-				"PM_SELECTED" => (!isset($_POST['action']) || $_POST['action'] == "pm" || $_POST['action'] == "") ? "CHECKED" : "",
-				"EMAIL_SELECTED" => (isset($_POST['action']) && $_POST['action'] == "email") ? "CHECKED" : "",
 				"TITLE" => $_POST['title'],
 				"BODY" => $_POST['body'],
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
-			$theme->insert_nest("send_pm", "username");
-			$theme->add_nest("send_pm", "username");
+			$page_master->addToBlock("username", array(
+				"USERNAME" => $_POST['username'],
+				"PM_SELECTED" => (!isset($_POST['action']) || $_POST['action'] == "pm" || $_POST['action'] == "") ? "CHECKED" : "",
+				"EMAIL_SELECTED" => (isset($_POST['action']) && $_POST['action'] == "email") ? "CHECKED" : "",
+			));
 
 			if($config['bbcode_enabled'] == true)
 			{
-				// Add the BBCode chooser to the page
-				$theme->insert_nest("send_pm", "bbcode");
-				$theme->add_nest("send_pm", "bbcode");
+				$page_master->setVar("BBCODE_EDITOR",
+					renderBBCodeEditor()
+				);
 			}
 			if($config['smilies_enabled'] == true)
 			{
-
-				// Add the emoticon chooser to the page
-				$theme->insert_nest("send_pm", "smilies");
-		 		$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-		 		$smilie_no = 1;
-				$smilie_count = 1;
-				$smilie_url = array();
-				while($smilie = $smilie_query->fetch())
-				{
-					// Check if the smilie has already been displayed
- 	      			if(!in_array($emotion['smilie_url'], $smilie_url))
- 	     	 		{
- 	      			// Add smilie to the array
- 	      				$smilie_url[] = $smilie['smilie_url'];
-
- 	      				if($smilie_no == 1)
- 	      				{
- 	      					$theme->insert_nest("send_pm", "smilies/emoticon_row");
- 	      				}
-
- 	      				$theme->insert_nest("send_pm", "smilies/emoticon_row/emoticon_cell", array(
- 	      					"EMOTICON_CODE" => $smilie['smilie_code'],
- 	      					"EMOTICON_URL" => $smilie['smilie_url'],
- 	      					"EMOTICON_TITLE" => $smilie['smilie_name']
- 	      				));
- 	      				$theme->add_nest("send_pm", "smilies/emoticon_row/emoticon_cell");
- 	      				if($smilie_no >= 5)
- 	      				{
-							$theme->add_nest("send_pm", "smilies/emoticon_row");
- 	      					$smilie_no = 1;
- 	      				}
- 	      				else
- 	      				{
- 	      					$smilie_no++;
- 	      				}
- 	      				$smilie_count++;
- 	      				if($smilie_count > 20)
- 	      				{
- 	      					break;
-	       				}
-	       			}
-				}
-				$theme->add_nest("send_pm", "smilies");
+				$page_master->setVar("SMILIE_PICKER",
+					renderSmiliePicker()
+				);
 			}
 
-			$theme->insert_nest("send_pm", "error", array(
+			$page_master->addToBlock("error", array(
 				"ERRORS" => $error
 			));
-			$theme->add_nest("send_pm", "error");
 
-			//
-			// Output the page header
-			//
-			include($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("send_pm");
-
-			//
-			// Output the page footer
-			//
-			include($root_path . "includes/page_footer.php");
+			outputPage($page_master);
 		}
 		else
 		{
@@ -203,88 +154,35 @@ if($_GET['func'] == "send")
 	}
 	else
 	{
-		$theme->new_file("send_pm", "send_pm.tpl");
-		$theme->replace_tags("send_pm", array(
+		$page_master = new Template("send_pm.tpl");
+
+		$page_master->setVars(array(
 			"ACTION" => $lang['Send_PM'],
-			"USERNAME" => (isset($_GET['username'])) ? $_GET['username'] : "",
-			"PM_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "" : "CHECKED",
-			"EMAIL_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "CHECKED" : "",
 			"TITLE" => "",
 			"BODY" => "",
 			"CSRF_TOKEN" => CSRF::getHTML()
 		));
 
-		$theme->insert_nest("send_pm", "username");
-		$theme->add_nest("send_pm", "username");
+		$page_master->addToBlock("username", array(
+			"USERNAME" => (isset($_GET['username'])) ? $_GET['username'] : "",
+			"PM_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "" : "CHECKED",
+			"EMAIL_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "CHECKED" : "",
+		));
 
 		if($config['bbcode_enabled'] == true)
 		{
-
-			// Add the BBCode chooser to the page
-			$theme->insert_nest("send_pm", "bbcode");
-			$theme->add_nest("send_pm", "bbcode");
+			$page_master->setVar("BBCODE_EDITOR",
+				renderBBCodeEditor()
+			);
 		}
 		if($config['smilies_enabled'] == true)
 		{
-
-			// Add the emoticon chooser to the page
-			$theme->insert_nest("send_pm", "smilies");
-	 	    $smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-	 	    $smilie_no = 1;
-			$smilie_count = 1;
-			$smilie_url = array();
-			while($smilie = $smilie_query->fetch())
-			{
-				// Check if the smilie has already been displayed
-       			if(!in_array($smilie['smilie_url'], $smilie_url))
-      	 		{
-	       			// Add smilie to the array
-       				$smilie_url[] = $smilie['smilie_url'];
-
-       				if($smilie_no == 1)
-       				{
-       					$theme->insert_nest("send_pm", "smilies/emoticon_row");
-       				}
-
-       				$theme->insert_nest("send_pm", "smilies/emoticon_row/emoticon_cell", array(
-       					"EMOTICON_CODE" => $smilie['smilie_code'],
-       					"EMOTICON_URL" => $smilie['smilie_url'],
-       					"EMOTICON_TITLE" => $smilie['smilie_name']
-       				));
-       				$theme->add_nest("send_pm", "smilies/emoticon_row/emoticon_cell");
-       				if($smilie_no >= 5)
-       				{
-						$theme->add_nest("send_pm", "smilies/emoticon_row");
-       					$smilie_no = 1;
-       				}
-       				else
-       				{
-       					$smilie_no++;
-       				}
-       				$smilie_count++;
-       				if($smilie_count > 20)
-       				{
-       					break;
-       				}
-       			}
-			}
-			$theme->add_nest("send_pm", "smilies");
+			$page_master->setVar("SMILIE_PICKER",
+				renderSmiliePicker()
+			);
 		}
 
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("send_pm");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
+		outputPage($page_master);
 	}
 }
 else if($_GET['func'] == "delete")
@@ -396,6 +294,7 @@ else if($_GET['func'] == "edit")
 	);
 	if($result = $sql->fetch()) {
 		$language->add_file("posting");
+		Template::addNamespace("L", $lang);
 
        	if(!isset($_GET['id'])) error_msg($lang['Error'], $lang['Invalid_PM_Id']);
        	if(isset($_POST['Submit'])) {
@@ -412,86 +311,32 @@ else if($_GET['func'] == "edit")
        		}
        		if(strlen($error) > 0)
        		{
-       			$theme->new_file("edit_pm", "send_pm.tpl", "");
-       			$theme->replace_tags("edit_pm", array(
+				$page_master = new Template("send_pm.tpl");
+
+				$page_master->setVars(array(
        				"ACTION" => $lang['Edit_PM'],
        				"TITLE" => $_POST['title'],
        				"BODY" => $_POST['body'],
 					"CSRF_TOKEN" => CSRF::getHTML()
        			));
 
-       			if($config['bbcode_enabled'] == true)
-       			{
-       				// Add the BBCode chooser to the page
-       				$theme->insert_nest("edit_pm", "bbcode");
-       				$theme->add_nest("edit_pm", "bbcode");
-       			}
-       			if($config['smilies_enabled'] == true)
-       			{
-
-       				// Add the emoticon chooser to the page
-       				$theme->insert_nest("edit_pm", "smilies");
-       		 	    $smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-       		 	   	$smilie_no = 1;
-       				$smilie_count = 1;
-       				$smilie_url = array();
-       				while($emotion = $smilie_query->fetch())
-       				{
-       					// Check if the smilie has already been displayed
-       	      			if(!in_array($smilie['smilie_url'], $smilie_url))
-       	     	 		{
-	       	      			// Add smilie to the array
-       	      				$smilie_url[] = $smilie['smilie_url'];
-
-       	      				if($smilie_no == 1)
-       	      				{
-       	      					$theme->insert_nest("edit_pm", "smilies/emoticon_row");
-       	      				}
-
-       	      				$theme->insert_nest("edit_pm", "smilies/emoticon_row/emoticon_cell", array(
-       	      					"EMOTICON_CODE" => $smilie['smilie_code'],
-       	      					"EMOTICON_URL" => $smilie['smilie_url'],
-       	      					"EMOTICON_TITLE" => $smilie['smilie_name']
-       	      				));
-       	      				$theme->add_nest("edit_pm", "smilies/emoticon_row/emoticon_cell");
-       	      				if($smilie_no >= 5)
-       	      				{
-      							$theme->add_nest("edit_pm", "smilies/emoticon_row");
-       	      					$smilie_no = 1;
-       	      				}
-       	      				else
-       	      				{
-       	      					$smilie_no++;
-       	      				}
-       	      				$smilie_count++;
-       	      				if($smilie_count > 20)
-       	      				{
-       	      					break;
-      	       				}
-       	       			}
-       				}
-       				$theme->add_nest("edit_pm", "smilies");
-       			}
-
-       			$theme->insert_nest("edit_pm", "error", array(
+				if($config['bbcode_enabled'] == true)
+				{
+					$page_master->setVar("BBCODE_EDITOR",
+						renderBBCodeEditor()
+					);
+				}
+				if($config['smilies_enabled'] == true)
+				{
+					$page_master->setVar("SMILIE_PICKER",
+						renderSmiliePicker()
+					);
+				}
+				$page_master->addToBlock("error", array(
        				"ERRORS" => $error
        			));
-       			$theme->add_nest("edit_pm", "error");
 
-       			//
-       			// Output the page header
-       			//
-       			include($root_path . "includes/page_header.php");
-
-       			//
-       			// Output the main page
-       			//
-       			$theme->output("edit_pm");
-
-       			//
-       			// Output the page footer
-       			//
-       			include($root_path . "includes/page_footer.php");
+				outputPage($page_master);
        		}
        		else
        		{
@@ -522,81 +367,29 @@ else if($_GET['func'] == "edit")
 			);
        		if($result = $sql->fetch())
        		{
-       			$theme->new_file("edit_pm", "send_pm.tpl");
-       			$theme->replace_tags("edit_pm", array(
+				$page_master = new Template("send_pm.tpl");
+
+				$page_master->setVars(array(
        				"ACTION" => $lang['Edit_PM'],
        				"TITLE" => $result['pm_title'],
        				"BODY" => $result['pm_body'],
 					"CSRF_TOKEN" => CSRF::getHTML()
        			));
 
-       			if($config['bbcode_enabled'] == true)
-       			{
-       				// Add the BBCode chooser to the page
-       				$theme->insert_nest("edit_pm", "bbcode");
-       				$theme->add_nest("edit_pm", "bbcode");
-       			}
-       			if($config['smilies_enabled'] == true)
-       			{
+				if($config['bbcode_enabled'] == true)
+				{
+					$page_master->setVar("BBCODE_EDITOR",
+						renderBBCodeEditor()
+					);
+				}
+				if($config['smilies_enabled'] == true)
+				{
+					$page_master->setVar("SMILIE_PICKER",
+						renderSmiliePicker()
+					);
+				}
 
-       				// Add the emoticon chooser to the page
-       				$theme->insert_nest("edit_pm", "smilies");
-       		 	    $smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-       		 	    $smilie_no = 1;
-       				$smilie_count = 1;
-       				$smilie_url = array();
-       				while($smilie = $smilie_query->fetch())
-       				{
-       					// Check if the smilie has already been displayed
-        	      		if(!in_array($smilie['smilie_url'], $smilie_url))
-        	     		{
-        	      			// Add smilie to the array
-        	      			$smilie_url[] = $smilie['smilie_url'];
-
-        	      			if($smilie_no == 1)
-        	      			{
-        	      				$theme->insert_nest("edit_pm", "smilies/emoticon_row");
-        	      			}
-
-        	      			$theme->insert_nest("edit_pm", "smilies/emoticon_row/emoticon_cell", array(
-        	      				"EMOTICON_CODE" => $smilie['smilie_code'],
-        	      				"EMOTICON_URL" => $smilie['smilie_url'],
-        	      				"EMOTICON_TITLE" => $smilie['smilie_name']
-        	      			));
-        	      			$theme->add_nest("edit_pm", "smilies/emoticon_row/emoticon_cell");
-        	      			if($smilie_no >= 5)
-        	      			{
-       						$theme->add_nest("edit_pm", "smilies/emoticon_row");
-        	      				$smilie_no = 1;
-        	      			}
-        	      			else
-        	      			{
-        	      				$smilie_no++;
-        	      			}
-        	      			$smilie_count++;
-        	      			if($smilie_count > 20)
-        	      			{
-        	      				break;
-       	       				}
-       	       			}
-       				}
-       				$theme->add_nest("edit_pm", "smilies");
-       			}
-
-       			//
-       			// Output the page header
-       			//
-       			include($root_path . "includes/page_header.php");
-
-       			//
-       			// Output the main page
-       			//
-       			$theme->output("edit_pm");
-
-       			//
-       			// Output the page footer
-       			//
-       			include($root_path . "includes/page_footer.php");
+				outputPage($page_master);
        		}
        		else
        		{
@@ -640,14 +433,14 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 
 	if($result = $sql->fetch())
 	{
-		$theme->new_file("view_pm", "view_pm.tpl");
+		$page_master = new Template("view_pm.tpl");
 
 		if(!empty($result['user_signature']))
 		{
 			$result['user_signature'] = "<br /><br />\n----------<br />\n".format_text($result['user_signature']);
 		}
 
-		$theme->replace_tags("view_pm", array(
+		$page_master->setVars(array(
 			"AUTHOR_USERNAME" => $result['username'],
 			"AUTHOR_RANK" => ($result['user_id'] > 0) ? $result['rank_name'] : "",
 			"AUTHOR_SIGNATURE" => $result['user_signature'],
@@ -658,28 +451,25 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 
 		if($result['user_id'] > 0)
 		{
-			$theme->insert_nest("view_pm", "author_standard", array(
+			$page_master->addToBlock("author_standard", array(
 				"AUTHOR_JOINED" => create_date("D d M Y", $result['user_date_joined']),
 				"AUTHOR_POSTS" => $result['user_posts']
 			));
-			$theme->add_nest("view_pm", "author_standard");
 
 			if(!empty($result['user_location']))
 			{
-				$theme->insert_nest("view_pm", "author_location", array(
+				$page_master->addToBlock("author_location", array(
 					"AUTHOR_LOCATION" => $result['user_location']
 				));
-				$theme->add_nest("view_pm", "author_location");
 			}
 		}
 
 		if(!empty($result['rank_image']))
 		{
-			$theme->insert_nest("view_pm", "rank_image", array(
+			$page_master->addToBlock("rank_image", array(
 				"AUTHOR_RANK" => $result['rank_name'],
 				"AUTHOR_RANK_IMG" => $result['rank_image']
 			));
-			$theme->add_nest("view_pm", "rank_image");
 		}
 
 		if($result['user_avatar_type'] == UPLOADED_AVATAR || $result['user_avatar_type'] == REMOTE_AVATAR)
@@ -688,10 +478,10 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 			{
 				$result['user_avatar_location'] = $root_path . $config['avatar_upload_dir'] . "/" . $result['user_avatar_location'];
 			}
-			$theme->insert_nest("view_pm", "avatar", array(
+
+			$page_master->addToBlock("avatar", array(
 				"AUTHOR_AVATAR_LOCATION" => $result['user_avatar_location']
 			));
-			$theme->add_nest("view_pm", "avatar");
 		}
 
 		if($result['pm_unread'] == "1")
@@ -707,21 +497,7 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 			}
 		}
 
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("view_pm");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
-
+		outputPage($page_master);
 	}
 	else
 	{

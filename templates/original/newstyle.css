@@ -1036,3 +1036,104 @@ so they span mutiple lines (up to three).
 	width: 24%;
 }
 
+.smilies-panel
+{
+	text-align: center;
+	display: inline-block;
+}
+.smilies-panel .smilie
+{
+	display: inline-block;
+	margin: 2px;
+}
+
+.bbcode-editor .font-size-selector,
+.bbcode-editor .font-color-selector
+{
+	display: inline;
+}
+.bbcode-editor,
+.bbcode-editor .button-row
+{
+	margin-bottom: 5px;
+}
+
+.pm-edit-panel .panel-header
+{
+	margin-bottom: 5px;
+}
+.pm-edit-panel .custom-row
+{
+	padding-bottom: 5px;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 5px;
+}
+.pm-edit-panel .custom-row .label,
+.pm-edit-panel .custom-row .value,
+.pm-edit-panel .custom-row .extra
+{
+	display: inline-block;
+	vertical-align: top;
+}
+.pm-edit-panel .custom-row .label,
+.pm-edit-panel .custom-row .extra
+{
+	width: 19%;
+}
+.pm-edit-panel .custom-row .value
+{
+	width: 59%;
+}
+.pm-edit-panel .custom-row .value .value-edit
+{
+	width: 100%;
+}
+.pm-edit-panel .custom-row .extra
+{
+	text-align: center;
+}
+.pm-edit-panel .custom-row .value #pm_body
+{
+	height: 10em;
+}
+
+.pm-error-panel
+{
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+.pm-error-panel .panel-body
+{
+	margin: 5px;
+}
+
+.pm-view-panel .panel-body .pm-body-wrapper
+{
+	padding-top: 5px;
+}
+.pm-view-panel .panel-body .user
+{
+	padding: 10px 5px 5px 5px;
+}
+.pm-view-panel .panel-body .user
+{
+	background: #f0f0f0;
+	width: 250px;
+}
+.pm-view-panel .panel-body .user-display
+{
+	text-align: center;
+}
+.pm-view-panel .panel-body .pm-body-wrapper
+{
+	margin-left: 255px;
+}
+.pm-view-panel .panel-body .pm-body-wrapper .date
+{
+	margin-top: 5px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 5px;
+}
+
