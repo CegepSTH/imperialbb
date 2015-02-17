@@ -1,8 +1,7 @@
-<table width="100%">
-	<tr>
-		<td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <b>{L.Search}</b></td>
-	</tr>
-</table>
+<div class="breadcrumb">
+	<a href="index.php">{C.site_name}</a> &raquo; <b>{L.Search}</b>
+</div>
+
 <form method="post" action="">
 {CSRF_TOKEN}
 	<table width="100%" align="center" class="maintable">
@@ -24,14 +23,16 @@
 		<tr>
 			<td class="cell2">{L.Search_in}</td>
 			<td class="cell1" colspan="2">
+				<!--// forums list row -->
+				<!-- BLOCK forumrow -->
+					<option value="forum_{FORUM_ID}" style="font-weight:normal;">{PREFIX} {FORUM_NAME}</option>
+				<!-- END BLOCK forumrow -->
 				<select name="search_in">
 					<option value="all" selected="selected">{L.All_Forums}</option>
-					<!-- BEGIN catrow -->
+					<!-- BLOCK catrow -->
 					<option value="cat_{CAT_ID}" style="font-weight:bold;">+ {CAT_NAME}</option>
-					<!-- BEGIN forumrow -->
-					<option value="forum_{FORUM_ID}" style="font-weight:normal;">{PREFIX} {FORUM_NAME}</option>
-					<!-- END forumrow -->
-					<!-- END catrow -->
+					{block_forumrow}
+					<!-- END BLOCK catrow -->
 				</select>
 			</td>
 		</tr>
