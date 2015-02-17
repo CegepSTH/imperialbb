@@ -1,202 +1,166 @@
-<script type="text/javascript">
-function add_emoticon(text) {
-	document.new_topic.body.value  += text;
-	document.new_topic.body.focus();
-}
-
-function add_bbcode(text,attrib) {
-	if(attrib != undefined) {
-		attrib = "=" + attrib;
-	}
-	else
-	{
-		attrib = "";
-	}
-	document.new_topic.body.value += "[" + text + attrib + "]Text[/" + text + "]";
-	document.new_topic.body.focus();
-}
-</script>
-<!-- BEGIN SWITCH navbar -->
-<table width="100%">
-	<tr>
-		<td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a> &raquo; <b>{ACTION}</b></td>
-	</tr>
-</table>
-<!-- SWITCH navbar -->
-<table width="100%">
-	<tr>
-		<td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a> &raquo; <a href="view_topic.php?tid={TOPIC_ID}">{TOPIC_NAME}</a> &raquo; <b>{ACTION}</b></td>
-	</tr>
-</table>
-<!-- END SWITCH navbar -->
-<!-- BEGIN error -->
-<table width="100%" class="maintable">
-	<tr>
-		<th>{L.The_following_errors_occoured}:</th>
-	</tr>
-	<tr>
-		<td class="cell2">
-			{ERRORS}
-		</td>
-	</tr>
-</table>
-<!-- END error -->
-<form name="new_topic" method="post" action="">
-{CSRF_TOKEN}
+<!-- BLOCK nav_new_topic -->
+<div class="nav-breadcrumb">
+	<a href="index.php">{C.site_name}</a> &raquo; 
+	<a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a> &raquo; 
+	<b>{ACTION}</b>
+</div>
+<!-- END BLOCK nav_new_topic -->
+<!-- BLOCK nav_reply -->
+<div class="nav-breadcrumb">
+	<a href="index.php">{C.site_name}</a> &raquo; 
+	<a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a> &raquo; 
+	<a href="view_topic.php?tid={TOPIC_ID}">{TOPIC_NAME}</a> &raquo; 
+	<b>{ACTION}</b>
+</div>
+<!-- END BLOCK nav_reply -->
+<!-- BLOCK error -->
+<div class="panel bottom-border editor-error-panel post-error-panel">
+	<div class="panel-header">
+		{L.The_following_errors_occoured}:
+	</div>
+	<div class="panel-body">
+		{ERRORS}
+	</div>
+</div>
+<!-- END BLOCK error -->
+<form name="new_topic" method="post" action="" class="panel editor-panel post-edit-panel">
+	{CSRF_TOKEN}
 	<input type="hidden" name="current_poll_choices" value="{CURRENT_POLL_CHOICES}" />
-	<table width="100%" align="center" class="maintable">
-		<tr>
-			<th colspan="2" height="25">{ACTION}</th>
-		</tr>
-		<!-- BEGIN title -->
-		<tr>
-			<td class="cell2" width="25%"><span style="font-weight:bold;">{L.Topic_Title}</span></td>
-			<td class="cell1">
-				<input type="text" name="title" value="{TITLE}" tabindex="1" size="60" maxlength="75">
-			</td>
-		</tr>
-		<!-- END title -->
-		<tr>
-			<td class="cell2" valign="top" width="25%"><span style="font-weight:bold;">{L.Message}</span></td>
-			<td class="cell1">
-				<table width="100%" cellpadding="0" cellspacing="0">
-					<!-- BEGIN bbcode -->
-					<tr>
-						<td width="400" align="center">
-							<input type="button" name="bold" value="{L.B}" accesskey="b" onclick="javascript:add_bbcode('b');" />
-							<input type="button" name="underline" value="{L.U}" accesskey="u" onclick="javascript:add_bbcode('u');" />
-							<input type="button" name="italics" value="{L.I}" accesskey="i" onclick="javascript:add_bbcode('i');" />
-							<input type="button" name="quote" value="{L.Quote}" accesskey="q" onclick="javascript:add_bbcode('quote');" />
-							<input type="button" name="code" value="{L.Code}" accesskey="c" onclick="javascript:add_bbcode('code');" />
-							<input type="button" name="url" value="{L.URL}" accesskey="" onclick="javascript:add_bbcode('url');" />
-							<input type="button" name="image" value="{L.Img}" accesskey="" onclick="javascript:add_bbcode('img');" /><br />
-							{L.Font_Size}
-							<select name="font_size" onchange="javascript:add_bbcode('size', this.options[this.selectedIndex].value)">
-								<option value="1">{L.Very_Small}</option>
-								<option value="1.5">{L.Small}</option>
-								<option value="2">{L.Medium}</option>
-								<option value="3">{L.Large}</option>
-								<option value="4">{L.Very_Large}</option>
-							</select>
-							&nbsp;&nbsp;{L.Font_Color}
-							<select name="font_color" onchange="javascript:add_bbcode('color', this.options[this.selectedIndex].value)">
-								<option value="red">{L.Red}</option>
-								<option value="blue">{L.Blue}</option>
-								<option value="green">{L.Green}</option>
-								<option value="orange">{L.Orange}</option>
-								<option value="yellow">{L.Yellow}</option>
-								<option value="purple">{L.Purple}</option>
-								<option value="black">{L.Black}</option>
-								<option value="white">{L.White}</option>
-							</select>
-						</td>
-						<td></td>
-					</tr>
-					<!-- END bbcode -->
-					<tr>
-						<td>
-							<textarea id="body" name="body" tabindex="2" rows="13" cols="46" onkeyup="getNbCharactersLeft()" onchange="getNbCharactersLeft()">{BODY}</textarea>
-						</td>
+	<div class="panel-header">
+		{ACTION}
+	</div>
 
-						<td>
-							<!-- BEGIN smilies -->
-							<table align="center" class="maintable" cellspacing="5">
-								<tr>
-									<td align="center" style="font-weight:bold;" colspan="5">{L.Emoticons}</td>
-								</tr>
-								<!-- BEGIN emoticon_row -->
-								<tr>
-									<!-- BEGIN emoticon_cell -->
-									<td align="center"><a onclick="javascript:add_emoticon('{EMOTICON_CODE}');"><img src="{EMOTICON_URL}" alt="{EMOTICON_TITLE}" title="{EMOTICON_TITLE}" /></a></td>
-									<!-- END emoticon_cell -->
-								</tr>
-								<!-- END emoticon_row -->
-								<tr>
-									<td align="center" colspan="5">{L.Show_All_Emoticons}</td>
-								</tr>
-							</table>
-							<!-- END smilies -->
-						</td>
-					</tr>
+	<!-- BLOCK title -->
+	<div class="editor-row">
+		<div class="label">
+			{L.Topic_Title}
+		</div>
+		<div class="value">
+			<input type="text" name="title" value="{TITLE}" tabindex="1" maxlength="75" class="value-edit" />
+		</div>
+	</div>
+	<!-- END BLOCK title -->
 
-				</table>
+	<div class="editor-row">
+		<div class="label">
+			{L.Message}
+		</div>
+		<div class="value">
+			{BBCODE_EDITOR}
 
-				<!-- HARD CODED -->
-				<p id="CharsLeft">{L.Chars_left} 2000</p>
-				<script>
-					function getNbCharactersLeft() {
-						var nbCharsLeft = 2000 - document.getElementById("body").value.length;
-						document.getElementById("CharsLeft").innerHTML = "{L.Chars_left}" + nbCharsLeft;
+			<textarea
+				id="body"
+				name="body"
+				tabindex="2"
+				onkeyup="getNbCharactersLeft()"
+				onchange="getNbCharactersLeft()"
+				class="value-edit post-body">{BODY}</textarea>
 
-						<!-- HARD CODED -->
-						if(nbCharsLeft <= 0){
-							document.getElementById("Submit").disabled = true;
-							document.getElementById("Submit").value = "{L.Disabled}";
+			<div class="character-indicator" id="CharsLeft">
+				{L.Chars_left} 2000
+			</div>
+			<script>
+				function getNbCharactersLeft() {
+					var nbCharsLeft = 2000 - document.getElementById("body").value.length;
+					document.getElementById("CharsLeft").innerHTML = "{L.Chars_left}" + nbCharsLeft;
 
-							// document.getElementById("Submit").value = "Disabled";
-						}
-						else{
-							document.getElementById("Submit").disabled = false;
-							document.getElementById("Submit").value = "{L.Submit}";
-						}
+					if(nbCharsLeft <= 0) {
+						document.getElementById("Submit").disabled = true;
+						document.getElementById("Submit").value = "{L.Disabled}";
+					} else {
+						document.getElementById("Submit").disabled = false;
+						document.getElementById("Submit").value = "{L.Submit}";
 					}
-				</script>
+				}
+			</script>
+		</div>
+		<div class="extra">
+			{SMILIE_PICKER}
+		</div>
+	</div>
 
-			</td>
-		</tr>
-		<tr>
-			<th colspan="2" height="25">{L.Options}</th>
-		</tr>
-		<tr>
-			<td class="cell2">
-				{HTML_ENABLED_MSG}<br />
-				{BBCODE_ENABLED_MSG}<br />
-				{SMILIES_ENABLED_MSG}<br >
-			</td>
-			<td class="cell1">
-				<!-- BEGIN disable_html -->
-				<label for="disable_html"><input type="checkbox" name="disable_html" id="disable_html" />{L.Disable_HTML}</label><br />
-				<!-- END disable_html -->
-				<!-- BEGIN disable_bbcode -->
-				<label for="disable_bbcode"><input type="checkbox" name="disable_bbcode" id="disable_bbcode" />{L.Disable_BBCode}</label><br />
-				<!-- END disable_bbcode -->
-				<!-- BEGIN disable_smilies -->
-				<label for="disable_smilies"><input type="checkbox" name="disable_smilies" id="disable_smilies" />{L.Disable_Smilies}</label><br />
-				<!-- END disable_smilies -->
-				<!-- BEGIN logged_in -->
-				<label for="subscribe_to_topic"><input type="checkbox" name="subscribe_to_topic" id="subscribe_to_topic" />{L.Subscribe_To_Topic}</label><br />
-				<label for="attach_signature"><input type="checkbox" name="attach_signature" id="attach_signature" checked="checked" />{L.Attach_Signature}</label><br />
-				<!-- END logged_in -->
-			</td>
-		</tr>
-		<!-- BEGIN poll -->
-		<tr>
-			<th colspan="2" height="25">{L.Poll}</th>
-		</tr>
-		<tr>
-			<td class="desc_row" colspan="2" align="center">{L.Poll_Leave_Blank_Msg}</td>
-		</tr>
-		<tr>
-			<td class="cell2">{L.Poll_Title}</td>
-			<td class="cell1"><input type="text" name="poll_title" value="{POLL_TITLE}" size="60" maxlength="75"></td>
-		</tr>
-		<!-- BEGIN pollchoice_row -->
-		<tr>
-			<td class="cell2">{POLL_CHOICE_DESC}</td>
-			<td class="cell1"><input type="text" name="pollchoice[{POLL_CHOICE_NUMBER}]" value="{POLL_CHOICE_VALUE}" size="60" maxlength="50">
-		</tr>
-		<!-- END pollchoice_row -->
-		<tr>
-			<td class="cell2"></td>
-			<td class="cell1"><input type="button" name="add_choice" value="{L.Add_Poll_Choice}" onclick="document.new_topic.action='{POLL_ADD_CHOICE_URL}'; document.new_topic.submit();" /></td>
-		</tr>
-		<!-- END poll -->
-		<tr>
-			<th colspan="2">
-				<input type="submit" name="Submit" id="Submit" value="{L.Submit}" tabindex="3" />  <input type="reset" value="{L.Reset}" />
-			</th>
-		</tr>
-	</table>
+	<script type="text/javascript">
+		setSmilieTarget("body");
+		setBBCodeTarget("body");
+	</script>
+
+	<div class="editor-section">
+		{L.Options}
+	</div>
+
+	<div class="editor-row">
+		<div class="label">
+			{HTML_ENABLED_MSG}<br />
+			{BBCODE_ENABLED_MSG}<br />
+			{SMILIES_ENABLED_MSG}<br >
+		</div>
+		<div class="value">
+			<!-- BLOCK disable_html -->
+			<label for="disable_html"><input type="checkbox" name="disable_html" id="disable_html" />{L.Disable_HTML}</label><br />
+			<!-- END BLOCK disable_html -->
+			<!-- BLOCK disable_bbcode -->
+			<label for="disable_bbcode"><input type="checkbox" name="disable_bbcode" id="disable_bbcode" />{L.Disable_BBCode}</label><br />
+			<!-- END BLOCK disable_bbcode -->
+			<!-- BLOCK disable_smilies -->
+			<label for="disable_smilies"><input type="checkbox" name="disable_smilies" id="disable_smilies" />{L.Disable_Smilies}</label><br />
+			<!-- END BLOCK disable_smilies -->
+			<!-- BLOCK logged_in -->
+			<label for="subscribe_to_topic"><input type="checkbox" name="subscribe_to_topic" id="subscribe_to_topic" />{L.Subscribe_To_Topic}</label><br />
+			<label for="attach_signature"><input type="checkbox" name="attach_signature" id="attach_signature" checked="checked" />{L.Attach_Signature}</label><br />
+			<!-- END BLOCK logged_in -->
+		</div>
+	</div>
+
+	<!-- BLOCK poll_header -->
+	<div class="editor-section">
+		{L.Poll}
+	</div>
+	<div class="editor-section-desc">
+		{L.Poll_Leave_Blank_Msg}
+	</div>
+
+	<div class="editor-row">
+		<div class="label">
+			{L.Poll_Title}
+		</div>
+		<div class="value">
+			<input type="text" name="poll_title" value="{POLL_TITLE}" maxlength="75" class="value-edit" />
+		</div>
+	</div>
+	<!-- END BLOCK poll_header -->
+
+	<!-- BLOCK pollchoice_row -->
+	<div class="editor-row">
+		<div class="label">
+			{POLL_CHOICE_DESC}
+		</div>
+		<div class="value">
+			<input
+				type="text"
+				name="pollchoice[{POLL_CHOICE_NUMBER}]"
+				value="{POLL_CHOICE_VALUE}"
+				maxlength="50"
+				class="value-edit" />
+		</div>
+	</div>
+	<!-- END BLOCK pollchoice_row -->
+
+	<!-- BLOCK poll_trailer -->
+	<div class="editor-row">
+		<div class="label">
+		</div>
+		<div class="value">
+			<input
+				type="button"
+				name="add_choice"
+				value="{L.Add_Poll_Choice}"
+				onclick="document.new_topic.action='{POLL_ADD_CHOICE_URL}'; document.new_topic.submit();" />
+		</div>
+	</div>
+	<!-- END BLOCK poll_trailer -->
+
+	<div class="panel-footer">
+		<input type="submit" name="Submit" id="Submit" value="{L.Submit}" tabindex="3" />
+		<input type="reset" value="{L.Reset}" />
+	</div>
 </form>
-
-

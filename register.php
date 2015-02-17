@@ -22,6 +22,8 @@ require_once($root_path . "classes/password.php");
 require_once($root_path . "models/user.php");
 
 $language->add_file("register");
+$language->add_file("profile");
+Template::addNamespace("L", $lang);
 
 // Redirects to login page after registering.
 if($_GET['act'] == "login") {
@@ -56,22 +58,19 @@ if(isset($_POST['Submit'])) {
 	}
 	
 	if(strlen($error) > 0) {
-		$theme->new_file("register", "register.tpl", "");
+		$page_master = new Template("register.tpl");
 		
-		$theme->replace_tags("register", array(
+		$page_master->setVars(array(
 			"USERNAME" => $_POST['UserName'],
-			"EMAIL" => $_POST['Email']
+			"EMAIL" => $_POST['Email'],
+			"CSRF_TOKEN" => CSRF::getHTML()
 		));
 		
-		$theme->insert_nest("register", "error", array(
+		$page_master->addToBlock("error", array(
 			"ERRORS" => $error
 		));
-		
-		$theme->add_nest("register", "error");
 
-		include_once($root_path . "includes/page_header.php");
-		$theme->output("register");
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($page_master);	
 	} else {
 		if($config['register_auth_type'] == 0) {
 			// No activation key.
@@ -130,18 +129,15 @@ if(isset($_POST['Submit'])) {
 		error_msg($lang['Error'], $lang['Invalid_User_Id']);
 	}
 } else {
-	$theme->new_file("register", "register.tpl", "");
-	$theme->replace_tags("register", array(
+	$page_master = new Template("register.tpl");
+	$page_master->setVars(array(
 		"USERNAME" => "",
 		"EMAIL" => "",
 		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 
 	$page_title = $config['site_name'] . " &raquo; " . $lang['Register'];
-
-	include_once($root_path . "includes/page_header.php");
-	$theme->output("register");
-	include_once($root_path . "includes/page_footer.php");
+	outputPage($page_master, $page_title);
 }
 
 /*======================================================================*\

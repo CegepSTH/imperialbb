@@ -1,43 +1,39 @@
-<table width="100%">
- <tr>
-  <td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <b>{L.Register}</b></td>
- </tr>
-</table>
-<!-- BEGIN error -->
-<table width=70%>
- <tr>
-  <th>The following errors occoured:</th>
- </tr>
- <tr>
-  <td>
-   {ERRORS}
-  </td>
- </tr>
-</table>
-<!-- END error -->
-<form method="post" action="">
-{CSRF_TOKEN}
-<table width="100%" class="maintable">
- <tr>
-  <th colspan="2" height="25">{L.Registration}</th>
- </tr>
- <tr>
-  <td class="cell1" width="50%">{L.Username}</td>
-  <td class="cell2"><input type="text" name="UserName" value="{USERNAME}"></td>
- </tr>
- <tr>
-  <td class="cell1">{L.Password}</td>
-  <td class="cell2"><input type="password" name="Password"></td>
- </tr>
- <tr>
-  <td class="cell1">{L.Password} [{L.Retype}]</td>
-  <td class="cell2"><input type="password" name="Pass2"></td>
- </tr>
- <tr>
-  <td class="cell1">{L.Email_Address}</td>
-  <td class="cell2"><input type="text" name="Email" value="{EMAIL}"></td>
- </tr>
- <tr>
-  <th colspan="2" height="30"><input type="submit" name="Submit" value="{L.Submit}" />  <input type="reset" name="Reset" value="{L.Reset}" /></th>
- </tr>
-</table>
+<div class="nav-breadcrumb">
+	<a href="index.php">{C.site_name}</a> &raquo; <b>Login</b>
+</div>
+<!-- BLOCK error -->
+<div class="panel bottom-border editor-error-panel">
+	<div class="panel-header">
+		{L.The_following_errors_occoured}:
+	</div>
+	<div class="panel-body">
+		{ERRORS}
+	</div>
+</div>
+<!-- END BLOCK error -->
+<form method="post" action="" class="panel login-panel">
+	{CSRF_TOKEN}
+	<div class="panel-header">
+		{L.Registration}
+	</div>	
+	<div class="form-row">
+		<label for="UserName">{L.Username}:</label>
+		<input type="text" name="UserName" id="UserName" />
+	</div>
+	<div class="form-row">
+		<label for="Password">{L.Password}:</label>
+		<input type="password" name="Password" id="Password" />
+	</div>
+	<div class="form-row">
+		<label for="Password">{L.Password} [{L.Retype}]:</label>
+		<input type="password" name="Pass2" id="Pass2" />
+	</div>
+	<div class="form-row">
+		<label for="Email">{L.Email_Address}:</label>
+		<input type="text"  name="Email" id="PassWord" />
+	</div>
+	<div class="panel-footer">
+		<input type="Submit" name="Submit" value="{L.Submit}" />&nbsp;&nbsp;
+		<input type="reset" value="{L.Reset}" />
+	</div>
+</form>

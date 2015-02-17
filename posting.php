@@ -20,7 +20,90 @@ $root_path = "./";
 include($root_path . "includes/common.php");
 
 $language->add_file("posting");
+Template::addNamespace("L", $lang);
 
+function renderPoll($page_master) {
+	global $lang;
+
+	$page_master->addToBlock("poll_header", array(
+		"POLL_TITLE" => (isset($_POST['poll_title'])) ? $_POST['poll_title'] : ""
+	));
+	$page_master->addToBlock("poll_trailer", array(
+		"POLL_ADD_CHOICE_URL" => "posting.php?func=newtopic&fid=" . $_GET['fid'] .
+			"&poll_choices=" . ($_GET['poll_choices'] + 1 ) . ""
+	));
+
+	if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;
+
+	for($i=1; $i<=$_GET['poll_choices']; $i++)
+	{
+		$page_master->addToBlock("pollchoice_row", array(
+			"POLL_CHOICE_DESC" => sprintf($lang['Poll_Choice_X'], intval($i)),
+			"POLL_CHOICE_NUMBER" => strval($i),
+			"POLL_CHOICE_VALUE" => (isset($_POST['pollchoice'][$i])) ? $_POST['pollchoice'][$i] : ""
+		));
+	}
+}
+
+function renderPostEditBlocks($page_master) {
+	global $config;
+
+	if($config['html_enabled'] == true) {
+		$page_master->addToBlock("disable_html", array());
+	}
+
+	if($config['bbcode_enabled'] == true) {
+		$page_master->addToBlock("disable_bbcode", array());
+
+		$page_master->setVar("BBCODE_EDITOR",
+			renderBBCodeEditor()
+		);
+	}
+
+	if($config['smilies_enabled'] == true) {
+		$page_master->addToBlock("disable_smilies", array());
+	
+		$page_master->setVar("SMILIE_PICKER",
+			renderSmiliePicker()
+		);
+	}
+
+	if($user['user_id'] > 0) {
+		$page_master->addToBlock("logged_in", array());
+	}
+}
+
+function hasPermissionToCreatePoll() {
+	global $db2, $user;
+
+	$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
+		FROM (`_PREFIX_forums` f
+			LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
+			AND g.`usergroup` = :user_group)
+		WHERE `forum_id` = :fid",
+		array(
+			":user_group" => $user['user_usergroup'],
+			":fid" => $_GET['fid']
+		)
+	);
+
+	if($forum_result = $forum_sql->fetch())
+	{
+		if((($forum_result['forum_poll'] <= $user['user_level'] && $forum_result['ug_poll'] == 0) ||
+			$forum_result['ug_poll'] == 1))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function renderPollIfHasPermission($page_master) {
+	if(hasPermissionToCreatePoll()) {
+		renderPoll($page_master);
+	}
+}
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "newtopic")
@@ -97,10 +180,9 @@ if($_GET['func'] == "newtopic")
 
 		if(strlen($error) > 0)
 		{
-			$theme->new_file("newtopic", "post.tpl", "");
+			$page_master = new Template("post.tpl");
 
-			if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;
-			$theme->replace_tags("newtopic", array(
+			$page_master->setVars(array(
 				"FORUM_ID" => $_GET['fid'],
 				"FORUM_NAME" => $forum_result['forum_name'],
 				"ACTION" => $lang['New_Topic'],
@@ -113,117 +195,28 @@ if($_GET['func'] == "newtopic")
 
 			$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $lang['New_Topic'];
 
-			$theme->insert_nest("newtopic", "title", array(
+			$page_master->addToBlock("title", array(
 				"TITLE" => $_POST['title']
 			));
-			$theme->add_nest("newtopic", "title");
 
-    		$theme->switch_nest("newtopic", "navbar", true);
-    		$theme->add_nest("newtopic", "navbar");
+			$page_master->addToBlock("nav_new_topic", array(
+				"FORUM_ID" => $_GET['fid'],
+				"FORUM_NAME" => $forum_result['forum_name'],
+				"ACTION" => $lang['New_Topic']
+			));
 
-			$theme->insert_nest("newtopic", "error", array(
+			$page_master->addToBlock("error", array(
 				"ERRORS" => $error
 			));
-			$theme->add_nest("newtopic", "error");
 
-			$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
-				FROM (`_PREFIX_forums` f
-					LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
-					AND g.`usergroup` = :user_group)
-				WHERE `forum_id` = :fid",
-				array(
-					":user_group" => $user['user_usergroup'],
-					":fid" => $_GET['fid']
-				)
-			);
-			if($forum_result = $forum_sql->fetch())
-			{
-				if((($forum_result['forum_poll'] <= $user['user_level'] && $forum_result['ug_poll'] == 0) || $forum_result['ug_poll'] == 1))
-				{
-					$theme->insert_nest("newtopic", "poll", array(
-						"POLL_TITLE" => $_POST['poll_title'],
-						"POLL_ADD_CHOICE_URL" => "posting.php?func=newtopic&fid=" . $_GET['fid'] . "&poll_choices=" . ($_GET['poll_choices'] + 1 ) . "",
-					));
+			renderPostEditBlocks($page_master);
+			renderPollIfHasPermission($page_master);
 
-	     	   		for($i=1; $i<=$_GET['poll_choices']; $i++)
-	     	   		{
-	        			$theme->insert_nest("newtopic", "poll/pollchoice_row", array(
-	     	   				"POLL_CHOICE_DESC" => sprintf($lang['Poll_Choice_X'], intval($i)),
-	        				"POLL_CHOICE_NUMBER" => strval($i),
-	        				"POLL_CHOICE_VALUE" => (isset($_POST['pollchoice'][$i])) ? $_POST['pollchoice'][$i] : ""
-	        			));
-	        			$theme->add_nest("newtopic", "poll/pollchoice_row");
-	        		}
-	        		$theme->add_nest("newtopic", "poll");
-				}
-			}
-
-			if($config['html_enabled'] == true) {
-				$theme->insert_nest("newtopic", "disable_html");
-				$theme->add_nest("newtopic", "disable_html");
-			}
-			if($config['bbcode_enabled'] == true) {
-				$theme->insert_nest("newtopic", "disable_bbcode");
-				$theme->add_nest("newtopic", "disable_bbcode");
-
-				// Add the BBCode chooser to the page
-				$theme->insert_nest("newtopic", "bbcode");
-				$theme->add_nest("newtopic", "bbcode");
-			}
-			if($config['smilies_enabled'] == true) {
-				$theme->insert_nest("newtopic", "disable_smilies");
-				$theme->add_nest("newtopic", "disable_smilies");
-
-				// Add the smilie chooser to the page
-				$theme->insert_nest("newtopic", "smilies");
- 	 	      	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
- 	 	      	$smilie_no = 1;
-				$smilie_count = 1;
-				$smilie_url = array();
-				while($smilie = $smilie_query->fetch())
-				{
-					// Check if the smilie has already been displayed
-        			if(!in_array($smilie['smilie_url'], $smilie_url))
-       	 			{
-        			// Add smilie to the array
-        				$smilie_url[] = $smilie['smilie_url'];
-
-        				if($smilie_no == 1)
-        				{
-        					$theme->insert_nest("newtopic", "smilies/emoticon_row");
-        				}
-
-        				$theme->insert_nest("newtopic", "smilies/emoticon_row/emoticon_cell", array(
-        					"EMOTICON_CODE" => $smilie['smilie_code'],
-        					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
-        					"EMOTICON_TITLE" => $smilie['smilie_name']
-        				));
-        				$theme->add_nest("newtopic", "smilies/emoticon_row/emoticon_cell");
-        				if($smilie_no >= 5)
-        				{
-        					$theme->add_nest("newtopic", "smilies/emoticon_row");
-        					$smilie_no = 1;
-        				}
-        				else
-        				{
-        					$smilie_no++;
-        				}
-        				$smilie_count++;
-        				if($smilie_count > 20)
-        				{
-        					break;
-        				}
-        			}
-       			}
-       			$theme->add_nest("newtopic", "smilies");
- 			}
-
-			include($root_path . "includes/page_header.php");
-			$theme->output("newtopic");
-			include($root_path . "includes/page_footer.php");
+			outputPage($page_master, $page_title);
 		}
 		else
-		{			// Disable checkboxes && attach signature
+		{
+			// Disable checkboxes && attach signature
 			if($config['html_enabled'] == false || !isset($_POST['disable_html']))
 			{
 				$_POST['disable_html'] = "0";
@@ -429,8 +422,9 @@ if($_GET['func'] == "newtopic")
 	}
 	else
 	{
-		$theme->new_file("newtopic", "post.tpl", "");
-		$theme->replace_tags("newtopic", array(
+		$page_master = new Template("post.tpl");
+
+		$page_master->setVars(array(
 			"FORUM_ID" => $_GET['fid'],
 			"FORUM_NAME" => $forum_result['forum_name'],
 			"ACTION" => $lang['New_Topic'],
@@ -443,119 +437,20 @@ if($_GET['func'] == "newtopic")
 
 		$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $lang['New_Topic'];
 
-		$theme->insert_nest("newtopic", "title", array(
+		$page_master->addToBlock("title", array(
 			"TITLE" => (isset($_POST['title'])) ? $_POST['title'] : ""
 		));
-    	$theme->add_nest("newtopic", "title");
 
-    	$theme->switch_nest("newtopic", "navbar", true);
-    	$theme->add_nest("newtopic", "navbar");
+		$page_master->addToBlock("nav_new_topic", array(
+			"FORUM_ID" => $_GET['fid'],
+			"FORUM_NAME" => $forum_result['forum_name'],
+			"ACTION" => $lang['New_Topic']
+		));
 
-		if($config['html_enabled'] == true) {
-			$theme->insert_nest("newtopic", "disable_html");
-			$theme->add_nest("newtopic", "disable_html");
-		}
-		if($config['bbcode_enabled'] == true) {
-			$theme->insert_nest("newtopic", "disable_bbcode");
-			$theme->add_nest("newtopic", "disable_bbcode");
+		renderPostEditBlocks($page_master);
+		renderPollIfHasPermission($page_master);
 
-			// Add the BBCode chooser to the page
-			$theme->insert_nest("newtopic", "bbcode");
-			$theme->add_nest("newtopic", "bbcode");
-		}
-		if($config['smilies_enabled'] == true) {
-			$theme->insert_nest("newtopic", "disable_smilies");
-			$theme->add_nest("newtopic", "disable_smilies");
-
-			// Add the emoticon chooser to the page
-			$theme->insert_nest("newtopic", "smilies");
-        	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-        	$smilie_no = 1;
-        	$smilie_count = 1;
-        	$smilie_url = array();
-        	while($smilie = $smilie_query->fetch())
-        	{
-				// Check if the smilie has already been displayed
-        		if(!in_array($smilie['smilie_url'], $smilie_url))
-       	 		{
-					// Add smilie to the array
-					$smilie_url[] = $smilie['smilie_url'];
-
-        			if($smilie_no == 1)
-        			{
-        				$theme->insert_nest("newtopic", "smilies/emoticon_row");
-        			}
-
-        			$theme->insert_nest("newtopic", "smilies/emoticon_row/emoticon_cell", array(
-        				"EMOTICON_CODE" => $smilie['smilie_code'],
-        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
-        				"EMOTICON_TITLE" => $smilie['smilie_name']
-        			));
-        			$theme->add_nest("newtopic", "smilies/emoticon_row/emoticon_cell");
-        			if($smilie_no >= 5)
-        			{
-						$theme->add_nest("newtopic", "smilies/emoticon_row");
-        				$smilie_no = 1;
-        			}
-        			else
-        			{
-						$smilie_no++;
-        			}
-        			$smilie_count++;
-        			if($smilie_count > 20)
-        			{
-						break;
-        			}
-        		}
-       		}
-       		$theme->add_nest("newtopic", "smilies");
- 		}
-		$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
-			FROM (`_PREFIX_forums` f
-				LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
-				AND g.`usergroup` = :user_group)
-			WHERE `forum_id` = :fid",
-			array(
-				":user_group" => $user['user_usergroup'],
-				":fid" => $_GET['fid']
-			)
-		);
-		if($forum_result = $forum_sql->fetch())
-		{
-			if((($forum_result['forum_poll'] <= $user['user_level'] && $forum_result['ug_poll'] == 0) || $forum_result['ug_poll'] == 1))
-			{
-				if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;
-				$theme->insert_nest("newtopic", "poll", array(
-					"POLL_TITLE" => (isset($_POST['poll_title'])) ? $_POST['poll_title'] : "",
-					"POLL_ADD_CHOICE_URL" => "posting.php?func=newtopic&fid=" . $_GET['fid'] . "&poll_choices=" . ($_GET['poll_choices'] + 1 ) . ""
-				));
-	        	for($i=1; $i<=$_GET['poll_choices']; $i++)
-	        	{
-	        		$theme->insert_nest("newtopic", "poll/pollchoice_row", array(
-	        			"POLL_CHOICE_DESC" => sprintf($lang['Poll_Choice_X'], intval($i)),
-	        			"POLL_CHOICE_NUMBER" => strval($i),
-	        			"POLL_CHOICE_VALUE" => (isset($_POST['pollchoice'][$i])) ? $_POST['pollchoice'][$i] : ""
-	        		));
-	        		$theme->add_nest("newtopic", "poll/pollchoice_row");
-	        	}
-	        	$theme->add_nest("newtopic", "poll");
-			}
-		}
-
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("newtopic");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
+		outputPage($page_master, $page_title);
 	}
 }
 else if($_GET['func'] == "reply")
@@ -623,11 +518,10 @@ else if($_GET['func'] == "reply")
 		}
 		if(strlen($error) > 0)
 		{
-			$theme->new_file("reply", "post.tpl", "");
-
 			//
 			// Set Up Quote
 			//
+			$body = "";
 			if(isset($_GET['quote']) && is_numeric($_GET['quote']))
 			{
 
@@ -644,17 +538,10 @@ else if($_GET['func'] == "reply")
 				{
 					$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
 				}
-				else
-				{
-					$body = "";
-				}
-			}
-			else
-			{
-				$body = "";
 			}
 
-			$theme->replace_tags("reply", array(
+			$page_master = new Template("post.tpl");
+			$page_master->setVars(array(
 				"FORUM_ID" => $forum_result['forum_id'],
 				"FORUM_NAME" => $forum_result['forum_name'],
 				"TOPIC_ID" => $_GET['tid'],
@@ -669,90 +556,21 @@ else if($_GET['func'] == "reply")
 
 			$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $forum_result['topic_title'] . " &raquo; " . $lang['Reply'];
 
-			$theme->switch_nest("reply", "navbar", false);
-			$theme->add_nest("reply", "navbar");
+			$page_master->addToBlock("nav_reply", array(
+				"FORUM_ID" => $forum_result['forum_id'],
+				"FORUM_NAME" => $forum_result['forum_name'],
+				"TOPIC_ID" => $_GET['tid'],
+				"TOPIC_NAME" => $forum_result['topic_title'],
+				"ACTION" => $lang['Reply'],
+			));
 
-			$theme->insert_nest("reply", "error", array(
+			$page_master->addToBlock("error", array(
 				"ERRORS" => $error
 			));
-			$theme->add_nest("reply", "error");
 
-			if($config['html_enabled'] == true)
-			{
-				$theme->insert_nest("reply", "disable_html");
-				$theme->add_nest("reply", "disable_html");
-			}
-			if($config['bbcode_enabled'] == true)
-			{
-				$theme->insert_nest("reply", "disable_bbcode");
-				$theme->add_nest("reply", "disable_bbcode");
+			renderPostEditBlocks($page_master);
 
-				// Add the BBCode chooser to the page
-				$theme->insert_nest("reply", "bbcode");
-				$theme->add_nest("reply", "bbcode");
-			}
-			if($config['smilies_enabled'] == true)
-			{
-				$theme->insert_nest("reply", "disable_smilies");
-				$theme->add_nest("reply", "disable_smilies");
-
-				// Add the smilie chooser to the page
-				$theme->insert_nest("reply", "smilies");
- 	 	      	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
- 	 	      	$smilie_no = 1;
-				$smilie_count = 1;
-				$smilie_url = array();
-				while($smilie = $smilie_query->fetch())
-				{
-					// Check if the smilie has already been displayed
-        			if(!in_array($smilie['smilie_url'], $smilie_url))
-       	 			{
-        			// Add smilie to the array
-        				$smilie_url[] = $smilie['smilie_url'];
-
-        				if($smilie_no == 1)
-        				{
-        					$theme->insert_nest("reply", "smilies/emoticon_row");
-        				}
-
-        				$theme->insert_nest("reply", "smilies/emoticon_row/emoticon_cell", array(
-        					"EMOTICON_CODE" => $smilie['smilie_code'],
-        					"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
-        					"EMOTICON_TITLE" => $smilie['smilie_name']
-        				));
-        				$theme->add_nest("reply", "smilies/emoticon_row/emoticon_cell");
-        				if($smilie_no >= 5)
-        				{
-        					$theme->add_nest("reply", "smilies/emoticon_row");
-        					$smilie_no = 1;
-        				}
-        				else
-        				{
-        					$smilie_no++;
-        				}
-        				$smilie_count++;
-        				if($smilie_count > 20)
-        				{
-        					break;
-        				}
-        			}
-       			}
-       			$theme->add_nest("reply", "smilies");
- 			}
-			//
-			// Output the page header
-			//
-			include($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("reply");
-
-			//
-			// Output the page footer
-			//
-			include($root_path . "includes/page_footer.php");
+			outputPage($page_master, $page_title);
 		}
 		else
 		{
@@ -864,9 +682,9 @@ else if($_GET['func'] == "reply")
 	}
 	else
 	{
+		$body = "";
 		if(isset($_GET['quote']) && is_numeric($_GET['quote']))
 		{
-
 			$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
 				FROM `_PREFIX_posts` p, `_PREFIX_users` u
 				WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
@@ -880,24 +698,16 @@ else if($_GET['func'] == "reply")
 			{
 				$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
 			}
-			else
-			{
-				$body = "";
-			}
-		}
-		else
-		{
-			$body = "";
 		}
 
-		$theme->new_file("reply", "post.tpl", "");
-		$theme->replace_tags("reply", array(
+		$page_master = new Template("post.tpl");
+		$page_master->setVars(array(
 			"FORUM_ID" => $forum_result['forum_id'],
 			"FORUM_NAME" => $forum_result['forum_name'],
 			"TOPIC_ID" => $_GET['tid'],
 			"TOPIC_NAME" => $forum_result['topic_title'],
 			"ACTION" => $lang['Reply'],
-			"BODY" => $body, // C'EST À CAUSE DE ÇA QUE LA QUOTE APPARAIT PAS
+			"BODY" => $body,
 			"HTML_ENABLED_MSG" => ($config['html_enabled'] == true) ? sprintf($lang['HTML_is_x'], $lang['enabled']) : sprintf($lang['HTML_is_x'], $lang['disabled']),
 			"BBCODE_ENABLED_MSG" => ($config['bbcode_enabled'] == true) ? sprintf($lang['BBCode_is_x'], $lang['enabled']) : sprintf($lang['BBCode_is_x'], $lang['disabled']),
 			"SMILIES_ENABLED_MSG" => ($config['smilies_enabled'] == true) ? sprintf($lang['Smilies_are_x'], $lang['enabled']) : sprintf($lang['Smilies_are_x'], $lang['disabled']),
@@ -906,83 +716,17 @@ else if($_GET['func'] == "reply")
 
 		$page_title = $config['site_name'] . " &raquo; " . $forum_result['forum_name'] . " &raquo; " . $forum_result['topic_title'] . " &raquo; " . $lang['Reply'];
 
-		$theme->switch_nest("reply", "navbar", false);
-		$theme->add_nest("reply", "navbar");
+		$page_master->addToBlock("nav_reply", array(
+			"FORUM_ID" => $forum_result['forum_id'],
+			"FORUM_NAME" => $forum_result['forum_name'],
+			"TOPIC_ID" => $_GET['tid'],
+			"TOPIC_NAME" => $forum_result['topic_title'],
+			"ACTION" => $lang['Reply'],
+		));
+			
+		renderPostEditBlocks($page_master);
 
-		if($config['html_enabled'] == true) {
-			$theme->insert_nest("reply", "disable_html");
-			$theme->add_nest("reply", "disable_html");
-		}
-		if($config['bbcode_enabled'] == true) {
-			$theme->insert_nest("reply", "disable_bbcode");
-			$theme->add_nest("reply", "disable_bbcode");
-
-			// Add the BBCode chooser to the page
-			$theme->insert_nest("reply", "bbcode");
-			$theme->add_nest("reply", "bbcode");
-		}
-		if($config['smilies_enabled'] == true) {
-			$theme->insert_nest("reply", "disable_smilies");
-			$theme->add_nest("reply", "disable_smilies");
-
-			// Add the smilie chooser to the page
-			$theme->insert_nest("reply", "smilies");
- 		   	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
- 	 	  	$smilie_no = 1;
-			$smilie_count = 1;
-			$smilie_url = array();
-			while($smilie = $smilie_query->fetch())
-			{
-				// Check if the smilie has already been displayed
-        		if(!in_array($smilie['smilie_url'], $smilie_url))
-       	 		{
-        			// Add smilie to the array
-        			$smilie_url[] = $smilie['smilie_url'];
-
-        			if($smilie_no == 1)
-        			{
-        				$theme->insert_nest("reply", "smilies/emoticon_row");
-        			}
-
-        			$theme->insert_nest("reply", "smilies/emoticon_row/emoticon_cell", array(
-        				"EMOTICON_CODE" => $smilie['smilie_code'],
-        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
-        				"EMOTICON_TITLE" => $smilie['smilie_name']
-        			));
-        			$theme->add_nest("reply", "smilies/emoticon_row/emoticon_cell");
-        			if($smilie_no >= 5)
-        			{
-        				$theme->add_nest("reply", "smilies/emoticon_row");
-        				$smilie_no = 1;
-        			}
-        			else
-        			{
-        				$smilie_no++;
-        			}
-        			$smilie_count++;
-        			if($smilie_count > 20)
-        			{
-        				break;
-        			}
-        		}
-       		}
-       		$theme->add_nest("reply", "smilies");
-		}
-
-		//
-		// Output the page header
-		//
-		include($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("reply");
-
-		//
-		// Output the page footer
-		//
-		include($root_path . "includes/page_footer.php");
+		outputPage($page_master, $page_title);
 	}
 }
 else if($_GET['func'] == "edit")
@@ -1031,8 +775,8 @@ else if($_GET['func'] == "edit")
       		}
       		if(strlen($error) > 0)
       		{
-      			$theme->new_file("edit", "post.tpl", "");
-      			$theme->replace_tags("edit", array(
+				$page_master = new Template("post.tpl");
+				$page_master->setVars(array(
       				"ACTION" => $lang['Edit'],
       				"TOPIC_ID" => $result['topic_id'],
       				"TOPIC_NAME" => $result['topic_title'],
@@ -1047,87 +791,21 @@ else if($_GET['func'] == "edit")
 
       			$page_title = $config['site_name'] . " &raquo; " . $result['forum_name'] . " &raquo; " . $result['topic_title'] . " &raquo; " . $lang['Edit'];
 
-          		$theme->switch_nest("edit", "navbar", false);
-          		$theme->add_nest("edit", "navbar");
+				$page_master->addToBlock("nav_reply", array(
+					"ACTION" => $lang['Edit'],
+					"TOPIC_ID" => $result['topic_id'],
+					"TOPIC_NAME" => $result['topic_title'],
+					"FORUM_ID" => $result['forum_id'],
+					"FORUM_NAME" => $result['forum_name'],
+				));
 
-      			$theme->insert_nest("edit", "error", array(
+				$page_master->addToBlock("error", array(
       				"ERRORS" => $error
       			));
-      			$theme->add_nest("edit", "error");
 
-      			if($config['html_enabled'] == true) {
-      				$theme->insert_nest("edit", "disable_html");
-      				$theme->add_nest("edit", "disable_html");
-      			}
-      			if($config['bbcode_enabled'] == true) {
-      				$theme->insert_nest("edit", "disable_bbcode");
-      				$theme->add_nest("edit", "disable_bbcode");
+				renderPostEditBlocks($page_master);
 
-      				// Add the BBCode chooser to the page
-      				$theme->insert_nest("edit", "bbcode");
-      				$theme->add_nest("edit", "bbcode");
-      			}
-      			if($config['smilies_enabled'] == true) {
-      				$theme->insert_nest("edit", "disable_smilies");
-      				$theme->add_nest("edit", "disable_smilies");
-
-					// Add the emoticon chooser to the page
-					$theme->insert_nest("edit", "smilies");
-		        	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-		        	$smilie_no = 1;
-		        	$smilie_count = 1;
-		        	$smilie_url = array();
-		        	while($smilie = $smilie_query->fetch())
-		        	{
-						// Check if the smilie has already been displayed
-		        		if(!in_array($smilie['smilie_url'], $smilie_url))
-		       	 		{
-							// Add smilie to the array
-							$smilie_url[] = $smilie['smilie_url'];
-		
-		        			if($smilie_no == 1)
-		        			{
-		        				$theme->insert_nest("edit", "smilies/emoticon_row");
-		        			}
-		
-		        			$theme->insert_nest("edit", "smilies/emoticon_row/emoticon_cell", array(
-		        				"EMOTICON_CODE" => $smilie['smilie_code'],
-		        				"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
-		        				"EMOTICON_TITLE" => $smilie['smilie_name']
-		        			));
-		        			$theme->add_nest("edit", "smilies/emoticon_row/emoticon_cell");
-		        			if($smilie_no >= 5)
-		        			{
-								$theme->add_nest("edit", "smilies/emoticon_row");
-		        				$smilie_no = 1;
-		        			}
-		        			else
-		        			{
-								$smilie_no++;
-		        			}
-		        			$smilie_count++;
-		        			if($smilie_count > 20)
-		        			{
-								break;
-		        			}
-		        		}
-		       		}
-   		    		$theme->add_nest("edit", "smilies");
-      			}
-      			//
-      			// Output the page header
-      			//
-      			include($root_path . "includes/page_header.php");
-
-      			//
-      			// Output the main page
-      			//
-      			$theme->output("edit");
-
-      			//
-      			// Output the page footer
-      			//
-      			include($root_path . "includes/page_footer.php");
+				outputPage($page_master, $page_title);
       		}
       		else
       		{
@@ -1166,8 +844,8 @@ else if($_GET['func'] == "edit")
       	}
 		else
     	{
-   			$theme->new_file("edit", "post.tpl", "");
-   			$theme->replace_tags("edit", array(
+			$page_master = new Template("post.tpl");
+			$page_master->setVars(array(
 				"ACTION" => $lang['Edit'],
 				"TOPIC_ID" => $result['topic_id'],
 				"TOPIC_NAME" => $result['topic_title'],
@@ -1181,87 +859,22 @@ else if($_GET['func'] == "edit")
    			));
    			$page_title = $config['site_name'] . " &raquo; " . $result['forum_name'] . " &raquo; " . $result['topic_title'] . " &raquo; " . $lang['Edit'];
 
-       		$theme->switch_nest("edit", "navbar", false);
-       		$theme->add_nest("edit", "navbar");
+			$page_master->addToBlock("nav_reply", array(
+				"ACTION" => $lang['Edit'],
+				"TOPIC_ID" => $result['topic_id'],
+				"TOPIC_NAME" => $result['topic_title'],
+				"FORUM_ID" => $result['forum_id'],
+				"FORUM_NAME" => $result['forum_name'],
+			));
 
-   			if($config['html_enabled'] == true) {
-   				$theme->insert_nest("edit", "disable_html");
-   				$theme->add_nest("edit", "disable_html");
-   			}
-   			if($config['bbcode_enabled'] == true) {
-   				$theme->insert_nest("edit", "disable_bbcode");
-   				$theme->add_nest("edit", "disable_bbcode");
+			renderPostEditBlocks($page_master);
 
-   				// Add the BBCode chooser to the page
-   				$theme->insert_nest("edit", "bbcode");
-   				$theme->add_nest("edit", "bbcode");
-   			}
-   			if($config['smilies_enabled'] == true) {
-   				$theme->insert_nest("edit", "disable_smilies");
-   				$theme->add_nest("edit", "disable_smilies");
-
-   				// Add the emoticon chooser to the page
-   				$theme->insert_nest("edit", "smilies");
-          			$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
-          			$smilie_no = 1;
-          			$smilie_count = 1;
-          			$smilie_url = array();
-          			while($smilie = $smilie_query->fetch())
-          			{
-         		 		// Check if the smilie has already been displayed
-          				if(!in_array($smilie['smilie_url'], $smilie_url))
-         	 				{
-          					// Add smilie to the array
-          					$smilie_url[] = $smilie['smilie_url'];
-
-          					if($smilie_no == 1)
-          					{
-          						$theme->insert_nest("edit", "smilies/emoticon_row");
-          					}
-
-          					$theme->insert_nest("edit", "smilies/emoticon_row/emoticon_cell", array(
-          						"EMOTICON_CODE" => $smilie['smilie_code'],
-          						"EMOTICON_URL" => $root_path . $config['smilies_url'] . "/" . $smilie['smilie_url'],
-          						"EMOTICON_TITLE" => $smilie['smilie_name']
-          					));
-          					$theme->add_nest("edit", "smilies/emoticon_row/emoticon_cell");
-          					if($smilie_no >= 5)
-          					{
-          						$theme->add_nest("edit", "smilies/emoticon_row");
-          						$smilie_no = 1;
-          					}
-          					else
-          					{
-          						$smilie_no++;
-          					}
-          					$smilie_count++;
-          					if($smilie_count > 20)
-          					{
-          						break;
-          					}
-          				}
-      				}
-         			$theme->add_nest("edit", "smilies");
-   			}
-
-   			//
-   			// Output the page header
-   			//
-   			include($root_path . "includes/page_header.php");
-
-   			//
-   			// Output the main page
-   			//
-   			$theme->output("edit");
-
-   			//
-   			// Output the page footer
-   			//
-   			include($root_path . "includes/page_footer.php");
+			outputPage($page_master, $page_title);
     	}
 	}
 	else
-	{		error_msg($lang['Error'], $lang['Invalid_Post_Id']);
+	{
+		error_msg($lang['Error'], $lang['Invalid_Post_Id']);
 	}
 }
 else if($_GET['func'] == "delete")

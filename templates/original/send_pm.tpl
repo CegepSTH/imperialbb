@@ -15,7 +15,7 @@
 	</div>
 </div>
 <!-- BLOCK error -->
-<div class="panel bottom-border pm-error-panel">
+<div class="panel bottom-border editor-error-panel pm-error-panel">
 	<div class="panel-header">
 		{L.The_following_errors_occoured}:
 	</div>
@@ -24,14 +24,14 @@
 	</div>
 </div>
 <!-- END BLOCK error -->
-<form method="post" action="" name="send_pm" class="panel pm-edit-panel">
+<form method="post" action="" name="send_pm" class="panel editor-panel pm-edit-panel">
 	{CSRF_TOKEN}
 	<div class="panel-header">
 		{ACTION}
 	</div>
 
 	<!-- BLOCK username -->
-	<div class="custom-row">
+	<div class="editor-row">
 		<div class="label">
 			{L.Username}
 		</div>
@@ -45,7 +45,7 @@
 	</div>
 	<!-- END BLOCK username -->
 
-	<div class="custom-row">
+	<div class="editor-row">
 		<div class="label">
 			{L.Title}
 		</div>
@@ -54,7 +54,7 @@
 		</div>
 	</div>
 
-	<div class="custom-row">
+	<div class="editor-row">
 		<div class="label">
 			{L.Message}
 		</div>

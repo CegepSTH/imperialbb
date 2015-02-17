@@ -1066,52 +1066,71 @@ so they span mutiple lines (up to three).
 	margin-bottom: 5px;
 }
 
-.pm-edit-panel .panel-header
+.editor-panel .panel-header
 {
 	margin-bottom: 5px;
 }
-.pm-edit-panel .custom-row
+.editor-panel .editor-section,
+.editor-panel .editor-section-desc
+{
+	text-align: center;
+	margin-bottom: 5px;
+}
+.editor-panel .editor-section
+{
+	background-color: #297acc;
+	border-top: 3px solid #2b5b78;
+	color: #fff;
+	padding: 5px;
+}
+.editor-panel .editor-section-desc
+{
+	padding: 2px;
+	border-bottom: 1px solid #ddd;
+}
+.editor-panel .editor-row
 {
 	padding-bottom: 5px;
 	border-bottom: 1px solid #ddd;
 	margin-bottom: 5px;
 }
-.pm-edit-panel .custom-row .label,
-.pm-edit-panel .custom-row .value,
-.pm-edit-panel .custom-row .extra
+.editor-panel .editor-row .label,
+.editor-panel .editor-row .value,
+.editor-panel .editor-row .extra
 {
 	display: inline-block;
 	vertical-align: top;
 }
-.pm-edit-panel .custom-row .label,
-.pm-edit-panel .custom-row .extra
+.editor-panel .editor-row .label,
+.editor-panel .editor-row .extra
 {
 	width: 19%;
 }
-.pm-edit-panel .custom-row .value
+.editor-panel .editor-row .value
 {
 	width: 59%;
 }
-.pm-edit-panel .custom-row .value .value-edit
+.editor-panel .editor-row .value .value-edit
 {
 	width: 100%;
 }
-.pm-edit-panel .custom-row .extra
+.editor-panel .editor-row .extra
 {
 	text-align: center;
 }
-.pm-edit-panel .custom-row .value #pm_body
+.pm-edit-panel .editor-row .value #pm_body,
+.post-edit-panel .editor-row .value .post-body
 {
 	height: 10em;
 }
 
-.pm-error-panel
+.editor-error-panel
 {
 	width: 80%;
 	margin-left: auto;
 	margin-right: auto;
 }
-.pm-error-panel .panel-body
+.editor-error-panel .panel-body
 {
 	margin: 5px;
 }
