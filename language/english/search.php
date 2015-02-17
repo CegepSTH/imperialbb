@@ -15,8 +15,8 @@ if(!defined("IN_IBB")) {
 }
 
 $lang['All_Forums'] = "All Forums";
-$lang['Search_Topic_Titles'] = "Search Topic Titles";
-$lang['Search_Post_Text'] = "Search Post Text";
+$lang['Search_Topic_Titles'] = "Topic Titles";
+$lang['Search_Post_Text'] = "Post Text";
 $lang['Search_for'] = "Search for";
 $lang['Search_author'] = "Search author";
 $lang['Search_Options'] = "Search Options";

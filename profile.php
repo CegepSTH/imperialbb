@@ -345,7 +345,6 @@ if($_GET['func'] == "edit")
 
 			$db2->query($remove_token_template, array(":userid" => $user_id));
 
-
 			// Then logout user
 			if($user['user_level'] < 5) {
 
@@ -366,8 +365,6 @@ if($_GET['func'] == "edit")
 		}
 	} else {
 		$oUser = User::findUser($user['user_id']);
-
-
 		$token = md5(time().$user['user_id']);
 
 		$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
@@ -419,9 +416,7 @@ if($_GET['func'] == "edit")
 		}
 		// Ça me dit fuckall ces err code là avec le show message...
 		showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
-
 	}
-
 } else {
 	if(!isset($_GET['id']) || $_GET['id'] < 0) {
 		showMessage(ERR_CODE_INVALID_USER_ID, "index.php");

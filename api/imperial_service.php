@@ -3,7 +3,8 @@
 if(!defined("IBB_WEB_SERVICE")) {
 	header("Location: ../index.php");
 }
-
+define("IN_IBB", 1);
+$root_path = "../";
 require_once("../includes/config.php");
 require_once("../classes/database.php");
 require_once("../models/user.php");
@@ -24,11 +25,11 @@ class ImperialService {
 		}
 		
 		$oDb = new Database($database, $database["prefix"]);
-		$values = new array(":name" => $infos["cat_name"], ":orderby" => $infos["cat_orderby"]);
+		$values = array(":name" => $infos["cat_name"], ":orderby" => $infos["cat_orderby"]);
 		$oDb->query("INSERT INTO _PREFIX_categories (`cat_name`, `cat_orderby`) 
 			VALUES (:name, :orderby)", $values);
 		
-		return $oDb->lastInsertId() > 0 ? true : false;
+		return ($oDb->lastInsertId() > 0);
 	}
 	
 	/**
@@ -58,9 +59,9 @@ class ImperialService {
 		}
 		
 		$oDb = new Database($database, $database["prefix"]);
-		$values = new array(":name" => $infos["forum_name"], ":orderby" => $infos["forum_orderby"],
+		$values = array(":name" => $infos["forum_name"], ":orderby" => $infos["forum_orderby"],
 			":catId" => $infos["forum_cat_id"], ":desc" => $infos["forum_desc"], ":type" => $infos["forum_type"], 
-			":read" => $infos["forum_read"], ":post" => $infos["forum_post"], ":reply" => $infos["forum_reply"]
+			":read" => $infos["forum_read"], ":post" => $infos["forum_post"], ":reply" => $infos["forum_reply"],
 			":poll" => $infos["forum_poll"], ":cpoll" => $infos["forum_create_poll"],
 			":mod" => $infos["forum_mod"], ":redirect" => $infos["forum_redirect_url"] == "NULL" ? null : $infos["forum_redirect_url"]);
 		
@@ -212,7 +213,7 @@ class ImperialService {
 	 * 
 	 * @returns An of all posts.
 	 */
-	public static function getForumPostsList($n_topicId, $n_start, $n_end) {
+	public static function getTopicPostsList($n_topicId, $n_start, $n_end) {
 		if(!is_numeric($n_topicId) || !is_numeric($n_start) 
 			|| !is_numeric($n_end)) {
 				
@@ -387,8 +388,9 @@ class ImperialService {
 		if(is_null($result)) {
 			return false;
 		} else {
-			if($result["created_time"]) {
-			
+			// If token is expired.
+			if(($result["created_time"] + 3600 * 2) < time()) {
+				return false;
 			}
 			
 			return true;

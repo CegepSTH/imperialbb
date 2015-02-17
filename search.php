@@ -1,30 +1,15 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: search.php                                                 # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
 require_once($root_path . "includes/common.php");
-
 $language->add_file("search");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 if(isset($_POST['submit']) || $_GET['func'] == "unanswered" || $_GET['func'] == "new") {
-	$theme->new_file("search_results", "search_results.tpl");
+	$tplSearchResults = new Template("search_results.tpl");
 
 	if(isset($_POST['submit'])) {
 		CSRF::validate();
@@ -117,16 +102,7 @@ if(isset($_POST['submit']) || $_GET['func'] == "unanswered" || $_GET['func'] == 
 
 	while($result = $db2->fetch()) {		
 		$result['user'] = ($result['user_id'] > 0) ? "<a href=\"?act=profile&id=".$result['user_id']."\"><b>".$result['username']."</b></a>" : "<b>".$result['username']."</b>";
-		
-		$theme->insert_nest("search_results", "searchrow", array(
-			"TOPIC_ID" => $result['topic_id'],
-			"TOPIC_NAME" => $result['topic_title'],
-			"AUTHOR" => ($result['user_id'] < 0) ? $result['username'] : "<a href=\"?act=profile&id=".$result['user_id']."\">".$result['username']."</a>",
-			"REPLIES" => $result['topic_replies'],
-			"VIEWS" => $result['topic_views'],
-			"LAST_POST" => create_date("D d M Y g:i a", $result['post_timestamp'])."<br />".$result['user']." <a href=\"?act=viewtopic&tid=".$result['topic_id']."\"><b>&gt;&gt;</b></a>"
-		));
-		
+
 		$new_posts = false;
 		
 		if($user['user_id'] > 0) {
@@ -148,54 +124,39 @@ if(isset($_POST['submit']) || $_GET['func'] == "unanswered" || $_GET['func'] == 
 			}
 		}
 
+		$blockNewPosts = "";
 		if($new_posts) {
-			$theme->switch_nest("search_results", "searchrow/new_posts", true);
+			$blockNewPosts = $tplSearchResults->renderBlock("new_posts_on", array());
 		} else {
-			$theme->switch_nest("search_results", "searchrow/new_posts", false);
+			$blockNewPosts = $tplSearchResults->renderBlock("new_posts_off", array());
 		}
-
-		$theme->add_nest("search_results", "searchrow");
+		
+		$tplSearchResults->addToBlock("searchrow", array(
+			"TOPIC_ID" => $result['topic_id'],
+			"TOPIC_NAME" => $result['topic_title'],
+			"AUTHOR" => ($result['user_id'] < 0) ? $result['username'] : "<a href=\"?act=profile&id=".$result['user_id']."\">".$result['username']."</a>",
+			"REPLIES" => $result['topic_replies'],
+			"VIEWS" => $result['topic_views'],
+			"LAST_POST" => create_date("D d M Y g:i a", $result['post_timestamp'])."<br />".$result['user']." <a href=\"?act=viewtopic&tid=".$result['topic_id']."\"><b>&gt;&gt;</b></a>",
+			"block_new_posts" => $blockNewPosts
+		));
 	}
 
 	$page_title = $config['site_name'] . " » " . $lang['Search_Results'];
 
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("search_results");
-
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
-
-}
-else
-{
-	$theme->new_file("search", "search.tpl");
-	$theme->replace_tags("search",
-		array(
-			"CSRF_TOKEN" => CSRF::getHTML()
-		)
-	);
+	outputPage($tplSearchResults);
+	exit();
+} else {
+	$tplSearch = new Template("search.tpl");
+	$tplSearch->setVar("CSRF_TOKEN", CSRF::getHTML());
 
 	$page_title = $config['site_name'] . " » " . $lang['Search'];
 
-	$db_cat = $db2->query("SELECT `cat_id`, `cat_name` FROM `_PREFIX_categories` ORDER BY `cat_orderby`");
-	while($cat_result = $db_cat->fetch())
-	{
-		$theme->insert_nest("search", "catrow", array(
-			"CAT_ID" => $cat_result['cat_id'],
-			"CAT_NAME" => $cat_result['cat_name']
-		));
-
-		$forum_count = 0;
+	$db_cat = $db2->query("SELECT `cat_id`, `cat_name` 
+		FROM `_PREFIX_categories` 
+		ORDER BY `cat_orderby`");
 		
+	while($cat_result = $db_cat->fetch()) {
 		$result = $db2->query("SELECT f.`forum_id`, f.`forum_name`, f.`forum_read`, g.`ug_read`
 			FROM (`_PREFIX_forums` f
 				LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup`=:ugroup)
@@ -203,66 +164,49 @@ else
 			ORDER BY `forum_orderby`", array(":ugroup" => $user['user_usergroup'], ":cid" => $cat_result['cat_id']));
 
 		while($forum_result = $result->fetch()) {
-			if(($forum_result['forum_read'] <= $user['user_level'] && $forum_result['ug_read'] == 0) || $forum_result['ug_read'] == 1)
-			{				
-				$theme->insert_nest("search", "catrow/forumrow", array(
+			if(($forum_result['forum_read'] <= $user['user_level'] 
+				&& $forum_result['ug_read'] == 0) || $forum_result['ug_read'] == 1)
+			{
+				$blockForumRow .= $tplSearch->renderBlock("forumrow", array(
 					"FORUM_ID" => $forum_result['forum_id'],
 					"PREFIX" => "+-+",
 					"FORUM_NAME" => $forum_result['forum_name']
 				));
 				
-				$theme->add_nest("search", "catrow/forumrow");
-                _generate_category_dropdown($forum_result['forum_id'], "+-+-+");
-				$forum_count++;
+                $blockForumRow .= _generate_category_dropdown($forum_result['forum_id'], "+-+-+");
 			}
 		}
-
-		if($forum_count > 0) {			
-			$theme->add_nest("search", "catrow");
-		}
+		
+		$tplSearch->addToBlock("catrow", array(
+			"CAT_ID" => $cat_result['cat_id'],
+			"CAT_NAME" => $cat_result['cat_name'],
+			"block_forumrow" => $blockForumRow));
 	}
-	//
-	// Output the page header
-	//
-	include_once($root_path . "includes/page_header.php");
-
-	//
-	// Output the main page
-	//
-	$theme->output("search");
-
-	//
-	// Output the page footer
-	//
-	include_once($root_path . "includes/page_footer.php");
+	
+	//output
+	outputPage($tplSearch);
+	exit();
 }
 
-function _generate_category_dropdown($forum_id, $prefix)
+function _generate_category_dropdown($forum_id, $prefix, $rows = "")
 {
-	global $db2, $theme;
-
+	global $db2, $tplSearch;
+	
 	$result = $db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
 		WHERE `forum_cat_id`=:fid AND `forum_type` = 'f'
 		ORDER BY `forum_orderby` DESC", array(":fid" => $forum_id));
 
 	while($forum_result = $result->fetch()) {
-		$theme->insert_nest("search", "catrow/forumrow", array(
+		$rows .= $tplSearch->renderBlock("forumrow", array(
 			"FORUM_ID" => $forum_result['forum_id'],
 			"PREFIX" => $prefix,
 			"FORUM_NAME" => $forum_result['forum_name']
 		));
-		
-		$theme->add_nest("search", "catrow/forumrow");
 
-		_generate_category_dropdown($forum_result['forum_id'], $prefix . "-+");
+		_generate_category_dropdown($forum_result['forum_id'], $prefix . "-+", $rows);
 	}
 
-	return true;
+	return $rows;
 }
 
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>
