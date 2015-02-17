@@ -45,8 +45,6 @@ if(isset($_POST['Submit'])) {
 		$error .= $lang['Email_Already_Taken'] . "<br />";
 	}
 
-
-
 	if(strlen($_POST['Password']) < 4) {
 		$error .= $lang['Password_Too_Short'] . "<br />";
 	} else if($_POST['Password'] != $_POST['Pass2']) {
