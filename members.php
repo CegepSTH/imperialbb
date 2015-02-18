@@ -1,8 +1,7 @@
 <?php
-
 define("IN_IBB", 1);
 $root_path = "./";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 $language->add_file("members");
 $page_master = new Template("memberslist.tpl");
 
@@ -17,14 +16,14 @@ $page_master->setVars(array(
 	"PAGINATION" => $pagination
 ));
 
-$db2->query("SELECT *
+$sql = $db2->query("SELECT *
 	FROM `_PREFIX_users`
 	WHERE `user_id` > '0'
 	ORDER BY `user_id` ASC
 	LIMIT " . $pp->limit . ""
 );
 
-while($result = $db2->fetch())  {
+while($result = $sql->fetch())  {
 	if($result['user_level'] <= 1 || $result['user_rank'] <= 0) {
 		continue;
 	}
@@ -39,7 +38,6 @@ while($result = $db2->fetch())  {
 		"DATE_JOINED" => create_date("D d M Y", $result['user_date_joined'])
 	));
 }
-
 
 $page_title = $config['site_name'] . " &raquo; " . $lang['Members_List'];
 outputPage($page_master, $page_title);
