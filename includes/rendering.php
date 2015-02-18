@@ -83,24 +83,26 @@ function renderSmiliePicker() {
 	$smilie_query = $db2->query("SELECT `smilie_code`, `smilie_url`, `smilie_name` FROM `_PREFIX_smilies`");
 	$smilie_count = 1;
 	$smilie_url = array();
+	
+	$emotion['smilie_url'] = array();
 
 	$current_row_content = "";
 	while($smilie = $smilie_query->fetch())
-	{
+	{			
+		// Add smilie to the array
+		$smilie_url = $smilie['smilie_url'];
+		
 		// Check if the smilie has already been displayed
-		if(!in_array($emotion['smilie_url'], $smilie_url))
+		if(!in_array($smilie_url, $emotion['smilie_url']))
 		{
-			// Add smilie to the array
-			$smilie_url[] = $smilie['smilie_url'];
-
 			$current_row_content .= $smilie_picker->renderBlock("smilie_button", array(
-				"EMOTICON_CODE" => $smilie['smilie_code'],
+				"EMOTICON_CODE" => $smilie['smilie_code'],				
+				"EMOTICON_TITLE" => $smilie['smilie_name'],
 				"EMOTICON_URL" => $smilie['smilie_url'],
-				"EMOTICON_TITLE" => $smilie['smilie_name']
 			));
 
 			$smilie_count++;
-			if($smilie_count > 20)
+			if($smilie_count > 50)
 			{
 				break;
 			}
@@ -111,6 +113,9 @@ function renderSmiliePicker() {
 				));
 				$current_row_content = "";
 			}
+			
+			array_push($emotion['smilie_url'], $smilie_url);
+			
 		}
 	}
 
