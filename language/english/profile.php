@@ -17,12 +17,18 @@ if(!defined("IN_IBB")) {
 //
 // Close account button
 //
+$lang['Only_fill_in_if_you_want_to_close_your_account'] = "Only fill in if you want to close your account";
 $lang['Close_Account'] = "Close your account";
+$lang['Reason'] = "Reason (Required)*";
 $lang['Must_Be_Logged_In'] = "You are not connected, please connect first";
 $lang['Check_Mail'] = "Please check your email for next step";
+$lang['Admin_Review'] = "By security measure, an administrator will have to approve your request";
 $lang['Account_Has_Been_Removed'] = "Account has been removed";
-$lang['Account_Has_Been_Removed_Message'] = "Your account is now inactive, we have removed your email from our database.";
+
+$lang['Account_Has_Been_Removed_Message'] = "Account is now inactive, we have removed your email from our database.";
 $lang['Invalid_Token_Id'] = "Invalid token ID, please try again";
+
+
 
 $lang['Body_On_Pm'] = "Hi, please consider closing my account, [url=http://";
 $lang['Body_On_Pm_2'] = "]by clicking on this link[/url]. Thank you.";
