@@ -1,32 +1,17 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: pm.php                                                     # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 $language->add_file("pm");
 $language->add_file("view_topic");
 Template::addNamespace("L", $lang);
 
-if($user['user_id'] <= 0)
-{
-	info_box($lang['Error'], $lang['Must_Be_Logged_In_msg'], "login.php");
+if($user['user_id'] <= 0) {
+	showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 }
+
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 if($_GET['func'] == "send")
@@ -38,24 +23,23 @@ if($_GET['func'] == "send")
 		CSRF::validate();
 
 		$error = "";
-		if(strlen($_POST['username']) < 1 )
-		{
+		if(strlen($_POST['username']) < 1 ) {
 			$error .= sprintf($lang['No_x_content'], strtolower($lang['Username'])) ."<br />";
 		}
-		if(strlen($_POST['title']) < 1 )
-		{
+		
+		if(strlen($_POST['title']) < 1 ) {
 			$error .= sprintf($lang['No_x_content'], strtolower($lang['Title'])) ."<br />";
 		}
-		if(strlen($_POST['body']) < 1)
-		{
+		
+		if(strlen($_POST['body']) < 1) {
 			$error .= $lang['No_Post_Content'] . "<br />";
 		}
-		if(!isset($_POST['action']) || strlen($_POST['action']) < 1)
-		{
+		
+		if(!isset($_POST['action']) || strlen($_POST['action']) < 1) {
 			$error .= $lang['Select_An_Action_PM'] . "<br />";
 		}
-		if(strlen($error) > 0)
-		{
+		
+		if(strlen($error) > 0) {
 			$page_master = new Template("send_pm.tpl");
 
 			$page_master->setVars(array(
@@ -71,17 +55,14 @@ if($_GET['func'] == "send")
 				"EMAIL_SELECTED" => (isset($_POST['action']) && $_POST['action'] == "email") ? "CHECKED" : "",
 			));
 
-			if($config['bbcode_enabled'] == true)
-			{
+			if($config['bbcode_enabled'] == true) {
 				$page_master->setVar("BBCODE_EDITOR",
-					renderBBCodeEditor()
-				);
+					renderBBCodeEditor());
 			}
-			if($config['smilies_enabled'] == true)
-			{
+			
+			if($config['smilies_enabled'] == true) {
 				$page_master->setVar("SMILIE_PICKER",
-					renderSmiliePicker()
-				);
+					renderSmiliePicker());
 			}
 
 			$page_master->addToBlock("error", array(
@@ -89,20 +70,17 @@ if($_GET['func'] == "send")
 			));
 
 			outputPage($page_master);
-		}
-		else
-		{
+			exit();
+		} else {
 			$sql = $db2->query("SELECT *
 				FROM `_PREFIX_users`
 				WHERE `username` = :username",
 				array(
 					":username" => $_POST['username']
-				)
-			);
-			if($result = $sql->fetch())
-			{
-				if($_POST['action'] == "pm")
-				{
+				));
+				
+			if($result = $sql->fetch()) {
+				if($_POST['action'] == "pm") {
 					$db2->query("INSERT INTO `".$db_prefix."pm`
 						VALUES (
 						'',
@@ -120,8 +98,8 @@ if($_GET['func'] == "send")
 							":receiver" => $result['user_id'],
 							":sender" => $user['user_id'],
 							":pm_time" => time()
-						)
-					);
+						));
+						
 					$pm_id = $db2->lastInsertId();
 					if($result['user_email_on_pm'] == "1") {
 						email($lang['Email_PM_Recieved_Subject'], "pm_recieved", array(
@@ -130,30 +108,23 @@ if($_GET['func'] == "send")
 							"DOMAIN" => $config['url'],
 							"PM_ID" => $pm_id), $result['user_email']);
 					}
-					info_box($lang['PM'], "PM Sent", "pm.php");
-				}
-				else if($_POST['action'] == "email")
-				{
+					
+					showMessage(ERR_CODE_PM_SENT, "pm.php");
+				} else if($_POST['action'] == "email") {
 					email($_POST['title'], "user_email", array(
 						"SITE_NAME" => $config['site_name'],
 						"AUTHOR_USERNAME" => $user['username'],
 						"USERNAME" => $result['username'],
 						"MESSAGE" => $_POST['body']), $result['user_email'], $user['user_email']);
-					info_box($lang['Email'], $lang['Email_Sent'], "pm.php");
+					showMessage(ERR_CODE_EMAIL_SENT, "pm.php");	
+				} else {
+					showMessage(ERR_CODE_INVALID_ACTION);
 				}
-				else
-				{
-					error_msg($lang['Error'], $lang['Invalid_Action']);
-				}
-			}
-			else
-			{
-				error_msg($lang['Error'], $lang['User_does_not_exist']);
+			} else {
+				showMessage(ERR_CODE_USER_NOT_FOUND);
 			}
 		}
-	}
-	else
-	{
+	} else {
 		$page_master = new Template("send_pm.tpl");
 
 		$page_master->setVars(array(
@@ -169,116 +140,87 @@ if($_GET['func'] == "send")
 			"EMAIL_SELECTED" => (isset($_GET['action']) && $_GET['action'] == "email") ? "CHECKED" : "",
 		));
 
-		if($config['bbcode_enabled'] == true)
-		{
+		if($config['bbcode_enabled'] == true) {
 			$page_master->setVar("BBCODE_EDITOR",
 				renderBBCodeEditor()
 			);
 		}
-		if($config['smilies_enabled'] == true)
-		{
+		
+		if($config['smilies_enabled'] == true) {
 			$page_master->setVar("SMILIE_PICKER",
 				renderSmiliePicker()
 			);
 		}
 
 		outputPage($page_master);
+		exit();
 	}
 }
 else if($_GET['func'] == "delete")
 {
-	if(!isset($_GET['id'])) error_msg("Error", "Error no PM id specified!");
+	if(!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+		showMessage(ERR_CODE_INVALID_PM_ID);
+	}
+	
 	$sql = $db2->query("SELECT *
 		FROM `_PREFIX_pm`
 		WHERE `pm_id` = :id
 			AND (`pm_send_to` = :as_receiver || `pm_sent_from` = :as_sender)",
-		array(
-			":id" => $_GET['id'],
+		array(":id" => $_GET['id'],
 			":as_receiver" => $user['user_id'],
-			":as_sender" => $user['user_id']
-		)
-	);
-	if($result = $sql->fetch())
-	{
-		if($result['pm_type'] == "1")
-		{
-			if($result['pm_send_to'] == $user['user_id'] && $result['pm_sent_from'] == $user['user_id'])
+			":as_sender" => $user['user_id']));
+			
+	if($result = $sql->fetch()) {
+		if($result['pm_type'] == "1") {
+			if($result['pm_send_to'] == $user['user_id'] 
+				&& $result['pm_sent_from'] == $user['user_id'])
 			{
 				$db2->query("DELETE FROM `_PREFIX_pm`
 					WHERE `pm_id` = :pm_id",
-					array(
-						":pm_id" => $_GET['id']
-					)
-				);
-				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
-			}
-			else if($result['pm_send_to'] == $user['user_id'])
-			{
+					array(":pm_id" => $_GET['id']));
+				
+				showMessage(ERR_CODE_PM_DELETED, "pm.php");
+			} else if($result['pm_send_to'] == $user['user_id']) {
 				$db2->query("UPDATE `_PREFIX_pm`
 					SET `pm_type` = '3'
 					WHERE `pm_id` = :pm_id",
-					array(
-						":pm_id" => $_GET['id']
-					)
-				);
-				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
-			}
-			else if($result['pm_sent_from'] == $user['user_id'])
-			{
+					array(":pm_id" => $_GET['id']));
+					
+				showMessage(ERR_CODE_PM_DELETED, "pm.php");
+			} else if($result['pm_sent_from'] == $user['user_id']) {
 				$db2->query("UPDATE `_PREFIX_pm`
 					SET `pm_type` = '2'
 					WHERE `pm_id` = :pm_id",
-					array(
-						":pm_id" => intval($_GET['id'])
-					)
-				);
-				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
+					array(":pm_id" => intval($_GET['id'])));
+					
+				showMessage(ERR_CODE_PM_DELETED, "pm.php");
+			} else {
+				showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
 			}
-			else
-			{
-				error_msg($lang['Error'], $lang['Invalid_PM_Id']);
-			}
-		}
-		else if($result['pm_type'] == "2")
-		{
-			if($result['pm_send_to'] == $user['user_id'])
-			{
+		} else if($result['pm_type'] == "2") {
+			if($result['pm_send_to'] == $user['user_id']) {
 				$db2->query("DELETE FROM `_PREFIX_pm`
 					WHERE `pm_id` = :pm_id",
-					array(
-						":pm_id" => $_GET['id']
-					)
-				);
-				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
-			}
-			else
-			{
-				error_msg($lang['Error'], $lang['Invalid_PM_Id']);
+					array(":pm_id" => $_GET['id']));
+				
+				showMessage(ERR_CODE_PM_DELETED, "pm.php");
+			} else {
+				showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
  			}
-		}
-		else if($result['pm_type'] == "3")
-		{
-			if($result['pm_sent_from'] == $user['user_id'])
-			{
+		} else if($result['pm_type'] == "3") {
+			if($result['pm_sent_from'] == $user['user_id']) {
 				$db2->query("DELETE FROM `_PREFIX_pm`
 					WHERE `pm_id` = :pm_id",
-					array(
-						":pm_id" => $_GET['id']
-					)
-				);
-				info_box($lang['PM_Manager'], $lang['PM_Deleted'], "pm.php");
-			}
-			else
-			{
-			error_msg($lang['Error'], $lang['Invalid_PM_Id']);
+					array(":pm_id" => $_GET['id']));
+				
+				showMessage(ERR_CODE_PM_DELETED, "pm.php");
+			} else {
+				showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
 			}
 		}
+	} else {
+		showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
 	}
-	else
-	{
-		error_msg($lang['Error'], $lang['Invalid_PM_Id']);
-	}
-
 }
 else if($_GET['func'] == "edit")
 {
@@ -287,30 +229,30 @@ else if($_GET['func'] == "edit")
 		WHERE `pm_id` = :pm_id AND
 			`pm_sent_from` = :user_id AND
 			`pm_type` = '1'",
-		array(
-			":pm_id" => $_GET['id'],
-			":user_id" => $user['user_id']
-		)
-	);
+		array(":pm_id" => $_GET['id'],
+			":user_id" => $user['user_id']));
+			
 	if($result = $sql->fetch()) {
 		$language->add_file("posting");
 		Template::addNamespace("L", $lang);
 
-       	if(!isset($_GET['id'])) error_msg($lang['Error'], $lang['Invalid_PM_Id']);
+       	if(!isset($_GET['id'])) {
+			showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
+		}
+		
        	if(isset($_POST['Submit'])) {
 			CSRF::validate();
 
        		$error = "";
-       		if(strlen($_POST['title']) < 1 )
-       		{
+       		if(strlen($_POST['title']) < 1 ) {
        			$error .= sprintf($lang['No_x_content'], strtolower($lang['Title'])) . "<br />";
        		}
-       		if(strlen($_POST['body']) < 1)
-       		{
+       		
+       		if(strlen($_POST['body']) < 1) {
        			$error .= $lang['No_Post_Content'] . "<br />";
        		}
-       		if(strlen($error) > 0)
-       		{
+       		
+       		if(strlen($error) > 0) {
 				$page_master = new Template("send_pm.tpl");
 
 				$page_master->setVars(array(
@@ -320,26 +262,22 @@ else if($_GET['func'] == "edit")
 					"CSRF_TOKEN" => CSRF::getHTML()
        			));
 
-				if($config['bbcode_enabled'] == true)
-				{
+				if($config['bbcode_enabled'] == true) {
 					$page_master->setVar("BBCODE_EDITOR",
-						renderBBCodeEditor()
-					);
+						renderBBCodeEditor());
 				}
-				if($config['smilies_enabled'] == true)
-				{
+				
+				if($config['smilies_enabled'] == true) {
 					$page_master->setVar("SMILIE_PICKER",
-						renderSmiliePicker()
-					);
+						renderSmiliePicker());
 				}
+				
 				$page_master->addToBlock("error", array(
-       				"ERRORS" => $error
-       			));
+					"ERRORS" => $error));
 
 				outputPage($page_master);
-       		}
-       		else
-       		{
+				exit();
+       		} else {
        			$db2->query("UPDATE `_PREFIX_pm`
 					SET `pm_title` = :title,
 					`pm_body` = :body
@@ -347,14 +285,11 @@ else if($_GET['func'] == "edit")
 					array(
 						":title" => $_POST['title'],
 						":body" => $_POST['body'],
-						":pm_id" => $_GET['id']
-					)
-				);
-       			info_box($lang['PM_Manager'], $lang['PM_Edited'], "?pm.php");
+						":pm_id" => $_GET['id']));
+						
+				showMessage(ERR_CODE_PM_EDITED, "pm.php");		
        		}
-       	}
-       	else
-       	{
+       	} else {
        		$sql = $db2->query("SELECT *
 				FROM `_PREFIX_pm`
 				WHERE `pm_id` = :pm_id &&
@@ -362,11 +297,9 @@ else if($_GET['func'] == "edit")
 					`pm_type` = '1'",
 				array(
 					":pm_id" => $_GET['id'],
-					":sender" => $user['user_id']
-				)
-			);
-       		if($result = $sql->fetch())
-       		{
+					":sender" => $user['user_id']));
+					
+       		if($result = $sql->fetch()) {
 				$page_master = new Template("send_pm.tpl");
 
 				$page_master->setVars(array(
@@ -376,30 +309,24 @@ else if($_GET['func'] == "edit")
 					"CSRF_TOKEN" => CSRF::getHTML()
        			));
 
-				if($config['bbcode_enabled'] == true)
-				{
+				if($config['bbcode_enabled'] == true) {
 					$page_master->setVar("BBCODE_EDITOR",
-						renderBBCodeEditor()
-					);
+						renderBBCodeEditor());
 				}
-				if($config['smilies_enabled'] == true)
-				{
+				
+				if($config['smilies_enabled'] == true) {
 					$page_master->setVar("SMILIE_PICKER",
-						renderSmiliePicker()
-					);
+						renderSmiliePicker());
 				}
 
 				outputPage($page_master);
-       		}
-       		else
-       		{
-       			error_msg($lang['Error'], $lang['Invalid_PM_Id']);
+				exit();
+       		} else {
+				showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
        		}
 		}
-	}
-	else
-	{
-		error_msg($lang['Error'], $lang['Invalid_PM_Id']);
+	} else {
+		showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
 	}
 }
 else if(isset($_GET['id']) && $_GET['id'] > 0)
@@ -431,12 +358,10 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 		)
 	);
 
-	if($result = $sql->fetch())
-	{
+	if($result = $sql->fetch()) {
 		$page_master = new Template("view_pm.tpl");
 
-		if(!empty($result['user_signature']))
-		{
+		if(!empty($result['user_signature'])) {
 			$result['user_signature'] = "<br /><br />\n----------<br />\n".format_text($result['user_signature']);
 		}
 
@@ -449,33 +374,28 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 			"DATE" => create_date("D d M Y g:i a", $result['pm_date'])
 		));
 
-		if($result['user_id'] > 0)
-		{
+		if($result['user_id'] > 0) {
 			$page_master->addToBlock("author_standard", array(
 				"AUTHOR_JOINED" => create_date("D d M Y", $result['user_date_joined']),
 				"AUTHOR_POSTS" => $result['user_posts']
 			));
 
-			if(!empty($result['user_location']))
-			{
+			if(!empty($result['user_location'])) {
 				$page_master->addToBlock("author_location", array(
 					"AUTHOR_LOCATION" => $result['user_location']
 				));
 			}
 		}
 
-		if(!empty($result['rank_image']))
-		{
+		if(!empty($result['rank_image'])) {
 			$page_master->addToBlock("rank_image", array(
 				"AUTHOR_RANK" => $result['rank_name'],
 				"AUTHOR_RANK_IMG" => $result['rank_image']
 			));
 		}
 
-		if($result['user_avatar_type'] == UPLOADED_AVATAR || $result['user_avatar_type'] == REMOTE_AVATAR)
-		{
-			if($result['user_avatar_type'] == UPLOADED_AVATAR)
-			{
+		if($result['user_avatar_type'] == UPLOADED_AVATAR || $result['user_avatar_type'] == REMOTE_AVATAR) {
+			if($result['user_avatar_type'] == UPLOADED_AVATAR) {
 				$result['user_avatar_location'] = $root_path . $config['avatar_upload_dir'] . "/" . $result['user_avatar_location'];
 			}
 
@@ -484,8 +404,7 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 			));
 		}
 
-		if($result['pm_unread'] == "1")
-		{
+		if($result['pm_unread'] == "1") {
 			if(!($result['pm_send_to'] != $user['user_id'] && $result['pm_sent_from'] == $user['user_id'])) {
 				$db2->query("UPDATE `_PREFIX_pm`
 					SET `pm_unread` = '0'
@@ -498,35 +417,27 @@ else if(isset($_GET['id']) && $_GET['id'] > 0)
 		}
 
 		outputPage($page_master);
-	}
-	else
-	{
-		error_msg($lang['Error'], $lang['Invalid_PM_Id']);
+		exit();
+	} else {
+		showMessage(ERR_CODE_INVALID_PM_ID, "pm.php");
 	}
 }
 else
 {
 	$page_master = new Template("manage_pm.tpl");
 
-	if($_GET['func'] == "sentbox")
-	{
+	if($_GET['func'] == "sentbox") {
 		$where_query = "WHERE `pm_sent_from` = :user_id && (`pm_type` = '1' || `pm_type` = '3') && `pm_unread` = '1'";
-	}
-	else if($_GET['func'] == "outbox")
-	{
+	} else if($_GET['func'] == "outbox") {
 		$where_query = "WHERE `pm_sent_from` = :user_id && (`pm_type` = '1' || `pm_type` = '3') && `pm_unread` = '0'";
-	}
-	else
-	{
+	} else {
 		$where_query = "WHERE `pm_send_to` = :user_id && (`pm_type` = '1' || `pm_type` = '2')";
 	}
 
 	$count_sql = $db2->query("SELECT count(`pm_id`) AS `pm_count`
 		FROM `_PREFIX_pm` ".$where_query."",
-		array(
-			":user_id" => $user['user_id']
-		)
-	);
+		array(":user_id" => $user['user_id']));
+		
 	$count_array = $count_sql->fetch();
 	$pagination = $pp->paginate($count_array['pm_count'], $config['pm_per_page']);
 	
@@ -535,7 +446,7 @@ else
 	$pm_query = $db2->query("SELECT pm.*,
 		u.`username`
 		FROM (`".$db_prefix."pm` pm
-		LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = pm.`pm_sent_from`)
+			LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = pm.`pm_sent_from`)
 		$where_query
 		ORDER BY pm.`pm_date`
 		LIMIT ".$pp->limit."",
@@ -546,21 +457,16 @@ else
 
 	$pm_rows = "";
 	$pm_count = 0;
-	while($pm = $pm_query->fetch())
-	{
+	while($pm = $pm_query->fetch()) {
 		$read_indicator = "";
-		if($pm['pm_unread'] == 1)
-		{
+		if($pm['pm_unread'] == 1) {
 			$read_indicator = $page_master->renderBlock("unread_pm", array());
-		}
-		else
-		{
+		} else {
 			$read_indicator = $page_master->renderBlock("read_pm", array());
 		}
 
 		$edit_button = "";
-		if($_GET['func'] == "outbox")
-		{
+		if($_GET['func'] == "outbox") {
 			$edit_button = $page_master->renderBlock("edit_pm", array(
 				"ID" => $pm['pm_id']
 			));
@@ -577,44 +483,30 @@ else
 		$pm_count++;
 	}
 
-	if($_GET['func'] == "sentbox")
-	{
+	if($_GET['func'] == "sentbox") {
 		$location = strtolower($lang['Sent_Box']);
 		$page_master->setVar("LOCATION", $lang['Sent_Box']);
-	}
-	else if($_GET['func'] == "outbox")
-	{
+	} else if($_GET['func'] == "outbox") {
 		$location = strtolower($lang['Outbox']);
 		$page_master->setVar("LOCATION", $lang['Outbox']);
-	}
-	else
-	{
+	} else {
 		$location = strtolower($lang['Inbox']);
 		$page_master->setVar("LOCATION", $lang['Inbox']);
 	}
-	if($pm_count > 0)
-	{
+	
+	if($pm_count > 0) {
 		$page_master->setVar("PM_PANEL_CONTENT",
 			$page_master->renderBlock("pms_table", array(
 				"PM_ROWS" => $pm_rows
-			))
-		);
-	}
-	else
-	{
+			)));
+	} else {
 		$page_master->setVar("PM_PANEL_CONTENT",
 			$page_master->renderBlock("no_pms", array(
 				"NO_PM" => sprintf($lang['You_currently_have_no_PMs_in_your'], $location)
-			))
-		);
+			)));
 	}
 
 	outputPage($page_master);
+	exit();
 }
-
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>

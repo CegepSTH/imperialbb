@@ -339,12 +339,5 @@ if($_GET['func'] == "search") {
 }
 
 outputPage($tplUsergroups);
-
-/**
- * /*
-
-			info_box($lang['Usergroup_Permissions'], $lang['Usergroup_Perm_Msg'], "usergroups.php?func=permissions");
-
-			}
- **/
+exit();
 ?>

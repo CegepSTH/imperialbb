@@ -104,15 +104,13 @@ div#quick_reply {
         display: none;
 }
 </style>
-
-<table width="100%">
- <tr>
-   <td align="left" style="padding-left:10px;"><a href="index.php">{C.site_name}</a><!-- BLOCK location_top_forum --> &raquo; <a href="view_forum.php?fid={LOCATION_FORUM_ID}">{LOCATION_FORUM_NAME}</a><!-- END BLOCK location_top_forum --> &raquo; <b>{TOPIC_NAME}</b></td>
-</tr>
-<tr>
-  <td width="250"><a href="posting.php?func=newtopic&fid={FORUM_ID}"><img src="{T.TEMPLATE_PATH}/images/new_topic.gif" /></a>&nbsp;&nbsp;&nbsp;<a href="posting.php?func=reply&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/reply.gif" /></a></td>
- </tr>
-</table>
+<!--// BREADCRUMB -->
+<div class="breadcrumb">
+	<a href="index.php"><a href="index.php">{C.site_name}</a><!-- BLOCK location_top_forum --> &raquo; <a href="view_forum.php?fid={LOCATION_FORUM_ID}">{LOCATION_FORUM_NAME}</a><!-- END BLOCK location_top_forum --> &raquo; <b>{TOPIC_NAME}</b>
+</div>
+<div class="breadcrumb" style="padding-left:12px;">
+<a href="posting.php?func=newtopic&fid={FORUM_ID}"><img src="{T.TEMPLATE_PATH}/images/new_topic.gif" /></a>&nbsp;&nbsp;&nbsp;<a href="posting.php?func=reply&tid={TOPIC_ID}"><img src="{T.TEMPLATE_PATH}/images/reply.gif" /></a>
+</div>
 
 <div class="panel">
 	<div class="panel-header" style="background-color:#5CB8E6;">

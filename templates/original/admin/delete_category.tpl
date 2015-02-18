@@ -10,9 +10,9 @@
    {L.Select_a_category_to_move_forums_in_this_category_to}:<br /><br />
    <select name="move_to">
     <option value="0">{L.Delete_All_Forums}</option>
-    <!-- BEGIN move_to_options -->
+    <!-- BLOCK move_to_options -->
     <option value="{CAT_ID}">{CAT_NAME}</option>
-    <!-- END move_to_options -->
+    <!-- END BLOCK move_to_options -->
    </select>
   </td>
  </tr>

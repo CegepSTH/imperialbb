@@ -23,7 +23,8 @@ class Block {
 
 		$matches = array();
 		preg_match_all("/<!-- BLOCK $str_blockName -->(.*?)<!-- END BLOCK $str_blockName -->/s", $content, $matches);
-		$this->output = $matches[1][0];
+	
+		$this->output = (!empty($matches[1])) ? $matches[1][0] : "";
 
 		// replaces tags
 		foreach($values as $key => $value) {

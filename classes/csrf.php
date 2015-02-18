@@ -101,14 +101,11 @@ class CSRF {
 	public static function validateTokenWithMessage($tokenToValidate = NULL) {
 		$ret = self::validateToken($tokenToValidate);
 
-		if ($ret)
-		{
+		if ($ret) {
 			return;
 		}
-
-		error_msg("Invalid Request",
-			"Invalid Request. Please go back, refresh the page and try again."
-		);
+		
+		showMessage(ERR_CODE_INVALID_REQUEST);
 	}
 
 	/**

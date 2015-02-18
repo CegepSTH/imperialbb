@@ -154,14 +154,14 @@ if($topic = $db2->fetch()) {
 				array(":tid" => $_GET['tid'], ":tidd" => $_GET['tid']));
 				
 			while($poll = $db2->fetch()) {
-				
+				/*
 				$theme->switch_nest("view_topic", "poll/poll_choice", false, array(
 					"POLL_CHOICE_NAME" => $poll['poll_choice_name'],
 					"POLL_CHOICE_WIDTH" => strval(round((($poll['poll_choice_votes'] / $poll['poll_total_votes']) * 100), 2)),
 					"PERCENTAGE" => strval(round((($poll['poll_choice_votes'] / $poll['poll_total_votes']) * 100), 2)),
 					"NO_OF_VOTES" => $poll['poll_choice_votes']
 				));
-				$theme->add_nest("view_topic", "poll/poll_choice");
+				$theme->add_nest("view_topic", "poll/poll_choice");*/
 			}
 			
 			// Viewing results.. Dont allow to vote
@@ -177,20 +177,21 @@ if($topic = $db2->fetch()) {
 				ORDER BY `poll_choice_id`", array(":tid" => $_GET['tid']));
 				
 			while($poll = $db2->fetch()) {
+				/*
 				$theme->switch_nest("view_topic", "poll/poll_choice", true, array(
 					"POLL_CHOICE_ID" => $poll['poll_choice_id'],
 					"POLL_CHOICE_NAME" => $poll['poll_choice_name']
 				));
-				$theme->add_nest("view_topic", "poll/poll_choice");
+				$theme->add_nest("view_topic", "poll/poll_choice");*/
 			}
-			
+			/*
 			$theme->insert_nest("view_topic", "poll/poll_vote_buttons");
 			$theme->add_nest("view_topic", "poll/poll_vote_buttons");
 			$theme->insert_nest("view_topic", "poll/poll_vote_form");
-			$theme->add_nest("view_topic", "poll/poll_vote_form");
+			$theme->add_nest("view_topic", "poll/poll_vote_form");*/
 		}
 
-		$theme->add_nest("view_topic", "poll");
+		//$theme->add_nest("view_topic", "poll");
 	}
 
 	$newtime = 0;
@@ -366,4 +367,5 @@ else
 }
 
 outputPage($tplViewTopic);
+exit();
 ?>

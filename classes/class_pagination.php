@@ -55,72 +55,63 @@ class ibb_pagination
 
     function paginate($number = 0, $psize = 0)
     {
-        global $theme, $lang;
+        global $lang;
         $this->psize = $psize ? $psize : $this->psize;
         $this->fetch_paginate();
         $this->total_paginate($number);
         $setpage = $this->page ? ceil($this->page / $this->pernum) : 1;
         $pagenum = ($this->tpage > $this->pernum) ? $this->pernum : $this->tpage;
-        if($number <= $this->psize)
-        {
+        
+        if($number <= $this->psize) {
         	$output = '';
-        }
-        else
-        {
-        	$theme->new_file("pagination", "pagination.tpl");
-        	$theme->replace_tags("pagination",  array(
+        } else {
+			$tpl = new Template("pagination.tpl");
+			$tpl->setVars(array(
         		"PAGINATE_PAGES" => sprintf($lang['paginate_pages'], number_format($this->page), number_format($this->tpage)),
         	));
-        	if ($this->page > 1)
-        	{
-        		$theme->insert_nest("pagination", "paginate_firstpage", array(
+        	
+        	if ($this->page > 1) {
+				$tpl->addToBlock("paginate_firstpage", array(
         			"FIRSTPAGE" => '<a href="'.$this->varstr.'pg=1" title="'.$lang['paginate_frstpage'].'">&laquo;</a>',
         		));
-        		$theme->add_nest("pagination", "paginate_firstpage");
         	}
-        	if ($this->page > 1)
-        	{
+        	
+        	if ($this->page > 1) {
         		$prev = $this->page-1;
-        		$theme->insert_nest("pagination", "paginate_prevpage", array(
+        		$tpl->addToBlock("paginate_prevpage", array(
         			"PREVPAGE" => '<a href="'.$this->varstr.'pg='.$prev.'" title="'.$lang['paginate_prevpage'].'">&lsaquo;</a>',
         		));
-        		$theme->add_nest("pagination", "paginate_prevpage");
         	}
+        	
         	$i = ($setpage-1)*$this->pernum;
-        	for($j = $i; $j < ($i+$pagenum) && $j < $this->tpage; $j++)
-        	{
-        		$newpage = ($j+1);
-        		if($this->page == $j+1)
-        		{
+        	for($j = $i; $j < ($i + $pagenum) && $j < $this->tpage; $j++) {
+        		$newpage = ($j + 1);
+        		
+        		if($this->page == $j + 1) {
                     $pagenumbers = '<span title="'.$lang['paginate_currpage'].'">'.($j+1).'</span>';
-        		}
-        		else
-        		{
+        		} else {
                     $pagenumbers = '<a href="'.$this->varstr.'pg='.$newpage.'" title="'.$lang['paginate_activepg'].'">'.($j+1).'</a>';
         		}
-            	$theme->insert_nest("pagination", "paginate_pagenumbers", array(
-
+        		$tpl->addToBlock("paginate_pagenumbers", array(
             		"PAGENUMBERS" => $pagenumbers,
             	));
-            	$theme->add_nest("pagination", "paginate_pagenumbers");
         	}
-        	if($this->page < $this->tpage)
-        	{
+        	
+        	if($this->page < $this->tpage) {
         		$next = $this->page + 1;
-        		$theme->insert_nest("pagination", "paginate_nextpage", array(
+        		$tpl->addToBlock("paginate_nextpage", array(
         			"NEXTPAGE" => '<a href="'.$this->varstr.'pg='.$next.'" title="'.$lang['paginate_nextpage'].'">&rsaquo;</a>'
         		));
-        		$theme->add_nest("pagination", "paginate_nextpage");
         	}
-        	if($this->page < $this->tpage)
-        	{
-        		$theme->insert_nest("pagination", "paginate_lastpage", array(
+        	
+        	if($this->page < $this->tpage) {
+				$tpl->addToBlock("paginate_lastpage", array(
         			"LASTPAGE" => '<a href="'.$this->varstr.'pg='.$this->tpage.'" title="'.$lang['paginate_lastpage'].'">&raquo;</a>'
         		));
-        		$theme->add_nest("pagination", "paginate_lastpage");
         	}
-        	$output = $theme->output("pagination", TRUE);
+        	$output = $tpl->render();
         }
+        
         return $output;
     }
 }

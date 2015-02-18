@@ -1,19 +1,4 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: register.php                                               # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright � 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
@@ -37,7 +22,7 @@ if(isset($_POST['Submit'])) {
 	
 	if(strlen($_POST['UserName']) < 2) {
 		$error .= $lang['Username_Too_Short'] . "<br />";
-	} else if(userexists($_POST['UserName']) == 1) {
+	} else if(User::findUser($_POST['UserName']) != null) {
 		$error .= $lang['Username_Already_Taken'] . "<br />";
 	}
 
@@ -71,6 +56,7 @@ if(isset($_POST['Submit'])) {
 		));
 
 		outputPage($page_master);	
+		exit();
 	} else {
 		if($config['register_auth_type'] == 0) {
 			// No activation key.
@@ -81,7 +67,7 @@ if(isset($_POST['Submit'])) {
 			$oUser->setRankId(1);
 			$oUser->update();
 			
-			info_box($lang['Registration'], $lang['Registration_Successfull_Msg'], "?act=login");
+			showMessage(ERR_CODE_ACCOUNT_CREATED, "login.php");
 		} else {
 			$oUser = new User(-1, $_POST['UserName'], $_POST['Email']);
 			$oUser->setPassword($_POST['Password']);
@@ -99,8 +85,7 @@ if(isset($_POST['Submit'])) {
 					"KEY" => $activation_key, 
 					"DOMAIN" => $config['url'], 
 					"SITE_NAME" => $config['site_name']), $_POST['Email']);
-					
-			info_box($lang['Registration'], $lang['Activate_Your_Acct_Msg'], "?act=login");
+			showMessage(ERR_CODE_ACTIVATE_ACCOUNT);
 		}
 	}
 } else if(isset($_GET['id']) && isset($_GET['key'])) {
@@ -112,21 +97,18 @@ if(isset($_POST['Submit'])) {
 	);
 	if($result = $sql->fetch()) {
 		if($result['user_level'] != "2") {
-			error_msg($lang['Account_Activation'], $lang['Account_Already_Activated']);
+			showMessage(ERR_CODE_ACCOUNT_ALREADY_ACTIVATED, "login.php");
 		} else if($result['activation_key'] != $_GET['key']) {
-			error_msg($lang['Account_Activation'], $lang['Invalid_Activation_Key']);
+			showMessage(ERR_CODE_INVALID_ACTIVATION_KEY, "index.php");
 		} else {
 			$db2->query("UPDATE `_PREFIX_users`
 				SET `user_level` = '3'
 				WHERE `user_id` = :user_id",
-				array(
-					":user_id" => $_GET['id']
-				)
-			);
-			info_box($lang['Account_Activation'], $lang['Account_Activated'], "?act=login");
+				array(":user_id" => $_GET['id']));
+			showMessage(ERR_CODE_ACTIVATION_SUCCESS, "login.php");
 		}
 	} else {
-		error_msg($lang['Error'], $lang['Invalid_User_Id']);
+		showMessage(ERR_CODE_INVALID_USER_ID);
 	}
 } else {
 	$page_master = new Template("register.tpl");
@@ -138,11 +120,6 @@ if(isset($_POST['Submit'])) {
 
 	$page_title = $config['site_name'] . " &raquo; " . $lang['Register'];
 	outputPage($page_master, $page_title);
+	exit();
 }
-
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright � 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>

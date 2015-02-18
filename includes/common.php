@@ -67,7 +67,6 @@ require_once($root_path . "includes/rendering.php");
 include_once($root_path . "includes/constants.php");
 include_once($root_path . "includes/init.php");
 include_once($root_path . "includes/functions.php");
-include_once($root_path . "classes/class_template.php");
 include_once($root_path . "classes/class_language.php");
 
 $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
@@ -76,7 +75,7 @@ $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
 $sql = $db2->query("SELECT c.*, l.`language_folder`
 	FROM (`_PREFIX_config` c
 	LEFT JOIN `_PREFIX_languages` l
-	ON c.`config_name` = 'default_language'
+		ON c.`config_name` = 'default_language'
 	AND l.`language_id` = c.`config_value`)".$protected.""
 );
 while($row = $sql->fetch())
@@ -104,30 +103,24 @@ $sql = $db2->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l
 	WHERE u.`user_id` = :user_id",
 	array(
 		':user_id' => $_SESSION['user_id']
-	)
-);
-if($row = $sql->fetch())
-{
+	));
+	
+if($row = $sql->fetch()) {
 	$user = $row;
 	unset($user['user_password']); // Unset the password just to be safe..
-}
-else
-{
+} else {
 	setcookie("UserName");
 	setcookie("Password");
 	$_SESSION['user_id'] = -1;
 	session_regenerate_id();
 	$db2->query("DELETE FROM `_PREFIX_sessions`
 		WHERE `ip` = :remote_addr",
-		array(
-			':remote_addr' => $_SERVER['REMOTE_ADDR']
-		)
-	);
-	error_msg("Error", "Unable to select user information.");
+		array(':remote_addr' => $_SERVER['REMOTE_ADDR']));
+	
+	showMessage(ERR_CODE_UNABLE_FIND_USER_INFORMATIONS, "index.php");
 }
 
-if(defined("IN_ADMIN") && $user['user_level'] < 5)
-{
+if(defined("IN_ADMIN") && $user['user_level'] < 5) {
 	die("<script language='javascript'>top.document.location = '../index.php';</script>");
 }
 
@@ -140,8 +133,7 @@ if($user['user_id'] < 0) {
 }
 
 $sql = "SELECT `template_folder` FROM `_PREFIX_templates` WHERE `template_id`=:userTemplate";
-if($user['user_level'] != "5")
-{
+if($user['user_level'] != "5") {
 	$sql .= " AND `template_usable` = '1'";
 }
 
@@ -150,16 +142,14 @@ $db2->query($sql, array(":userTemplate" => $user['user_template']));
 if($result = $db2->fetch()) {
 	$user['user_template_folder'] = $result['template_folder'];
 } else {
-	if($user['user_id'] > 0)
-	{
+	if($user['user_id'] > 0) {
 		$db2->query("UPDATE `_PREFIX_users`
 			SET `user_template` = :default_template
 			WHERE `user_id` = :userId",
 			array(
 				':default_template' => $config['default_template'],
 				':userId' => $user['user_id']
-			)
-		);
+			));
 	}
 
 	$sql = $db2->query("SELECT *
@@ -168,47 +158,31 @@ if($result = $db2->fetch()) {
 		array(
 			':default_template' => $config['default_template']
 	));
-	if($result = $sql->fetch())
-	{
+	
+	if($result = $sql->fetch()) {
 		$user['user_template_folder'] = $result['template_folder'];
-	}
-	else
-	{
+	} else {
 		die($lang['Unable_to_select_template']);
 	}
 }
-
-$theme = new Theme();
 
 ### Language and Template files are usable below this point ###
 require_once($root_path . "classes/class_pagination.php");
 $pp = new ibb_pagination();
 
 // 1st thing to do is see if the user is banned!
-if($user['user_level'] == 0)
-{
-	error_msg($lang['Error'], sprintf($lang['Banned_Msg'], $config['admin_email'], $config['admin_email']));
+if($user['user_level'] == 0) {
+	showMessage(ERR_CODE_THE_BIG_BASTARD_SAYS_YOURE_BANNED_GET_OUT_PLEASE);
 }
 
 // See if the board is offline
-if($config['board_offline'] == 1 && $user['user_level'] != 5 && (!isset($ignore_offline) || $ignore_offline != true))
-{
-	if(!isset($_GET['act']) || $_GET['act'] != "login")
-	{
+if($config['board_offline'] == 1 && $user['user_level'] != 5 && (!isset($ignore_offline) || $ignore_offline != true)) {
+	if(!isset($_GET['act']) || $_GET['act'] != "login") {
 		$page_title = $config['site_name'] . " (" . $lang['Board_Offline'] . ")";
-		error_msg($lang['Board_Offline'], $config['offline_message']);
-	}
-	else
-	{
+		showMessage(ERR_CODE_BOARD_OFFLINE);
+	} else {
 		$page_title = $config['site_name'] . " (" . $lang['Board_Offline'] . ")";
 	}
 }
 
-$config['jscripts_dir'] = "./jscripts";
-
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>

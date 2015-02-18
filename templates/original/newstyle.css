@@ -3,6 +3,14 @@
  * These should fixes the forms and overuse of containers. 
  */
  /* In admin part, for forms. Represents a row.*/
+ .quotetable {
+	border: 1px solid #ccc;
+	margin-left: 3%;
+	margin-right: 3%;
+	margin-bottom: 1em;
+	margin-top: 1em;
+	padding: 5px;
+ }
  .no-form-button {
  	border:1px solid #999999;
 	border-bottom-color:#cccccc;
@@ -102,6 +110,10 @@
 		 * "equals" controls. */
 		.block-form-admin label * {
 			width: 100%;
+		}
+		.block-form-admin input[type="checkbox"] {
+			width: initial;
+			text-align:center;
 		}
 /* A no-border property. Kind of useless, but used still. */
 .no-border {

@@ -57,11 +57,11 @@
 		</label>
 	</div>
 	<div class="form-admin-row">
-		<label style="text-align:right;"><input type="radio" name="post_age_type" value="newer" checked="checked" />{L.Newer}</label>
-		<label><input type="radio" name="post_age_type" value="older" />{L.Older}</label>
+		<label style="text-align:right;"><input type="radio" name="post_age_type" value="newer" checked="checked">{L.Newer}</label>
+		<label><input type="radio" name="post_age_type" value="older">{L.Older}</label>
 	</div>
 	<h4>
-		<input type="submit" name="submit" value="{L.Submit}">  <input type="reset" value="{L.Reset}>
+		<input type="submit" name="submit" value="{L.Submit}">  <input type="reset" value="{L.Reset}">
 	</h4>
 </form>
 </div><br />

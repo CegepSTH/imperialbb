@@ -5,7 +5,7 @@
 <img src="{T.TEMPLATE_PATH}/images/no_new_posts.gif" alt="No New Posts" width="26" height="25" />
 <!-- END BLOCK new_posts_off -->
 
-<!-- BEGIN prow_new_posts_on -->
+<!-- BLOCK prow_new_posts_on -->
 <img src="{T.TEMPLATE_PATH}/images/new_{IMAGE_URL}.gif" alt="{IMAGE_TITLE_PREFIX}{L.New_Posts}" width="21" height="20" />
 <!-- END BLOCK prow_new_posts_on -->
 <!-- BLOCK prow_new_posts_off -->

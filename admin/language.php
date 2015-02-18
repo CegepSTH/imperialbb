@@ -1,15 +1,4 @@
 <?php
-
-/**********************************************************
-*
-*			admin/language.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
@@ -22,12 +11,10 @@ Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
-if($_GET['func'] == "add")
-{
+if($_GET['func'] == "add") {
 	$page_master = new Template("add_edit_language.tpl");
 
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		$error = "";
 
 		if(!isset($_POST['name']) || empty($_POST['name'])) {
@@ -42,8 +29,7 @@ if($_GET['func'] == "add")
 			}
 		}
 
-		if(!empty($error))
-		{
+		if(!empty($error)) {
 			$page_master->setVars(array(
 				"ACTION" => $lang['Add_Language'],
 				"NAME" => $_POST['name'],
@@ -56,6 +42,7 @@ if($_GET['func'] == "add")
 			));
 
 			outputPage($page_master);
+			exit();
 		}
 		else
 		{
@@ -68,12 +55,12 @@ if($_GET['func'] == "add")
 			$db2->query("INSERT INTO `_PREFIX_languages` (`language_name`, `language_folder`, `language_usable`) 
 			VALUES (:name, :folder, :usable)",
 			array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable));
-
-			info_box($lang['Add_Language'], $lang['Language_Added_Msg'], "language.php");
+			
+			$_SESSION["return_url"] = "language.php";
+			header("Location: error.php?code=".ERR_CODE_ADMIN_LANGUAGE_ADDED);
+			exit();
 		}
-	}
-	else
-	{
+	} else {
 		$page_master->setVars(array(
 			"ACTION" => $lang['Add_Language'],
 			"NAME" => "",
@@ -83,23 +70,23 @@ if($_GET['func'] == "add")
 
 		outputPage($page_master);
 	}
-
-
 }
 else if($_GET['func'] == "download")
 {
 	// TODO: DOWNLOAD INSERT SECTION
+	header("location: language.php");
 }
 else if($_GET['func'] == "edit")
 {
 	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
-		error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
+		$_SESSION["return_url"] = "language.php";
+		header("Location: error.php?code=".ERR_CODE_ADMIN_INVALID_LANGUAGE_ID);
+		exit();
 	}
 
 	$page_master = new Template("add_edit_language.tpl");
 
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		$error = "";
 
 		if(!isset($_POST['name']) || empty($_POST['name'])) {
@@ -114,8 +101,7 @@ else if($_GET['func'] == "edit")
 			}
 		}
 
-		if(!empty($error))
-		{
+		if(!empty($error)) {
 			$page_master->setVars( array(
 				"ACTION" => $lang['Edit_Language'],
 				"ID" => $_GET['id'],
@@ -129,6 +115,7 @@ else if($_GET['func'] == "edit")
 			));
 
 			outputPage($page_master);
+			exit();
 		}
 		else
 		{
@@ -143,7 +130,9 @@ else if($_GET['func'] == "edit")
 				WHERE `language_id`=:lid",
 				array(":name" => $_POST['name'], ":folder" => $_POST['folder'], ":usable" => $usable, ":lid" => $_GET['id']));
 
-			info_box($lang['Edit_Language'], $lang['Language_Edited_Msg'], "language.php");
+			$_SESSION["return_url"] = "language.php";
+			header("Location: error.php?code=".ERR_CODE_ADMIN_LANGUAGE_EDITED);
+			exit();
 		}
 	}
 	else
@@ -161,23 +150,30 @@ else if($_GET['func'] == "edit")
 				"USABLE" => ($result['language_usable'] == 1) ? "checked=\"checked\"" : ""
 			));
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
+			$_SESSION["return_url"] = "language.php";
+			header("Location: error.php?code=".ERR_CODE_ADMIN_INVALID_LANGUAGE_ID);
+			exit();
 		}
 
 		outputPage($page_master);
+		exit();
 	}
 }
 else if($_GET['func'] == "delete")
 {
 	if(!(isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0)) {
-		error_msg($lang['Error'], $lang['Invalid_language_pack_id']);
+		$_SESSION["return_url"] = "language.php";
+		header("Location: error.php?code=".ERR_CODE_ADMIN_INVALID_LANGUAGE_ID);
+		exit();
 	}
 	
 	$db2->query("SELECT count(`language_id`) AS 'count' FROM `_PREFIX_languages`");
 	$result = $db2->fetch();
 	
 	if($result['count'] <= 1) {
-		error_msg($lang['Error'], $lang['Cannot_Delete_Last_Language_Msg']);
+		$_SESSION["return_url"] = "language.php";
+		header("Location: error.php?code=".ERR_CODE_ADMIN_LANGUAGE_CANNOT_DELETE_LAST);
+		exit();
 	}
 
 	if(isset($_GET['confirm']) && $_GET['confirm'] == 1) {
@@ -188,23 +184,21 @@ else if($_GET['func'] == "delete")
 			
 		$db2->query("DELETE FROM `_PREFIX_languages` WHERE `language_id`=:lid", array(":lid" => $_GET['id']));
 
-		info_box($lang['Delete_Language'], $lang['Language_Deleted_Msg'], "language.php");
+		$_SESSION["return_url"] = "language.php";
+		header("Location: error.php?code=".ERR_CODE_ADMIN_LANGUAGE_DELETED);
+		exit();
 	} else {
 		confirm_msg($lang['Delete_Language'], $lang['Delete_Language_Confirm_Msg'], "language.php?func=delete&id=".$_GET['id']."&confirm=1", "language.php");
+		exit();
 	}
 }
 else
 {
-	//
-	// View installed language packs
-	//
-	$theme->new_file("manage_languages", "manage_languages.tpl");
 	$page_master = new Template("manage_languages.tpl");
 
 	$db2->query("SELECT `language_id`, `language_name`, `language_folder`, `language_usable` FROM `_PREFIX_languages`");
 
-	while($result = $db2->fetch())
-	{
+	while($result = $db2->fetch()) {
 		$page_master->addToBlock("language_row", array(
 			"ID" => $result['language_id'],
 			"NAME" => $result['language_name'],
@@ -214,5 +208,6 @@ else
 	}
 
 	outputPage($page_master);
+	exit();
 }
 ?>

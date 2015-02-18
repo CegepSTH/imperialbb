@@ -2,24 +2,24 @@
     <tr>
         <td class="paginate_stats" align="center" valign="middle">{PAGINATE_PAGES}</td>
         
-        <!-- BEGIN paginate_firstpage -->
+        <!-- BLOCK paginate_firstpage -->
         <td class="paginate" align="center" valign="middle">{FIRSTPAGE}</td>
-        <!-- END paginate_firstpage -->
+        <!-- END BLOCK paginate_firstpage -->
 
-        <!-- BEGIN paginate_prevpage -->
+        <!-- BLOCK paginate_prevpage -->
         <td class="paginate" align="center" valign="middle">{PREVPAGE}</td>
-        <!-- END paginate_prevpage -->
+        <!-- END BLOCK paginate_prevpage -->
 
-        <!-- BEGIN paginate_pagenumbers -->
+        <!-- BLOCK paginate_pagenumbers -->
         <td class="paginate_current" align="center" valign="middle">{PAGENUMBERS}</td>
-        <!-- END paginate_pagenumbers -->
+        <!-- END BLOCK paginate_pagenumbers -->
 
-        <!-- BEGIN paginate_nextpage -->
+        <!-- BLOCK paginate_nextpage -->
         <td class="paginate" align="center" valign="middle">{NEXTPAGE}</td>
-        <!-- END paginate_nextpage -->
+        <!-- END BLOCK paginate_nextpage -->
 
-        <!-- BEGIN paginate_lastpage -->
+        <!-- BLOCK paginate_lastpage -->
         <td class="paginate" align="center" valign="middle">{LASTPAGE}</td>
-        <!-- END paginate_lastpage -->
+        <!-- END BLOCK paginate_lastpage -->
     </tr>
 </table>
