@@ -71,7 +71,7 @@ if($_GET['func'] == "add") {
 		$tplTemplates->addToTag("template_page", $tplTemplatesAdd);
 	}
 } else if($_GET['func'] == "download") {
-	// TODO: DOWNLOAD INSERT SECTION
+	header("location: template.php");
 } else if($_GET['func'] == "edit") {
 	// Unset token
 	unset($_SESSION['csrf_weird_token']);
@@ -216,4 +216,5 @@ if($_GET['func'] == "add") {
 }
 
 outputPage($tplTemplates);
+exit();
 ?>

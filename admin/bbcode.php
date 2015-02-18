@@ -1,29 +1,17 @@
 <?php
-
-/**********************************************************
-*
-*			admin/bbcode.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path . "includes/common.php");
-
 $language->add_file("admin/bbcode");
-//
-// BBCode Locked!
-//
-// error_msg($lang['BBCode'], "Sorry BBCode is currently hard coded due to security problems. It may return in the future!");
-error_msg($lang['BBCode'], $lang['I_AM_HARD_CODED']);
+Template::addNamespace("L", $lang);
 
-
+// BBCode is hardcoded.
+$_SESSION["return_url"] = "index.php";
+header("Location: error.php?code=".ERR_CODE_BBCODE_HARDCODED);
+exit();
+/*
 if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "add") {
 	if(isset($_POST['Submit'])) {
@@ -33,6 +21,7 @@ if($_GET['func'] == "add") {
 			":name" => $_POST['Name'], ":type" => $_POST['type']);
 			
 		$db2->query("INSERT INTO `_PREFIX_bbcode` VALUES('', :search, :replace, :bext, :bend, :name,:type)", $values);
+		
 		info_box($lang['BBCode_Manager'], $lang['BBCode_Added_Msg'], "?module=Admin&act=bbcode");
 	} else {
 		$theme = new Theme("add_bbcode", "add_bbcode.tpl");
@@ -139,5 +128,5 @@ if($_GET['func'] == "add") {
 	
 	$theme->output("bbcode");
 }
-
+*/
 ?>

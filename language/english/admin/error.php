@@ -1,19 +1,4 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: language.php                                               # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
@@ -60,10 +45,23 @@ $lang['err_code'.ERR_CODE_SMILIES_CANT_ADD] = $lang['err_code'.ERR_CODE_SMILIES_
 $lang['err_code'.ERR_CODE_RANKS_INVALIDID] = "Invalid rank id.";
 $lang['err_code'.ERR_CODE_RANKS_DELETED] = "Rank was successfully deleted!";
 $lang['err_code'.ERR_CODE_RANKS_DELETE_FAILED] = "Rank couldn't be deleted.";
-
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
+$lang['err_code'.ERR_CODE_BBCODE_HARDCODED] = "Sorry, but BBCode is hardcoded at the moment.";
+$lang['err_code'.ERR_CODE_ADMIN_CONFIG_UPDATED] = "Configuration updated successfully.";
+$lang['err_code'.ERR_CODE_ADMIN_LANGUAGE_ADDED] = "Language successfully added.";
+$lang['err_code'.ERR_CODE_ADMIN_INVALID_LANGUAGE_ID] = "Invalid language id.";
+$lang['err_code'.ERR_CODE_ADMIN_LANGUAGE_EDITED] = "Language updated successfully.";
+$lang['err_code'.ERR_CODE_ADMIN_LANGUAGE_CANNOT_DELETE_LAST] = "Cannot delete last language.";
+$lang['err_code'.ERR_CODE_ADMIN_LANGUAGE_DELETED] = "Language was removed successfully.";
+$lang['err_code'.ERR_CODE_RANK_CREATED] = "Rank was created successfully.";
+$lang['err_code'.ERR_CODE_RANKS_UPDATED] = "Rank was updated successfully.";
+$lang['err_code'.ERR_CODE_NOTEPAD_UPDATED] = "Notepad was updated successfully.";
+$lang['err_code'.ERR_CODE_FORUM_CREATED] = "Forum was created successfully.";
+$lang['err_code'.ERR_CODE_CATEGORY_NO_NAME_SET] = "Category name was not set.";
+$lang['err_code'.ERR_CODE_FORUM_NO_NAME_SET] = "No forum name set.";
+$lang['err_code'.ERR_CODE_CATEGORY_CREATED] = "Category was created successfully.";
+$lang['err_code'.ERR_CODE_CATEGORY_UPDATED] = "Category was updated successfully.";
+$lang['err_code'.ERR_CODE_CATEGORY_INVALID_ID] = "Category identifier is invalid.";
+$lang['err_code'.ERR_CODE_FORUM_UPDATED] = "Forum was updated successfully.";
+$lang['err_code'.ERR_CODE_FORUM_DELETED] = "Forum was deleted successfully.";
+$lang['err_code'.ERR_CODE_CATEGORY_DELETED] = "Category was deleted successfully.";
 ?>

@@ -48,7 +48,9 @@ if($_GET['func'] == "add")
 		$db2->query("INSERT INTO `_PREFIX_ranks` (`rank_name`, `rank_color`, `rank_image`, `rank_bold`, `rank_underline`, `rank_italics`, `rank_orderby`, `rank_special`, `rank_minimum_posts`) 
 		VALUES (:name, :color, :image, :bold, :underline, :italics, :rorderby, :srank, :minposts)", $values);
 		
-		info_box($lang['Create_New_Rank'], $lang['Rank_Created_Msg'], "ranks.php");
+		$_SESSION["return_url"] = "ranks.php";
+		header("Location: error.php?code=".ERR_CODE_RANK_CREATED);
+		exit();
 	}
 	else
 	{
@@ -73,8 +75,7 @@ if($_GET['func'] == "add")
 }
 else if($_GET['func'] == "edit")
 {
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		CSRF::validate();
 		if(!isset($_POST['bold'])) $_POST['bold'] = "0";
 		if(!isset($_POST['underline'])) $_POST['underline'] = "0";
@@ -117,7 +118,9 @@ else if($_GET['func'] == "edit")
 			`rank_italics`=:italics, `rank_orderby`=:rorderby, `rank_special`=:rspecial, `rank_minimum_posts`=:rminposts 
 			WHERE `rank_id`=:rid", $values);
 			
-		info_box($lang['Edit_Rank'], $lang['Rank_Updated_Msg'], "ranks.php");
+		$_SESSION["return_url"] = "ranks.php";
+		header("Location: error.php?code=".ERR_CODE_RANKS_UPDATED);
+		exit();
 	}
 	else
 	{
@@ -231,4 +234,5 @@ else
 }
 
 outputPage($tplRanks);
+exit();
 ?>

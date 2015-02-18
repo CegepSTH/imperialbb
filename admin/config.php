@@ -1,25 +1,13 @@
 <?php
-
-/**********************************************************
-*
-*			admin/config.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path . "includes/common.php");
-
 $language->add_file("admin/config");
+Template::addNamespace("L", $lang);
 
-if(isset($_POST['Submit']))
-{
+if(isset($_POST['Submit'])) {
 	CSRF::validate();
 
 	$post_config = array();
@@ -27,7 +15,8 @@ if(isset($_POST['Submit']))
 
 	while($result = $db2->fetch()) {
 		
-		if(isset($_POST[$result['config_name']]) && $_POST[$result['config_name']] != $result['config_value'] && ($result['config_type'] != "password" || !empty($_POST[$result['config_name']])))
+		if(isset($_POST[$result['config_name']]) && $_POST[$result['config_name']] != $result['config_value'] 
+			&& ($result['config_type'] != "password" || !empty($_POST[$result['config_name']])))
 		{
 			$post_config[$result['config_name']] = $_POST[$result['config_name']];
 		}
@@ -42,7 +31,10 @@ if(isset($_POST['Submit']))
 		$db2->query("UPDATE `_PREFIX_config` SET `config_value`=:value WHERE `config_name`=:name", 
 			array(":value" => $value, ":name" => $name));
 	}
-    info_box($lang['Configuration_Manager'], $lang['Configuration_Updated_Msg'], "config.php");
+	
+	$_SESSION["return_url"] = "config.php";
+	header("Location: error.php?code=".ERR_CODE_ADMIN_CONFIG_UPDATED);
+	exit();
 }
 else
 {

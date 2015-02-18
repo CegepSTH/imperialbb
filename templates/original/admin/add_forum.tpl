@@ -26,7 +26,7 @@ div#advanced_perm {
         display: none;
 }
 </style>
-<!-- BEGIN error -->
+<!-- BLOCK error -->
 <table width="100%" class="maintable">
  <tr>
   <th>{L.The_following_errors_occoured}</th>
@@ -37,7 +37,7 @@ div#advanced_perm {
   </td>
  </tr>
 </table>
-<!-- END error -->
+<!-- END BLOCK error -->
 <form method="post" action="">
 <table width="100%" class="maintable">
  <tr>
@@ -48,9 +48,9 @@ div#advanced_perm {
  <tr>
   <td class="cell2">
    {L.Category_Or_Subforum} : <select name="cid">
-   <!-- BEGIN category_select -->
+   <!-- BLOCK category_select -->
     <option value="{CAT_ID}" style="{CAT_STYLE}" {SELECTED}>{CAT_PREFIX} {CAT_NAME}</option>
-   <!-- END category_select -->
+   <!-- END BLOCK category_select -->
    </select>
   </td>
  </tr>
@@ -69,6 +69,7 @@ div#advanced_perm {
    </table>
   </td>
  </tr>
+ <tr>
   <th height="25">
    {L.Permissions}
   </th>
@@ -97,6 +98,7 @@ div#advanced_perm {
      <tr>
       <td>{L.Read}</td><td>{L.Post}</td><td>{L.Reply}</td><td>{L.Vote}</td><td>{L.Create_Poll}</td><td>{L.Moderate}</td>
      </tr>
+     <tr>
       <td>
        <select name="Read">
         <option value="0">{L.Banned}</option>
@@ -166,5 +168,5 @@ div#advanced_perm {
    <input type="submit" name="Submit" value="{L.Submit}">
   </th>
  </tr>
-
+</table>
 </form>

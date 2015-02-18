@@ -1,21 +1,12 @@
 <?php
-
-/**********************************************************
-*
-*			admin/forums.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
 $root_path = "../";
 require_once($root_path."includes/common.php");
+Template::setBasePath($root_path . "templates/original/admin/");
 $language->add_file("admin/forums");
+Template::addNamespace("L", $lang);
 
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
@@ -29,17 +20,16 @@ if($_GET['func'] == "add_forum") {
 			$error .= sprintf($lang['No_x_content'], strtolower($lang['Category'])) . "<br />";
 		}
 		if(!empty($error)) {
-			$theme->new_file("add_forum", "add_forum.tpl");
-			$theme->replace_tags("add_forum", array(
+			$tplAddForum = new Template("add_forum.tpl");
+			$tplAddForum->setVars(array(
 				"NAME" => $_POST['name'],
 				"DESCRIPTION" => $_POST['description'],
 				"REDIRECT_URL" => $_POST['redirect_url']
 			));
-
-			$theme->insert_nest("add_forum", "error", array(
-				"ERROR" => $error
-			));
-			$theme->add_nest("add_forum", "error");
+			
+			if($error != "") {
+				$tplAddForum->addToBlock("error", array("ERROR" => $error));
+			}
 
 			$db_cat = $db2->query("SELECT * FROM `_PREFIX_categories` ORDER BY `cat_orderby` ASC");
 			
@@ -49,50 +39,34 @@ if($_GET['func'] == "add_forum") {
 				} else {
 					$selected = "";
 				}
-
-				$theme->insert_nest("add_forum", "category_select", array(
+				$tplAddForum->addToBlock("category_select", array(
 					"CAT_ID" => "c" . $cat_result['cat_id'],
 					"CAT_STYLE" => "font-weight:bold;",
 					"CAT_PREFIX" => "+",
 					"CAT_NAME" => $cat_result['cat_name'],
 					"SELECTED" => $selected
 				));
-				$theme->add_nest("add_forum", "category_select");
 
 				$db2->query("SELECT `forum_id`, `forum_name` 
 					FROM `_PREFIX_forums`
 					WHERE `forum_cat_id`=:fcid AND `forum_type` = 'c'
 					ORDER BY `forum_orderby` ASC", array(":fcid" => $cat_result['cat_id']));
 
-				while($forum_result = $db2->fetch())
-				{
-					$theme->insert_nest("add_forum", "category_select", array(
+				while($forum_result = $db2->fetch()) {
+					$tplAddForum->addToBlock("category_select", array(
 						"CAT_ID" => "f" . $forum_result['forum_id'],
 						"CAT_STYLE" => "font-weight:normal;",
 						"CAT_PREFIX" => "+-+",
 						"CAT_NAME" => $forum_result['forum_name'],
 						"SELECTED" => ""
 					));
-					$theme->add_nest("add_forum", "category_select");
 
 					_generate_category_dropdown($forum_result['forum_id'], "add_forum", "+-+-+");
 				}
 			}
-			//
-			// Output the page header
-			//
-			include_once($root_path . "includes/page_header.php");
-
-			//
-			// Output the main page
-			//
-			$theme->output("add_forum");
-
-			//
-			// Output the page footer
-			//
-			include_once($root_path . "includes/page_footer.php");
-
+			
+			outputPage($tplAddForum);
+			exit();
 		} else {
 			$db2->query("SELECT `forum_orderby` 
 				FROM `_PREFIX_forums` 
@@ -153,14 +127,17 @@ if($_GET['func'] == "add_forum") {
 			$values[":orderby"] = $orderby;
 			$sql .= ", :orderby)";
 			$db2->query($sql, $values);
-			info_box($lang['Create_Forum'], $lang['Forum_Created_Msg'], "forums.php");
+			
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_FORUM_CREATED);
+			exit();
 		}
 
 	} else {
 		if(!isset($_POST['name'])) $_POST['name'] = "";
 		if(!isset($_GET['cid'])) $_GET['cid'] = "";
-		$theme->new_file("add_forum", "add_forum.tpl");
-		$theme->replace_tags("add_forum", array(
+		$tplAddForum = new Template("add_forum.tpl");
+		$tplAddForum->setVars(array(
 			"NAME" => $_POST['name'],
 			"DESCRIPTION" => "",
 			"REDIRECT_URL" => ""
@@ -173,51 +150,34 @@ if($_GET['func'] == "add_forum") {
 			} else {
 				$selected = "";
 			}
-
-			$theme->insert_nest("add_forum", "category_select", array(
+			$tplAddForum->addToBlock("category_select", array(
 				"CAT_ID" => "c" . $cat_result['cat_id'],
 				"CAT_STYLE" => "font-weight:bold;",
 				"CAT_PREFIX" => "+",
 				"CAT_NAME" => $cat_result['cat_name'],
 				"SELECTED" => $selected
 			));
-			$theme->add_nest("add_forum", "category_select");
 			
 			$db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
 				WHERE `forum_cat_id`=:catr AND `forum_type` = 'c'
 				ORDER BY `forum_orderby` ASC", 
 				array(":catr" => $cat_result['cat_id']));
 
-			while($forum_result = $db2->fetch())
-			{
-				$theme->insert_nest("add_forum", "category_select", array(
+			while($forum_result = $db2->fetch()) {
+				$tplAddForum->addToBlock("category_select", array(
 					"CAT_ID" => "f" . $forum_result['forum_id'],
 					"CAT_STYLE" => "font-weight:normal;",
 					"CAT_PREFIX" => "+-+",
 					"CAT_NAME" => $forum_result['forum_name'],
 					"SELECTED" => ""
 				));
-				$theme->add_nest("add_forum", "category_select");
 
-				_generate_category_dropdown($forum_result['forum_id'], "add_forum", "+-+-+");
+				_generate_category_dropdown($forum_result['forum_id'], "add_forum", "+-+-+", true, $tplAddForum);
 			}
 		}
-		//
-		// Output the page header
-		//
-		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("add_forum");
-
-		//
-		// Output the page footer
-		//
-		include_once($root_path . "includes/page_footer.php");
+		outputPage($tplAddForum);
+		exit();
 	}
-
 } else if($_GET['func'] == "add_category") {
 
 	$db2->query("SELECT `cat_orderby` FROM `_PREFIX_categories` ORDER BY `cat_orderby` DESC LIMIT 1");
@@ -228,61 +188,60 @@ if($_GET['func'] == "add_forum") {
 	}
 
 	if(strlen($_POST['name']) < 1) {
-		error_msg($lang['Error'], sprintf($lang['No_x_content'], strtolower($lang['Category_Name'])));
+		$_SESSION["return_url"] = "forums.php";
+		header("Location: error.php?code=".ERR_CODE_CATEGORY_NO_NAME_SET);
+		exit();
 	}
 
 	$db2->query("INSERT INTO `_PREFIX_categories` (`cat_name`, `cat_orderby`) 
 		VALUES(:name, :ordby)", array(":name" => $_POST['name'], ":ordby" => $orderby));
 
-	info_box($lang['Create_Category'], $lang['Category_Created_Msg'], "forums.php");
-
+	$_SESSION["return_url"] = "forums.php";
+	header("Location: error.php?code=".ERR_CODE_CATEGORY_CREATED);
+	exit();
 } else if($_GET['func'] == "edit_category") {
 	$db2->query("SELECT `cat_name` FROM `_PREFIX_categories` WHERE `cat_id`=:cid", array(":cid" => $_GET['cid']));
 	if($result = $db2->fetch()) {
 		if(isset($_POST['Submit'])) {
 			if(strlen($_POST['name']) < 1) {
-				error_msg($lang['Error'], sprintf($lang['No_x_content'], strtolower($lang['Category_Name'])));
+				$_SESSION["return_url"] = "forums.php";
+				header("Location: error.php?code=".ERR_CODE_CATEGORY_NO_NAME_SET);
+				exit();
 			}
 
 			$db2->query("UPDATE `_PREFIX_categories` 
 				SET `cat_name`=:name 
 				WHERE `cat_id`=:cid", 
 				array(":name" => $_POST['name'], ":cid" => $_POST['cid']));
-
-			info_box($lang['Edit_Category'], $lang['Category_Updated_Msg'], "forums.php");
+			
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_CATEGORY_UPDATED);
+			exit();
 		} else {
-			$theme->new_file("edit_category", "edit_category.tpl");
-
-			$theme->replace_tags("edit_category", array(
+			$tplEditCat = new Template("edit_category.tpl");
+			$tplEditCat->setVars(array(
 				"NAME" => $result['cat_name']
 			));
-
-			//
-		// Output the page header
-		//
-		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("edit_category");
-
-		//
-		// Output the page footer
-		//
-		include_once($root_path . "includes/page_footer.php");
+			
+			outputPage($tplEditCat);
+			exit();
 		}
 	} else {
-		error_msg($lang['Error'], $lang['Invalid_Category_Id']);
+		$_SESSION["return_url"] = "forums.php";
+		header("Location: error.php?code=".ERR_CODE_CATEGORY_INVALID_ID);
+		exit();
 	}
-
 } else if($_GET['func'] == "edit_forum") {
 	if(isset($_POST['Submit'])) {
 		if(empty($_POST['name'])) {
-			error_msg($lang['Error'], sprintf($lang['No_x_content'], strtolower($lang['Forum_Name'])));
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_FORUM_NO_NAME_SET);
+			exit();
 		}
 		if(!isset($_POST['cid'])) {
-			error_msg($lang['Error'], sprintf($lang['No_x_content'], strtolower($lang['Category'])));
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_CATEGORY_NO_NAME_SET);
+			exit();
 		}
 
 		//====================================
@@ -333,10 +292,12 @@ if($_GET['func'] == "add_forum") {
 
 		$db2->query($sql, $values);
 
-		info_box($lang['Edit_Forum'], $lang['Forum_Updated_Msg'], "forums.php");
+		$_SESSION["return_url"] = "forums.php";
+		header("Location: error.php?code=".ERR_CODE_FORUM_UPDATED);
+		exit();
 	} else {
 		if(!isset($_GET['fid']) || !is_numeric($_GET['fid'])) error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
-		$theme->new_file("edit_forum", "edit_forum.tpl");
+		$tplEditForum = new Template("edit_forum.tpl");
 
 		$db2->query("SELECT * FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $_GET['fid']));
 		if($result = $db2->fetch()) {
@@ -372,10 +333,8 @@ if($_GET['func'] == "add_forum") {
 					}
 				}
 			}
-
-			$theme->replace_tags("edit_forum", $selected_array);
-
-			$theme->replace_tags("edit_forum", array(
+			$tplEditForum->setVars($selected_array);
+			$tplEditForum->setVars(array(
 				"NAME" => $result['forum_name'],
 				"DESCRIPTION" => $result['forum_description'],
 				"REDIRECT_URL" => $result['forum_redirect_url'],
@@ -394,15 +353,13 @@ if($_GET['func'] == "add_forum") {
 				} else {
 					$selected = "";
 				}
-
-				$theme->insert_nest("edit_forum", "category_select", array(
+				$tplEditForum->addToBlock("category_select", array(
 					"CAT_ID" => "c" . $cat_result['cat_id'],
 					"CAT_STYLE" => "font-weight:bold;",
 					"CAT_PREFIX" => "+",
 					"CAT_NAME" => $cat_result['cat_name'],
 					"SELECTED" => $selected
 				));
-				$theme->add_nest("edit_forum", "category_select");
 
 				$db2->query("SELECT `forum_id`, `forum_name` FROM `_PREFIX_forums`
 										WHERE `forum_cat_id`=:catid AND `forum_type` = 'c'
@@ -415,40 +372,32 @@ if($_GET['func'] == "add_forum") {
 					} else {
 						$selected = "";
 					}
-
-					$theme->insert_nest("edit_forum", "category_select", array(
+					$tplEditForum->addToBlock("category_select", array(
 						"CAT_ID" => "f" . $forum_result['forum_id'],
 						"CAT_STYLE" => "font-weight:normal;",
 						"CAT_PREFIX" => "+-+",
 						"CAT_NAME" => $forum_result['forum_name'],
 						"SELECTED" => $selected
 					));
-					$theme->add_nest("edit_forum", "category_select");
 
-					_generate_category_dropdown($forum_result['forum_id'], "edit_forum", "+-+-+");
+					_generate_category_dropdown($forum_result['forum_id'], "edit_forum", "+-+-+", true, $tplEditForum);
 				}
 			}
-			//
-			// Output the page header
-			//
-			include_once($root_path . "includes/page_header.php");
+			
+			outputPage($tplEditForum);
+			exit();
 
-			//
-			// Output the main page
-			//
-			$theme->output("edit_forum");
-
-			//
-			// Output the page footer
-			//
-			include_once($root_path . "includes/page_footer.php");
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_INVALID_FORUM_ID);
+			exit();
 		}
 	}
 } else if($_GET['func'] == "delete_forum") {
 	if(!isset($_GET['fid'])) {
-		info_box($lang['Error'], $lang['Invalid_Forum_Id'], "forums.php");
+		$_SESSION["return_url"] = "forums.php";
+		header("Location: error.php?code=".ERR_CODE_INVALID_FORUM_ID);
+		exit();
 	}
 	if(!isset($_GET['confirm'])) {
 		confirm_msg($lang['Delete_Forum'], $lang['Delete_Forum_Msg'], "forums.php?func=delete_forum&fid=".$_GET['fid']."&confirm=1", "forums.php");
@@ -464,12 +413,16 @@ if($_GET['func'] == "add_forum") {
 		}
 		
 		$db2->query("DELETE FROM `_PREFIX_forums` WHERE `forum_id`=:fid", array(":fid" => $_GET['fid']));
-		info_box($lang['Delete_Forum'], $lang['Forum_Deleted_Msg'], "forums.php");
+		$_SESSION["return_url"] = "forums.php";
+		header("Location: error.php?code=".ERR_CODE_FORUM_DELETED);
+		exit();
 	}
 } else if($_GET['func'] == "delete_category") {
 	if(isset($_POST['Submit'])) {
 		if(!isset($_GET['cid'])) {
-			info_box($lang['Error'], $lang['Invalid_Category_Id'], "forums.php");
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_CATEGORY_INVALID_ID);
+			exit();
 		}
 
 		if(!isset($_GET['move_to'])) $_GET['move_to'] = "0";
@@ -492,46 +445,38 @@ if($_GET['func'] == "add_forum") {
 			}
 			
 			$db2->query("DELETE FROM `_PREFIX_categories` WHERE `cat_id`=:cid", array(":cid" => $_GET['cid']));
-			info_box($lang['Delete_Category'], $lang['Category_Deleted_Msg'], "forums.php");
+			
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_CATEGORY_DELETED);
+			exit();
 		} else {
 			$db2->query("UPDATE `_PREFIX_forums` SET `forum_cat_id`=:move WHERE `cat_id`=:cid", array(":move" => $_GET['move_to'], ":cid" => $_GET['cid']));
 			$db2->query("DELETE FROM `_PREFIX_categories` WHERE `cat_id`=:cid", array(":cid" => $_GET['cid']));
-			info_box($lang['Delete_Category'], $lang['Category_Deleted_Msg'], "forums.php");
+			
+			$_SESSION["return_url"] = "forums.php";
+			header("Location: error.php?code=".ERR_CODE_CATEGORY_DELETED);
+			exit();
 		}
 	} else {
-		$theme->new_file("delete_category", "delete_category.tpl");
+		$tplDeleteCategory = new Template("delete_category.tpl");
+
 		$db2->query("SELECT * FROM `_PREFIX_categories` WHERE `cat_id`!=:cid ORDER BY `cat_id`", array(":cid" => $_GET['cid']));
 		
 		while($result = $db2->fetch()) {
-			$theme->insert_nest("delete_category", "move_to_options", array(
+			$tplDeleteCategory->addToBlock("move_to_options", array(
 				"CAT_ID" => $result['cat_id'],
 				"CAT_NAME" => $result['cat_name']
 			));
-
-			$theme->add_nest("delete_category", "move_to_options");
 		}
-		//
-		// Output the page header
-		//
-		include_once($root_path . "includes/page_header.php");
-
-		//
-		// Output the main page
-		//
-		$theme->output("delete_category");
-
-		//
-		// Output the page footer
-		//
-		include_once($root_path . "includes/page_footer.php");
+		
+		outputPage($tplDeleteCategory);
+		exit();
 	}
 }
 else
 {
-	if(isset($_GET['move']))
-	{
-		if(isset($_GET['cid']))
-		{
+	if(isset($_GET['move'])) {
+		if(isset($_GET['cid'])) {
 			$old_sign = ($_GET['move'] == "up") ? "+" : "-";
 			$new_sign = ($_GET['move'] == "up") ? "-" : "+";
 			$db2->query("SELECT c.`cat_id`, p.`cat_id`
@@ -570,8 +515,6 @@ else
 		}
 	}
 	
-	Template::setBasePath($root_path . "templates/original/admin/");
-	Template::addNamespace("L", $lang);
 	$page_master = new Template("manage_forums.tpl");
 
 	$db_cat = $db2->query("SELECT * FROM `_PREFIX_categories` ORDER BY `cat_orderby`");
@@ -631,6 +574,7 @@ else
 	}
 
 	outputPage($page_master);
+	exit();
 }
 
 function _generate_subforums($forum_id, $forum_route, $page_master, &$category_content)
@@ -681,7 +625,7 @@ function _generate_subforums($forum_id, $forum_route, $page_master, &$category_c
 	return true;
 }
 
-function _generate_category_dropdown($forum_id, $template_name, $prefix, $check_selected = true)
+function _generate_category_dropdown($forum_id, $template_name, $prefix, $check_selected = true, &$tplAddForum)
 {
 	global $db2, $theme, $current_cat_id, $current_cat_type;
 
@@ -704,15 +648,13 @@ function _generate_category_dropdown($forum_id, $template_name, $prefix, $check_
 		} else {
 			$selected = "";
 		}
-
-		$theme->insert_nest($template_name, "category_select", array(
+		$tplAddForum->addToBlock("category_select", array(
 			"CAT_ID" => "f" . $forum_result['forum_id'],
 			"CAT_STYLE" => "font-weight:normal;",
 			"CAT_PREFIX" => $prefix,
 			"CAT_NAME" => $forum_result['forum_name'],
 			"SELECTED" => $selected
 		));
-		$theme->add_nest($template_name, "category_select");
 
 		_generate_category_dropdown($forum_result['forum_id'], $template_name, $prefix . "-+", $check_selected);
 	}

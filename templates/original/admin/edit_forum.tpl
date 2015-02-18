@@ -28,7 +28,7 @@ div#advanced_perm {
 </style>
 
 <form method="post" action="" name="edit_forum">
-<!-- BEGIN error -->
+<!-- BLOCK error -->
 <table width="100%" class="maintable">
  <tr>
   <th>
@@ -42,7 +42,7 @@ div#advanced_perm {
  </tr>
 </table>
 <br />
-<!-- END error -->
+<!-- END BLOCK error -->
 <table width="100%" class="maintable">
  <tr>
   <th height="25">
@@ -52,9 +52,9 @@ div#advanced_perm {
  <tr>
   <td class="cell2">
    {L.Category_Or_Subforum} : <select name="cid">
-   <!-- BEGIN category_select -->
+   <!-- BLOCK category_select -->
     <option value="{CAT_ID}" style="{CAT_STYLE}" {SELECTED}>{CAT_PREFIX} {CAT_NAME}</option>
-   <!-- END category_select -->
+   <!-- END BLOCK category_select -->
    </select>
   </td>
  </tr>
@@ -73,10 +73,12 @@ div#advanced_perm {
    </table>
   </td>
  </tr>
+ <tr>
   <th height="25">
    {L.Permissions}
   </th>
  </tr>
+ <tr>
   <td class="cell2">
    {L.Advanced_Permissions} : <input type="checkbox" name="advanced_permissions" onclick="change_perm_type()" {ADV_CHECKED}>
   </td>
@@ -101,6 +103,7 @@ div#advanced_perm {
      <tr>
       <td>{L.Read}</td><td>{L.Post}</td><td>{L.Reply}</td><td>{L.Vote}</td><td>{L.Create_Poll}</td><td>{L.Moderate}</td>
      </tr>
+     <tr>
       <td>
        <select name="Read">
         <option value="0"{E0}>{L.Banned}</option>
@@ -166,10 +169,12 @@ div#advanced_perm {
    </div>
   </td>
  </tr>
+ <tr>
   <th>
    <input type="submit" name="Submit" value="{L.Submit}" />
   </th>
  </tr>
+ </table>
 </form>
 
 <script>

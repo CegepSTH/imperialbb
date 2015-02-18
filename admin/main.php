@@ -1,15 +1,4 @@
 <?php
-
-/**********************************************************
-*
-*			admin/main.php
-*
-*		ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 define("IN_IBB", 1);
 define("IN_ADMIN", 1);
 
@@ -21,7 +10,10 @@ if(isset($_GET['func']) && $_GET['func'] == 'update_notepad') {
 	$values = array(":admnote" => $_POST['admincp_notepad']);
 	$db2->query("UPDATE `_PREFIX_config` 
 		SET `config_value`=:admnote WHERE `config_name` = 'admincp_notepad'", $values);
-	info_box($lang['notepad_updated'], $lang['notepad_updated_desc'], "main.php");
+	
+	$_SESSION["return_url"] = "main.php";
+	header("Location: error.php?code=".ERR_CODE_NOTEPAD_UPDATED);
+	exit();
 }
 
 $db2->query("SELECT count(*) AS `tot_users` FROM `_PREFIX_users` WHERE `user_id` > 0");
@@ -69,4 +61,5 @@ if(is_dir("../install")) {
 }
 
 outputPage($page_master);
+exit();
 ?>
