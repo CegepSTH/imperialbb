@@ -102,7 +102,7 @@ function renderSmiliePicker() {
 			));
 
 			$smilie_count++;
-			if($smilie_count > 50)
+			if($smilie_count > 20)
 			{
 				break;
 			}
