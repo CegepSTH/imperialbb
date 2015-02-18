@@ -121,7 +121,8 @@ $db_forum = $db2->query("SELECT f.`forum_id`, f.`forum_name`, f.`forum_descripti
 	array(":ugroup" => $user['user_usergroup'], ":fid" => $fid));
 
 $subforum_count = 0;
-$blockSubforums = "";
+$blockSubForums = "";
+
 while($forum_result = $db_forum->fetch()) {
 	$blockSubForumsList = "";
 	if(($forum_result['forum_read'] <= $user['user_level'] && $forum_result['ug_read'] == 0) || $forum_result['ug_read'] == 1) {
@@ -189,7 +190,7 @@ while($forum_result = $db_forum->fetch()) {
 		}
 
 		if($forum_result['forum_redirect_url'] != null) {
-			$blockSubforums .= $tplViewForum->renderBlock("forum_row_off", array(
+			$blockSubForums .= $tplViewForum->renderBlock("forum_row_off", array(
 				"SUBFORUM_ID" => $forum_result['forum_id'],
 				"SUBFORUM_NAME" => $forum_result['forum_name'],
 				"SUBFORUM_DESCRIPTION" => $forum_result['forum_description'],
@@ -216,7 +217,8 @@ while($forum_result = $db_forum->fetch()) {
 	
 if($subforum_count > 0) {
 	$tplViewForum->addToBlock("subforums", array(
-		"block_forum_row" => $blockSubForums)); 
+		"block_forum_row" => $blockSubForums, 
+		"FORUM_NAME" => $forum["forum_name"])); 
 }
 
 $db2->query("SELECT * FROM `_PREFIX_topics` WHERE `topic_forum_id`=:fid", array(":fid" => $fid));

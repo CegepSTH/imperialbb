@@ -66,7 +66,6 @@ include_once($root_path . "includes/constants.php");
 include_once($root_path . "includes/init.php");
 include_once($root_path . "includes/sessions.php");
 include_once($root_path . "includes/functions.php");
-include_once($root_path . "classes/class_template.php");
 include_once($root_path . "classes/class_language.php");
 
 $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
@@ -75,7 +74,7 @@ $protected = (!defined("IN_ADMIN")) ? 'WHERE c.`config_protected` = \'0\'' : '';
 $sql = $db2->query("SELECT c.*, l.`language_folder`
 	FROM (`_PREFIX_config` c
 	LEFT JOIN `_PREFIX_languages` l
-	ON c.`config_name` = 'default_language'
+		ON c.`config_name` = 'default_language'
 	AND l.`language_id` = c.`config_value`)".$protected.""
 );
 while($row = $sql->fetch())

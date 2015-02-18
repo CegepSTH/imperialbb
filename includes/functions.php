@@ -157,6 +157,10 @@ function bbcode($post)
 	
 	// Anti-parse code muahauhau
 	foreach($subs as $key => $value) {
+		if(empty($value)) {
+			continue;
+		}
+		
 		$filtered = str_replace("[", "&#91;", $value[0]);
 		$filtered = str_replace("]", "&#93;", $filtered);
 		$post = str_replace("[code:0]".$value[0]."[/code:0]", 
