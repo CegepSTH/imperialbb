@@ -565,6 +565,8 @@ if($_GET['func'] == "edit")
     	// Profile Avatar
     	// ===========================
     	if($oUser->getAvatarType() == UPLOADED_AVATAR || $oUser->getAvatarType() == REMOTE_AVATAR) {
+    		$av_loc = "";
+    		
     		if($oUser->getAvatarType() == UPLOADED_AVATAR) {
     			$av_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
     		}
