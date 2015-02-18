@@ -645,17 +645,17 @@ so they span mutiple lines (up to three).
 .category-manage table tr th.topic-count,
 .category-manage table tr td.topic-count
 {
-	width: 50px;
+	width: 60px;
 }
 .category-manage table tr th.post-count,
 .category-manage table tr td.post-count
 {
-	width: 50px
+	width: 60px
 }
 .category-manage table tr th.action-buttons,
 .category-manage table tr td.action-buttons
 {
-	width: 100px;
+	width: 125px;
 }
 .category-manage table tr th.topic-count,
 .category-manage table tr td.topic-count,

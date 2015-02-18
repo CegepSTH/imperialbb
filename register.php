@@ -11,7 +11,7 @@ $language->add_file("profile");
 Template::addNamespace("L", $lang);
 
 // Redirects to login page after registering.
-if($_GET['act'] == "login") {
+if(isset($_GET['act']) && $_GET['act'] == "login") {
 	header("Location: login.php");
 } 
 

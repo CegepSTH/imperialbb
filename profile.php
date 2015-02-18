@@ -344,6 +344,7 @@ if($_GET['func'] == "edit")
 				$tplEditProfile->addToBlock("current_avatar_off", array());
 			} else {
 				list($user['user_avatar_width'], $user['user_avatar_height']) = explode("x", $user['user_avatar_dimensions']);
+				$avatar_loc = "";
 				if($oUser->getAvatarType() == UPLOADED_AVATAR) {
 					$avatar_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
 				}

@@ -95,7 +95,7 @@ $contants_tpl_values_nocopyrino = array("ANNOUNCMENT" => "".ANNOUNCMENT,
 	"PINNED" => "".PINNED, 
 	"GENERAL" => "".GENERAL);
 Template::addNamespace("Constant", $contants_tpl_values_nocopyrino);
-	
+
 // Get user data and put into array
 $sql = $db2->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l.`language_name`
 	FROM (`_PREFIX_users` u LEFT JOIN
