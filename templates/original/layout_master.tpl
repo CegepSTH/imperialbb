@@ -4,7 +4,6 @@
 		<title>{TITLE}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset={L.head_charset}" />
 		<link rel="stylesheet" type="text/css" href="{T.TEMPLATE_PATH}/newstyle.css" />
-		<script type="text/javascript" src="{C.jscripts_dir}/js_global.js"></script>
 	</head>
 	<body>
 		<div class="site-wrapper">

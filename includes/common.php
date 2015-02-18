@@ -185,6 +185,4 @@ if($config['board_offline'] == 1 && $user['user_level'] != 5 && (!isset($ignore_
 	}
 }
 
-$config['jscripts_dir'] = "./jscripts";
-
 ?>
