@@ -228,9 +228,7 @@ if($_GET['func'] == "edit")
 				$filename = preg_replace("# #i", "_", $filename);
 				
   		      	if(copy($_FILES['Upload_Avatar']['tmp_name'], $config['avatar_upload_dir'] . "/" . $filename)) {
-  		      		if($user['user_avatar_type'] == "2") {
 						unlink("images/avatars/uploads/".$user['user_avatar_location']);
-					}
 					
 					$oUser->setAvatarType(UPLOADED_AVATAR);
 					$oUser->setAvatarLocation($filename);
@@ -239,10 +237,7 @@ if($_GET['func'] == "edit")
 					showMessage(ERR_CODE_PROFILE_CANT_CHANGE_AVATAR, "profile.php?func=edit");
 				}
 			} else if(isset($_POST['Delete_Avatar'])) {
-				if($user['user_avatar_type'] == "2") {
 					unlink("images/avatars/uploads/".$user['user_avatar_location']."");
-				}
-				
 				$oUser->setAvatarType(NO_AVATAR);
 				$oUser->setAvatarLocation("");
 
@@ -275,9 +270,8 @@ if($_GET['func'] == "edit")
             }
 			
 			if($day && $month) {
-				$strBDay = (strlen($year) == 4 ? $year : (strlen($year) == 2 ? "19$year" : "0000"));
-				$strBDay .="-".($month < 10 ? "0$month" : $month)."-".($day < 10 ? "0$day" :$day);
-			    $birthday = $strBDay;
+			    $birthday = ifelse(strlen($year) == 4, $year,ifelse(strlen($year) == 2,"19$year","0000"))
+                            ."-".ifelse($month<10,"0$month",$month)."-".ifelse($day<10,"0$day",$day);
             } else {
                 $birthday = '0000-00-00';
             }
@@ -325,7 +319,7 @@ if($_GET['func'] == "edit")
 			$birthday = explode("-", $oUser->getBirthday());
 			$day = $birthday[2];
 			$month = $birthday[1];
-			$year = $birthday[0] ?: '';
+			$year = $birthday[0] ?: '';//ifelse($birthday[0], $birthday[0], '');
 			$day_options = '';
 			for($i = 1; $i<=31; $i++) {
                 $day_options .= fetch_make_options($i, $i, $day);
@@ -565,8 +559,6 @@ if($_GET['func'] == "edit")
     	// Profile Avatar
     	// ===========================
     	if($oUser->getAvatarType() == UPLOADED_AVATAR || $oUser->getAvatarType() == REMOTE_AVATAR) {
-    		$av_loc = "";
-    		
     		if($oUser->getAvatarType() == UPLOADED_AVATAR) {
     			$av_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
     		}
