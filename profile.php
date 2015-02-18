@@ -203,8 +203,9 @@ if($_GET['func'] == "edit")
             }
 			
 			if($day && $month) {
-			    $birthday = ifelse(strlen($year) == 4, $year,ifelse(strlen($year) == 2,"19$year","0000"))
-                            ."-".ifelse($month<10,"0$month",$month)."-".ifelse($day<10,"0$day",$day);
+				$strBDay = (strlen($year) == 4 ? $year : (strlen($year) == 2 ? "19$year" : "0000"));
+				$strBDay .="-".($month < 10 ? "0$month" : $month)."-".($day < 10 ? "0$day" :$day);
+			    $birthday = $strBDay;
             } else {
                 $birthday = '0000-00-00';
             }
@@ -251,7 +252,7 @@ if($_GET['func'] == "edit")
 			$birthday = explode("-", $oUser->getBirthday());
 			$day = $birthday[2];
 			$month = $birthday[1];
-			$year = $birthday[0] ?: '';//ifelse($birthday[0], $birthday[0], '');
+			$year = $birthday[0] ?: '';
 			$day_options = '';
 			for($i = 1; $i<=31; $i++) {
                 $day_options .= fetch_make_options($i, $i, $day);

@@ -4,53 +4,12 @@ if(!defined("IN_IBB")) {
 }
 
 //===========================================
-// @Name: function info_box();
-// @Desc: Handles redirects with message
-//===========================================
-function info_box($name, $message, $link)
-{
-	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
-	$theme->new_file("info_box", "info_box.tpl", "");
-	$theme->replace_tags("info_box", array(
-		"LINK"      => $link,
-		"TITLE"     => $name,
-		"MESSAGE"   => $message
-	));
-	include_once($root_path . "includes/page_header.php");
-	$theme->output("info_box");
-	include_once($root_path . "includes/page_footer.php");
-	exit();
-}
-
-//===========================================
-// @name: function error_msg();
-// @Desc: Handles error message displays
-//===========================================
-function error_msg($name, $message)
-{
-	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
-	if(!isset($theme))
-	{
-		die("<b>".$name."</b><br /><br />".$message."");
-	}
-	$theme->new_file("error_msg", "error_msg.tpl", "");
-	$theme->replace_tags("error_msg", array(
-		"TITLE"     => $name,
-		"MESSAGE"   => $message
-	));
-	include_once($root_path. "includes/page_header.php");
-	$theme->output("error_msg");
-	include_once($root_path . "includes/page_footer.php");
-	exit();
-}
-
-//===========================================
 // @Name: function confirm_msg();
 // @Desc: Handles confirmations with redirect
 //===========================================
 function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 {
-	global $config, $user, $theme, $lang, $page_gen_start, $db, $root_path;
+	global $config, $user, $lang, $page_gen_start, $db, $root_path;
 	$tplConfirmMsg = new Template("confirm_msg.tpl");
 
 	$tplConfirmMsg->setVars(array(
@@ -71,6 +30,7 @@ function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 	}
 	
 	outputPage($tplConfirmMsg);
+	exit();
 }
 
 //===========================================
@@ -309,39 +269,7 @@ function email($subject, $template, $tags = array(), $to, $from = '')
     }
     
     if(!mail($to, $subject, $body, "From: ".$from."")) {
-        error_msg($lang['Error'], $lang['Unable_To_Send_Email']);
-    }
-}
-
-//===========================================
-// @Name: function changehtml();
-// @Desc: Handles HTML tag replacements
-//===========================================
-function changehtml($string)
-{
-	$string = preg_replace("#<#", "&lt;", $string);
-	$string = preg_replace("#>#", "&gt;", $string);
-	$string = preg_replace("#\"#", "&quot;", $string);
-    return $string;
-}
-
-//===========================================
-// @Name: function userexists();
-// @Desc: Performs a check on the given username
-//===========================================
-function userexists($username)
-{
-    global $db2;
-    $result = $db2->query("SELECT *
-		FROM `_PREFIX_users`
-		WHERE `username` = :username",
-		array(':username' => $username ));
-		
-    $result2 = $result->fetch();
-    if($result2) {
-        return "1";
-    } else {
-        return "0";
+		showMessage(ERR_CODE_UNABLE_SEND_MAIL);
     }
 }
 
@@ -389,7 +317,7 @@ function generate_activate_key($totalChar = 15)
 //===========================================
 function fetch_make_options($value, $text, $selval = '', $sel = 1)
 {
-	global $theme, $lang;
+	global $lang;
 	
 	$optsel = '';
 	if($sel == 1) {
@@ -410,21 +338,13 @@ function fetch_make_options($value, $text, $selval = '', $sel = 1)
 //===========================================
 function fetch_months($number)
 {
-	global $lang, $months, $theme;
-	if(!isset($months))
-	{
+	global $lang, $months;
+	
+	if(!isset($months)) {
 		$months = explode('-', $lang['profile_months']);
 	}
+	
 	return $months[$number -1];
-}
-
-//===========================================
-// @Name: function ifelse();
-// @Desc: Performs a basic conditional method
-//===========================================
-function ifelse($condition, $true='', $false='')
-{
-	return ($condition ? $true : $false);
 }
 
 //===========================================
@@ -433,7 +353,7 @@ function ifelse($condition, $true='', $false='')
 //===========================================
 function format_membername($member_rank, $member_id, $member_name)
 {
-	global $config, $user, $theme, $lang, $db2;
+	global $config, $user, $lang, $db2;
 	
 	$format = '';
 	
@@ -472,8 +392,6 @@ function format_membername($member_rank, $member_id, $member_name)
 		} else {
 			$format .= " font-style: normal;";
 		}
-		
-		
 	}
 	
 	$format .="\">" . $member_name . "</span></a>";

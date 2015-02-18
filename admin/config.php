@@ -60,7 +60,7 @@ else
 		if($result['config_category'] != $current_category) {
 			$page_master->addToBlock("category", array(
 				"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
-					$lang[$current_category] : preg_replace("#_#", " ", $current_category),
+					$lang[$current_category] : str_replace("_", " ", $current_category),
 				"CATEGORY_CONFIG_OPTIONS" => $current_category_configs,
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
@@ -74,7 +74,7 @@ else
 
 		switch($result['config_type']) {
 			case "textbox":
-				$config_content = "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . changehtml($result['config_value']) . "\" />";
+				$config_content = "<input type=\"text\" name=\"" . $result['config_name'] . "\" value=\"" . htmlspecialchars($result['config_value']) . "\" />";
 
 			break;
 			case "password":
@@ -82,7 +82,7 @@ else
 			break;
 			case "textarea":
 				$config_content = "<textarea name=\"" . $result['config_name'] . "\">" .
-					changehtml($result['config_value']) .
+					htmlspecialchars($result['config_value']) .
 					"</textarea>";
 
 			break;
@@ -139,7 +139,7 @@ else
 		if($config_content_defined) {
 			$current_category_configs .= $page_master->renderBlock("config_option", array(
 				"CONFIG_TITLE" => (isset($lang[$result['config_name']])) ?
-					$lang[$result['config_name']] : preg_replace("#_#", " ", $result['config_name']),
+					$lang[$result['config_name']] : str_replace("_", " ", $result['config_name']),
 				"CONFIG_CONTENT" => $config_content
 			));
 		}
@@ -149,11 +149,12 @@ else
 	// Output the last config category.
 	$page_master->addToBlock("category", array(
 		"CATEGORY_TITLE" => (isset($lang[$current_category])) ?
-			$lang[$current_category] : preg_replace("#_#", " ", $current_category),
+			$lang[$current_category] : str_replace("_", " ", $current_category),
 		"CATEGORY_CONFIG_OPTIONS" => $current_category_configs,
 		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 
 	outputPage($page_master);
+	exit();
 }
 ?>

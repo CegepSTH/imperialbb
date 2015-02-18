@@ -1,19 +1,4 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: constants.php                                              # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
@@ -128,9 +113,37 @@ define("ERR_CODE_LOGIN_SUCCESS", 451);
 define("ERR_CODE_LOGIN_INVALID_ID", 461);
 define("ERR_CODE_LOGIN_ALREADY_LOGGED_IN", 471);
 
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
+//register
+define("ERR_CODE_ACCOUNT_ALREADY_ACTIVATED", 504);
+define("ERR_CODE_INVALID_ACTIVATION_KEY", 514);
+define("ERR_CODE_ACTIVATION_SUCCESS", 524);
+define("ERR_CODE_ACTIVATE_ACCOUNT", 534);
+
+
+// posting
+define("ERR_CODE_INVALID_PERMISSION_POST", 544);
+define("ERR_CODE_MESSAGE_POSTED_SUCCESS", 554);
+define("ERR_CODE_INVALID_PERMISSION_REPLY", 564);
+define("ERR_CODE_TOPIC_IS_CLOSED", 574);
+define("ERR_CODE_USER_CANT_EDIT_POST", 584);
+define("ERR_CODE_POST_EDITED_SUCCESS", 594);
+define("ERR_CODE_TOPIC_CANT_SELECT_LAST_MSG", 604);
+
+// pm
+define("ERR_CODE_PM_SENT", 614);
+define("ERR_CODE_EMAIL_SENT", 624);
+define("ERR_CODE_INVALID_ACTION", 634);
+define("ERR_CODE_INVALID_PM_ID", 644);
+define("ERR_CODE_PM_DELETED", 654);
+define("ERR_CODE_PM_EDITED", 664);
+define("ERR_CODE_UNABLE_FIND_USER_INFORMATIONS", 674);
+define("ERR_CODE_THE_BIG_BASTARD_SAYS_YOURE_BANNED_GET_OUT_PLEASE", 684);
+define("ERR_CODE_BOARD_OFFLINE", 694);
+define("ERR_CODE_UNABLE_SEND_MAIL", 704);
+define("ERR_CODE_ACCOUNT_CLOSED", 714);
+define("ERR_CODE_ACCOUNT_CREATED", 724);
+
+// CSRF
+define("ERR_CODE_INVALID_REQUEST", 11000);
+
 ?>

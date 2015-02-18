@@ -1,23 +1,8 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: posting.php                                                # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright � 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 define("IN_IBB", 1);
 
 $root_path = "./";
-include($root_path . "includes/common.php");
+require_once($root_path . "includes/common.php");
 
 $language->add_file("posting");
 Template::addNamespace("L", $lang);
@@ -35,8 +20,7 @@ function renderPoll($page_master) {
 
 	if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;
 
-	for($i=1; $i<=$_GET['poll_choices']; $i++)
-	{
+	for($i=1; $i<=$_GET['poll_choices']; $i++) {
 		$page_master->addToBlock("pollchoice_row", array(
 			"POLL_CHOICE_DESC" => sprintf($lang['Poll_Choice_X'], intval($i)),
 			"POLL_CHOICE_NUMBER" => strval($i),
@@ -87,8 +71,7 @@ function hasPermissionToCreatePoll() {
 		)
 	);
 
-	if($forum_result = $forum_sql->fetch())
-	{
+	if($forum_result = $forum_sql->fetch()) {
 		if((($forum_result['forum_poll'] <= $user['user_level'] && $forum_result['ug_poll'] == 0) ||
 			$forum_result['ug_poll'] == 1))
 		{
@@ -108,58 +91,48 @@ function renderPollIfHasPermission($page_master) {
 if(!isset($_GET['func'])) $_GET['func'] = "";
 if($_GET['func'] == "newtopic")
 {
-
-	if(!isset($_GET['fid'])) error_msg($lang['Error'], $lang['Invalid_Forum_Id']);
+	if(!isset($_GET['fid'])) {
+		showMessage(ERR_CODE_INVALID_FORUM_ID);
+	}
+	
 	$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_reply`, f.`forum_post`, g.`ug_post`
 		FROM (`_PREFIX_forums` f
 			LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
 			AND g.`usergroup` = :user_group)
 		WHERE `forum_id` = :fid",
-		array(
-			":user_group" => $user['user_usergroup'],
-			":fid" => $_GET['fid']
-		)
-	);
-	if($forum_result = $forum_sql->fetch())
-	{
-
-		if(!(($forum_result['forum_post'] <= $user['user_level'] && $forum_result['ug_post'] == 0) || $forum_result['ug_post'] == 1))
+		array(":user_group" => $user['user_usergroup'],
+			":fid" => $_GET['fid']));
+			
+	if($forum_result = $forum_sql->fetch()) {
+		if(!(($forum_result['forum_post'] <= $user['user_level'] 
+			&& $forum_result['ug_post'] == 0) || $forum_result['ug_post'] == 1))
 		{
-			if($user['user_id'] > 0)
-			{
-				error_msg($lang['Error'], $lang['Invalid_Permissions_Post']);
-			}
-			else
-			{
+			if($user['user_id'] > 0) {
+				showMessage(ERR_CODE_INVALID_PERMISSION_POST);
+			} else {
 				header("Location: login.php");
 				exit();
 			}
 		}
-	}
-	else
-	{
-		error_msg("Error", $lang['Invalid_Forum_Id']);
+	} else {
+		showMessage(ERR_CODE_INVALID_FORUM_ID);
 	}
 
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		CSRF::validate();
 
 		$error = "";
-		if(strlen($_POST['title']) < 1 )
-		{
+		if(strlen($_POST['title']) < 1 ) {
 			$error .= sprintf($lang['No_x_content'], strtolower($lang['Title'])) . "<br />";
-		}
-		else if(strlen($_POST['title']) > 75)
-		{
+		} else if(strlen($_POST['title']) > 75) {
 			$error .= $lang['Title_Too_Long'] . "<br />";
 		}
-		if(strlen($_POST['body']) < 1)
-		{
+		
+		if(strlen($_POST['body']) < 1) {
 			$error .= $lang['No_Post_Content'] . "<br />";
 		}
-		if(strlen($_POST['body']) > 2000)
-		{
+		
+		if(strlen($_POST['body']) > 2000) {
 			$error .= $lang['post_has_too_many_chars'] . "<br />";
 		}
 
@@ -178,8 +151,7 @@ if($_GET['func'] == "newtopic")
 			$error .= $lang['Poll_Choices_Blank_Msg'] . "<br />";
 		}
 
-		if(strlen($error) > 0)
-		{
+		if(strlen($error) > 0) {
 			$page_master = new Template("post.tpl");
 
 			$page_master->setVars(array(
@@ -213,45 +185,33 @@ if($_GET['func'] == "newtopic")
 			renderPollIfHasPermission($page_master);
 
 			outputPage($page_master, $page_title);
-		}
-		else
-		{
+			exit();
+		} else {
 			// Disable checkboxes && attach signature
-			if($config['html_enabled'] == false || !isset($_POST['disable_html']))
-			{
+			if($config['html_enabled'] == false || !isset($_POST['disable_html'])) {
 				$_POST['disable_html'] = "0";
-			}
-			else
-			{
+			} else {
 				$_POST['disable_html'] = "1";
 			}
 
-			if($config['bbcode_enabled'] == false || !isset($_POST['disable_bbcode']))
-			{
+			if($config['bbcode_enabled'] == false || !isset($_POST['disable_bbcode'])) {
 				$_POST['disable_bbcode'] = "0";
-			}
-			else
-			{
+			} else {
 				$_POST['disable_bbcode'] = "1";
 			}
 
-			if($config['smilies_enabled'] == false || !isset($_POST['disable_smilies']))
-			{
+			if($config['smilies_enabled'] == false || !isset($_POST['disable_smilies'])) {
 				$_POST['disable_smilies'] = "0";
-			}
-			else
-			{
+			} else {
 				$_POST['disable_smilies'] = "1";
 			}
 
-			if(isset($_POST['attach_signature']))
-			{
+			if(isset($_POST['attach_signature'])) {
 				$_POST['attach_signature'] = "1";
-			}
-			else
-			{
+			} else {
 				$_POST['attach_signature'] = "0";
 			}
+			
             $auth_poll = true;
 			if(!empty($_POST['poll_title'])) {
 				$forum_sql = $db2->query("SELECT f.`forum_name`, f.`forum_poll`, g.`ug_poll`
@@ -259,17 +219,15 @@ if($_GET['func'] == "newtopic")
 					LEFT JOIN `_PREFIX_ug_auth` g ON g.`ug_forum_id` = f.`forum_id`
 					AND g.`usergroup` = :user_group)
 					WHERE `forum_id` = :fid",
-					array(
-						":user_group" => $user['user_usergroup'],
-						":fid" => $_GET['fid']
-					)
-				);
-				if(!$forum_result = $forum_sql->fetch())
-				{
+					array(":user_group" => $user['user_usergroup'],
+						":fid" => $_GET['fid']));
+						
+				if(!$forum_result = $forum_sql->fetch()) {
 					$_POST['poll_title'] == "";
 					$auth_poll = false;
 				}
 			}
+			
 			// Insert topic info
 			$db2->query("INSERT INTO `_PREFIX_topics` (
 				`topic_forum_id`,
@@ -357,12 +315,9 @@ if($_GET['func'] == "newtopic")
 			$sql = $db2->query("SELECT * FROM `_PREFIX_forums`
 				WHERE `forum_id` = :fid
 				LIMIT 1",
-				array(
-					":fid" => $_GET['fid']
-				)
-			);
-			if($row = $sql->fetch())
-			{
+				array( ":fid" => $_GET['fid'] ));
+				
+			if($row = $sql->fetch()) {
 				$new_topics = $row['forum_topics'] + 1;
 				$new_posts = $row['forum_posts'] + 1;
 				$db2->query("UPDATE `_PREFIX_forums`
@@ -374,32 +329,25 @@ if($_GET['func'] == "newtopic")
 						":new_topics" => $new_topics,
 						":new_posts" => $new_posts,
 						":pid" => $pid,
-						":fid" => $_GET['fid']
-					)
-				);
+						":fid" => $_GET['fid']));
 			}
 
 			$db2->query("UPDATE `_PREFIX_topics`
 				SET `topic_first_post` = :pid1,
 				`topic_last_post` = :pid2
 				WHERE `topic_id` = :tid",
-				array(
-					":pid1" => $pid,
+				array(":pid1" => $pid,
 					":pid2" => $pid,
-					":tid" => $tid
-				)
-			);
+					":tid" => $tid));
 
-			if($user['user_id'] > 0)
-			{
+			if($user['user_id'] > 0) {
 				$db2->query("UPDATE `_PREFIX_users`
 					SET `user_posts` = :user_posts
 					WHERE `user_id` = :user_id",
-					array(
-						":user_posts" => ($user['user_posts'] + 1),
+					array(":user_posts" => ($user['user_posts'] + 1),
 						":user_id" => $user['user_id']
-					)
-				);
+					));
+					
 				if(isset($_POST['subscribe_to_topic'])) {
 					$db2->query("INSERT INTO `_PREFIX_topic_subscriptions` (
 						`topic_subscription_user_id`,
@@ -409,19 +357,15 @@ if($_GET['func'] == "newtopic")
 						:user_id,
 						:tid
 						)",
-						array(
-							":user_id" => $user['user_id'],
+						array(":user_id" => $user['user_id'],
 							":tid" => $tid
-						)
-					);
+						));
 				}
 			}
-			info_box($lang['New_Topic'], $lang['New_Post_Msg'], "view_topic.php?tid=$tid");
+			
+			showMessage(ERR_CODE_MESSAGE_POSTED_SUCCESS, "view_topic.php?tid=".$tid);
 		}
-
-	}
-	else
-	{
+	} else {
 		$page_master = new Template("post.tpl");
 
 		$page_master->setVars(array(
@@ -451,11 +395,14 @@ if($_GET['func'] == "newtopic")
 		renderPollIfHasPermission($page_master);
 
 		outputPage($page_master, $page_title);
+		exit();
 	}
 }
 else if($_GET['func'] == "reply")
 {
-	if(!isset($_GET['tid'])) error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+	if(!isset($_GET['tid'])) {
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
+	}
 
 	$forum_sql = $db2->query("SELECT f.`forum_id`,
 		f.`forum_name`,
@@ -474,68 +421,55 @@ else if($_GET['func'] == "reply")
 		array(
 			":tid" => $_GET['tid'],
 			":user_group" => $user['user_usergroup']
-		)
-	);
-	if($forum_result = $forum_sql->fetch())
-	{
+		));
+
+	if($forum_result = $forum_sql->fetch()) {
 		$auth_type = ($forum_result['topic_status'] == "1") ? "mod" : "reply";
-		if(!(($forum_result['forum_' . $auth_type] <= $user['user_level'] && $forum_result['ug_' . $auth_type] == 0) || $forum_result['ug_' . $auth_type] == 1))
+		if(!(($forum_result['forum_' . $auth_type] <= $user['user_level'] 
+			&& $forum_result['ug_' . $auth_type] == 0) || $forum_result['ug_' . $auth_type] == 1))
 		{
-			  if($user['user_id'] > 0)
-			  {
-				   error_msg($lang['Error'], $lang['Invalid_Permissions_Reply']);
-			  }
-			  else
-			  {
+			  if($user['user_id'] > 0) {
+				  showMessage(ERR_CODE_INVALID_PERMISSION_REPLY);
+			  } else {
 				   header("Location: login.php");
 				   exit();
 			  }
 		 }
-	}
-	else
-	{
-		error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+	} else {
+		showMessage(ERR_CODE_INVALID_TOPIC_ID);
 	}
 
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		CSRF::validate();
 
 		$error = "";
 		if(!isset($_POST['title'])) $_POST['title'] = "";
 
-		if(strlen($_POST['title']) > 75)
-		{
+		if(strlen($_POST['title']) > 75) {
 			  $error .= $lang['Title_Too_Long'] . "<br />";
 		}
-		if(strlen($_POST['body']) < 1)
-		{
+		
+		if(strlen($_POST['body']) < 1) {
 			 $error .= $lang['No_Post_Content'] . "<br />";
 		}
-		if(strlen($_POST['body']) > 2000)
-		{
+		
+		if(strlen($_POST['body']) > 2000) {
 			$error .= $lang['post_has_too_many_chars'] . "<br />";
 		}
-		if(strlen($error) > 0)
-		{
-			//
+		
+		if(strlen($error) > 0) {
 			// Set Up Quote
-			//
 			$body = "";
-			if(isset($_GET['quote']) && is_numeric($_GET['quote']))
-			{
-
+			if(isset($_GET['quote']) && is_numeric($_GET['quote'])) {
 				$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
 					FROM `_PREFIX_posts` p, `_PREFIX_users` u
 					WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
 					LIMIT 1",
 					array(
 						":pid" => $_GET['quote']
-					)
-				);
+					));
 
-				if($quote = $db2->fetch())
-				{
+				if($quote = $db2->fetch()) {
 					$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
 				}
 			}
@@ -571,43 +505,39 @@ else if($_GET['func'] == "reply")
 			renderPostEditBlocks($page_master);
 
 			outputPage($page_master, $page_title);
-		}
-		else
-		{
-			 if(!isset($_POST['title'])) $_POST['title'] = "";
-			 // Insert topic info
-			 $topic_sql = $db2->query("SELECT *
+			exit();
+		} else {
+			if(!isset($_POST['title'])) $_POST['title'] = "";
+			// Insert topic info
+			$topic_sql = $db2->query("SELECT *
 			 	FROM `_PREFIX_topics`
 				WHERE `topic_id` = :tid
 				LIMIT 1",
 				array(
 					":tid" => $_GET['tid']
-				)
-			);
-			 $topic_info = $topic_sql->fetch();
-			 $new_replies = $topic_info['topic_replies'] + 1;
+				));
+				
+			$topic_info = $topic_sql->fetch();
+			$new_replies = $topic_info['topic_replies'] + 1;
 
-			 if($user['user_id'] > 0)
-			 {
-				  $set_new_posts = false;
-				  $track_topics = (isset($_COOKIE['read_topics'])) ? unserialize($_COOKIE['read_topics']) : "";
-				  if(!empty($track_topics[$_GET['tid']]))
-				  {
-					   $set_new_posts = true;
-				  }
-				  else if(count($track_topics) < 200)
-				  {
-					   $set_new_posts = true;
-				  }
-				  if($set_new_posts)
-				  {
-					   $track_topics[$_GET['tid']] = time();
-					   setcookie("read_topics", serialize($track_topics), 0);
-				  }
-			 }
+			if($user['user_id'] > 0) {
+				$set_new_posts = false;
+				$track_topics = (isset($_COOKIE['read_topics'])) ? unserialize($_COOKIE['read_topics']) : "";
+				
+				if(!empty($track_topics[$_GET['tid']])) {
+					$set_new_posts = true;
+				} else if(count($track_topics) < 200) {
+					$set_new_posts = true;
+				}
+				  
+				if($set_new_posts) {
+					$track_topics[$_GET['tid']] = time();
+					setcookie("read_topics", serialize($track_topics), 0);
+				}
+			}
 
-			 // Insert post info
-			 $db2->query("INSERT INTO `_PREFIX_posts` (
+			// Insert post info
+			$db2->query("INSERT INTO `_PREFIX_posts` (
 			 	`post_topic_id`,
 				`post_user_id`,
 				`post_text`,
@@ -624,12 +554,11 @@ else if($_GET['func'] == "reply")
 					":user_id" => $user['user_id'],
 					":post_body" => $_POST['body'],
 					":post_time" => time()
-				)
-			);
+				));
 
-			 $post_id = $db2->lastInsertId();
+			$post_id = $db2->lastInsertId();
 
-			 $db2->query("UPDATE `_PREFIX_topics`
+			$db2->query("UPDATE `_PREFIX_topics`
 				SET `topic_replies` = :reply_count,
 				`topic_time` = :last_reply_time,
 				`topic_last_post` = :last_tid
@@ -639,63 +568,54 @@ else if($_GET['func'] == "reply")
 					":last_reply_time" => time(),
 					":last_tid" => $post_id,
 					":tid" => $_GET['tid']
-				)
-			);
+				));
 
 			 // Update forum info
-			 $sql = $db2->query("SELECT *
-			 	FROM `_PREFIX_forums`
+			$sql = $db2->query("SELECT *
+				FROM `_PREFIX_forums`
 				WHERE `forum_id` = :fid
 				LIMIT 1",
 				array(
 					":fid" => $topic_info['topic_forum_id']
-				)
-			);
-			 if($row = $sql->fetch())
-			 {
-				  $new_posts = $row['forum_posts'] + 1;
-				  $db2->query("UPDATE `_PREFIX_forums`
-				  	SET `forum_posts` = :post_count,
+				));
+				
+			if($row = $sql->fetch()) {
+				$new_posts = $row['forum_posts'] + 1;
+				$db2->query("UPDATE `_PREFIX_forums`
+					SET `forum_posts` = :post_count,
 					`forum_last_post` = :last_pid
 					WHERE `forum_id` = :fid",
 					array(
 						":post_count" => $new_posts,
 						":last_pid" => $post_id,
 						":fid" => $topic_info['topic_forum_id']
-					)
-				  );
-			 }
+					));
+			}
 
-			  if($user['user_id'] > 0)
-			  {
-				   $db2->query("UPDATE `_PREFIX_users`
-			           SET `user_posts` = :user_post_count
-					   WHERE `user_id` = :user_id",
-					   array(
+			if($user['user_id'] > 0) {
+				$db2->query("UPDATE `_PREFIX_users`
+			        SET `user_posts` = :user_post_count
+					WHERE `user_id` = :user_id",
+					array(
 					       ":user_post_count" => ($user['user_posts'] + 1),
 						   ":user_id" => $user['user_id']
-					   )
-				   );
-			  }
-			  info_box($lang['Reply'], $lang['New_Post_Msg'], "view_topic.php?tid=".$_GET['tid']."");
+					   ));
+			}
+			
+			showMessage(ERR_CODE_MESSAGE_POSTED_SUCCESS, "view_topic.php?tid=".$_GET['tid']);
 		}
-	}
-	else
-	{
+	} else {
 		$body = "";
-		if(isset($_GET['quote']) && is_numeric($_GET['quote']))
-		{
+		if(isset($_GET['quote']) && is_numeric($_GET['quote'])) {
 			$quote_query = $db2->query("SELECT p.`post_text`, u.`username`
 				FROM `_PREFIX_posts` p, `_PREFIX_users` u
 				WHERE p.`post_id` = :pid AND u.`user_id` = p.`post_user_id`
 				LIMIT 1",
 				array(
 					":pid" => $_GET['quote']
-				)
-			);
+				));
 
-			if($quote = $db2->fetch())
-			{
+			if($quote = $db2->fetch()) {
 				$body = "[quote=".$quote['username']."]".$quote['post_text']."[/quote]\n\n";
 			}
 		}
@@ -727,54 +647,49 @@ else if($_GET['func'] == "reply")
 		renderPostEditBlocks($page_master);
 
 		outputPage($page_master, $page_title);
+		exit();
 	}
-}
-else if($_GET['func'] == "edit")
-{
-
-	if(!isset($_GET['pid']) || !is_numeric($_GET['pid'])) error_msg($lang['Error'], $lang['Invalid_Post_Id']);
+} else if($_GET['func'] == "edit") {
+	if(!isset($_GET['pid']) || !is_numeric($_GET['pid'])) {
+		showMessage(ERR_CODE_INVALID_POST_ID);
+	}
+	
 	$query = $db2->query("SELECT p.`post_user_id`, p.`post_text`, t.`topic_id`, t.`topic_status`, t.`topic_title`, f.`forum_id`, f.`forum_name`, f.`forum_mod`, g.`ug_mod`
 		FROM (((`_PREFIX_posts` p
-		LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
-		LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
-		LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup` = :user_group AND g.`ug_forum_id` = f.`forum_id`)
+			LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
+			LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
+			LEFT JOIN `_PREFIX_ug_auth` g ON g.`usergroup` = :user_group AND g.`ug_forum_id` = f.`forum_id`)
 		WHERE p.`post_id` = :pid",
 		array(
 			":user_group" => $user['user_usergroup'],
 			":pid" => $_GET['pid']
-		)
-	);
+		));
 
-	if($result = $query->fetch())
-	{
+	if($result = $query->fetch()) {
 		if($result['topic_status'] == 1){
-			error_msg("Error", $lang['Topic_Is_Closed']);
+			showMessage(ERR_CODE_TOPIC_IS_CLOSED);
 		}
 
-		if(!((($result['forum_mod'] <= $user['user_level'] && $result['ug_mod'] == 0) || $result['ug_mod'] == 1) || ($result['post_user_id'] == $user['user_id'] && $user['user_id'] > 0)))
+		if(!((($result['forum_mod'] <= $user['user_level'] && $result['ug_mod'] == 0) || $result['ug_mod'] == 1) 
+			|| ($result['post_user_id'] == $user['user_id'] && $user['user_id'] > 0)))
 		{
-
 			if($user['user_id'] > 0) {
-				error_msg("Error", $lang['User_Edit_Msg']);
-			}
-			else
-			{
+				showMessage(ERR_CODE_USER_CANT_EDIT_POST);
+			} else {
 				header("Location: login.php");
 				exit();
 			}
 		}
 
-		if(isset($_POST['Submit']))
-      	{
+		if(isset($_POST['Submit'])) {
 			CSRF::validate();
 
       		$error = "";
-      		if(strlen($_POST['body']) < 1)
-      		{
+      		if(strlen($_POST['body']) < 1) {
       			$error .= $lang['No_Post_Content'] . "<br />";
       		}
-      		if(strlen($error) > 0)
-      		{
+      		
+      		if(strlen($error) > 0) {
 				$page_master = new Template("post.tpl");
 				$page_master->setVars(array(
       				"ACTION" => $lang['Edit'],
@@ -806,44 +721,35 @@ else if($_GET['func'] == "edit")
 				renderPostEditBlocks($page_master);
 
 				outputPage($page_master, $page_title);
-      		}
-      		else
-      		{
+				exit();
+      		} else {
       			if(!isset($_POST['title'])) $_POST['title'] = "";
 
       			// Insert post info
       			$db2->query("UPDATE `_PREFIX_posts`
 					SET `post_text` = :post_body
 					WHERE `post_id` = :pid",
-					array(
-						":post_body" => $_POST['body'],
+					array(":post_body" => $_POST['body'],
 						":pid" => $_GET['pid']
-					)
-				);
+					));
 
       			$query = $db2->query("SELECT `post_topic_id`
 					FROM `_PREFIX_posts`
 					WHERE `post_id` = :pid",
-					array(
-						":pid" => $_GET['pid']
-					)
-				);
+					array(":pid" => $_GET['pid']));
+					
       			$result = $query->fetch();
 
       			$db2->query("UPDATE `_PREFIX_topics`
 					SET `topic_time` = :time
 					WHERE `topic_id` = :tid",
-					array(
-						":time" => time(),
+					array(":time" => time(),
 						":tid" => $result['post_topic_id']
-					)
-				);
-
-      			info_box($lang['Edit_Post'], $lang['Post_Edited_Msg'], "view_topic.php?tid=".$result['post_topic_id']."");
+					));
+				
+				showMessage(ERR_CODE_POST_EDITED_SUCCESS, "view_topic.php?tid=".$result['post_topic_id']);
       		}
-      	}
-		else
-    	{
+      	} else {
 			$page_master = new Template("post.tpl");
 			$page_master->setVars(array(
 				"ACTION" => $lang['Edit'],
@@ -870,11 +776,10 @@ else if($_GET['func'] == "edit")
 			renderPostEditBlocks($page_master);
 
 			outputPage($page_master, $page_title);
+			exit();
     	}
-	}
-	else
-	{
-		error_msg($lang['Error'], $lang['Invalid_Post_Id']);
+	} else {
+		showMessage(ERR_CODE_INVALID_POST_ID);
 	}
 }
 else if($_GET['func'] == "delete")
@@ -888,28 +793,18 @@ else if($_GET['func'] == "delete")
 			array(":tid" => $_GET['tid']));
 
 		if($ug_auth = $db2->fetch()) {
-
 			if($user['user_id'] != $ug_auth['post_user_id']) {
-				error_msg($lang['Error'], $lang['Invalid_Permissions_Mod'] . "topic_user_id : " . $ug_auth['topic_user_id']);
-
-			}
-			else if ($ug_auth['topic_status'] == 1){
-				error_msg($lang['Error'], $lang['Topic_Is_Closed']);
-			}
-			else if ($user['user_id'] < 0){
+				showMessage(ERR_CODE_INVALID_PERMISSION_MOD);
+			} else if ($ug_auth['topic_status'] == 1) {
+				showMessage(ERR_CODE_TOPIC_IS_CLOSED);
+			} else if ($user['user_id'] < 0){
 				header("Location: login.php");
 				exit;
 			}
-//				if($user['user_id'] > 0) {
-//					error_msg($lang['Error'], $lang['Invalid_Permissions_Mod']);
-//				} else {
-//					header("Location: login.php");
-//					exit;
-//				}
 
 			$fid = $ug_auth['forum_id'];
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_Topic_Id']);
+			showMessage(ERR_CODE_INVALID_TOPIC_ID);
 		}
 
 		if(!isset($_GET['confirm']) || $_GET['confirm'] != "1") {
@@ -918,7 +813,9 @@ else if($_GET['func'] == "delete")
 				WHERE `topic_id`=:tid
 				LIMIT 1", array(":tid" => $_GET['tid']));
 			$result = $db2->fetch();
+			
 			confirm_msg($lang['Delete_Topic'], sprintf($lang['Delete_Topic_Confirm_Msg'], $result['topic_title']), "mod.php?func=delete&tid=".$_GET['tid']."&confirm=1", "view_topic.php?tid=".$_GET['tid']."");
+			exit();
 		} else {
 			CSRF::validate();
 
@@ -933,9 +830,9 @@ else if($_GET['func'] == "delete")
 			$db2->query("DELETE FROM `_PREFIX_topic_subscriptions` WHERE `topic_subscription_topic_id`=:tid", $values);
 
 			$db2->query("SELECT p.`post_id`
-								FROM (`_PREFIX_topics` t
-								LEFT JOIN `_PREFIX_posts` p ON p.`post_id` = t.`topic_last_post`)
-								WHERE `topic_forum_id`=:fid ORDER BY `topic_time` DESC LIMIT 1",
+				FROM (`_PREFIX_topics` t
+					LEFT JOIN `_PREFIX_posts` p ON p.`post_id` = t.`topic_last_post`)
+				WHERE `topic_forum_id`=:fid ORDER BY `topic_time` DESC LIMIT 1",
 				array(":fid" => $fid));
 
 			if($result = $db2->fetch()) {
@@ -944,29 +841,24 @@ else if($_GET['func'] == "delete")
 			} else {
 				$db2->query("UPDATE `_PREFIX_forums` SET `forum_last_post` = '0' WHERE `forum_id`=:fid", array(":fid" => $fid));
 			}
-			info_box($lang['Delete_Topic'], $lang['Topic_Deleted_Msg'], "view_forum.php?fid=$fid");
+			showMessage(ERR_CODE_TOPIC_DELETE_SUCCESS, "view_forum.php?fid=".$fid);
 		}
-	}
-	else if(isset($_GET['pid']))
-	{
+	} else if(isset($_GET['pid'])) {
 		// Get the current thread and the id of the user who posted the comments.
 		$result = $db2->query("SELECT  t.`topic_id`, t.`topic_status`, f.`forum_id`, p.`post_user_id`
-					  FROM ((_PREFIX_posts p
-							LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
-							LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
-					  WHERE p.`post_id` = :pid",
+			FROM ((_PREFIX_posts p
+				LEFT JOIN `_PREFIX_topics` t ON t.`topic_id` = p.`post_topic_id`)
+				LEFT JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`)
+			WHERE p.`post_id` = :pid",
 			array(":pid" => $_GET['pid']));
 
 		// The can only delete his own post!
 		if($ug_auth = $result->fetch()) {
 			if($user['user_id'] != $ug_auth['post_user_id']) {
-				error_msg($lang['Error'], $lang['Invalid_Permissions_Mod']);
-
-			}
-			else if ($ug_auth['topic_status'] == 1){
-				error_msg($lang['Error'], $lang['Topic_Is_Closed']);
-			}
-			else if ($user['user_id'] < 0){
+				showMessage(ERR_CODE_INVALID_PERMISSION_MOD);
+			} else if ($ug_auth['topic_status'] == 1) {
+				showMessage(ERR_CODE_TOPIC_IS_CLOSED);
+			} else if ($user['user_id'] < 0){
 				header("Location: login.php");
 				exit;
 			}
@@ -974,13 +866,13 @@ else if($_GET['func'] == "delete")
 			$tid = $ug_auth['topic_id'];
 			$fid = $ug_auth['forum_id'];
 		} else {
-			error_msg($lang['Error'], $lang['Invalid_Post_Id']);
+			showMessage(ERR_CODE_INVALID_POST_ID);
 		}
 
 		$db2->query("SELECT count(*) AS `cc` FROM `_PREFIX_posts` WHERE `post_topic_id`=:tid", array(":tid" => $tid));
 		if($result = $db2->fetch()) {
 			if($result["cc"] == 1) {
-				error_msg($lang['Error'], sprintf($lang['Delete_Last_Post_In_Topic_Msg'], "<a href=\"view_topic.php?tid=$tid\">", "</a>"));
+				showMessage(ERR_CODE_TOPIC_CANT_DELETE_LAST_MSG, "view_topic.php?tid=".$tid);
 			}
 		}
 
@@ -993,6 +885,7 @@ else if($_GET['func'] == "delete")
 
 			$topic = $db2->fetch();
 			confirm_msg($lang['Delete_Post'], $lang['Delete_Post_Confirm_Msg'], "posting.php?func=delete&pid=".$_GET['pid']."&confirm=1", "view_topic.php?tid=".$topic['topic_id']."");
+			exit();
 		} else {
 			CSRF::validate();
 
@@ -1010,36 +903,28 @@ else if($_GET['func'] == "delete")
 					WHERE `topic_id`=:tid",
 					array("pid" => $result['post_id'], ":time" => $result['post_timestamp'], ":tid" => $tid));
 			} else {
-				error_msg($lang['Error'], $lang['Select_last_post_in_topic_error']);
+				showMessage(ERR_CODE_TOPIC_CANT_SELECT_LAST_MSG);
 			}
 
 			$db2->query("SELECT p.`post_id`
 				FROM (`_PREFIX_topics` t
 					LEFT JOIN `_PREFIX_posts` p ON p.`post_id` = t.`topic_last_post`)
 				ORDER BY t.`topic_time` DESC LIMIT 1");
-
-			info_box($lang['Delete_Post'], $lang['Post_Deleted_Msg'], "view_topic.php?tid=$tid");
+			
+			showMessage(ERR_CODE_POST_DELETE_SUCCESS, "view_topic.php?tid=".$tid);
 		}
 	}
 }
 else if(isset($_GET['mark']))
 {
-	if(preg_match("/^[0-9]+$/", $_GET['mark']))
-	{
+	if(preg_match("/^[0-9]+$/", $_GET['mark'])) {
 		$marked_read = (isset($_COOKIE['marked_read'])) ? unserialize($_COOKIE['marked_read']) : array();
 		$marked_read[$_GET['mark']] = time();
 		setcookie("marked_read", serialize($marked_read));
 		header("Location: index.php");
-	}
-	else
-	{
-		error_msg($lang['Error'], $lang['Marked_forum_id_must_be_positive']);
+	} else {
+		showMessage(ERR_CODE_INVALID_FORUM_ID);
 	}
 }
 
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright � 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>

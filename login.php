@@ -20,7 +20,7 @@ $root_path = "./";
 $ignore_offline = true;
 require_once($root_path . "includes/common.php");
 require_once($root_path . "classes/password.php");
-include_once($root_path . "models/user.php");
+require_once($root_path . "models/user.php");
 
 $language->add_file("login");
 Template::addNamespace("L", $lang);
@@ -33,6 +33,7 @@ if($_GET['func'] == "activate")
 	if(!isset($_GET['user_id'])) {
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
+	
 	if(!isset($_GET['key'])) {
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
@@ -42,9 +43,6 @@ if($_GET['func'] == "activate")
 	// If done properly, show message.
 	if($activationStatus == 0) {
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_SUCCESS);
-		info_box($lang['Activation_Successful'], 
-			sprintf($lang['Activation_Successful_Msg'], 
-			$result['username']), "login.php");
 	} elseif ($activationStatus == 1) {
 		showMessage(ERR_CODE_LOGIN_ALREADY_ACTIVATED);
 	} else {
@@ -66,8 +64,7 @@ else if($_GET['func'] == "logout")
 }
 else if($_GET['func'] == "forgotten_pass")
 {
-	if(isset($_POST['Submit']))
-	{
+	if(isset($_POST['Submit'])) {
 		CSRF::validate();
 
 		if(!isset($_POST['username']) || !isset($_POST['email'])) {
@@ -80,11 +77,9 @@ else if($_GET['func'] == "forgotten_pass")
 			array(
 				":username" => $_POST['username'],
 				":email" => $_POST['email']
-			)
-		);
+			));
 
-		if($result = $query->fetch())
-		{
+		if($result = $query->fetch()) {
 			$key = generate_activate_key();
 			$password = generate_activate_key(7);
 			$db2->query("UPDATE `_PREFIX_users`
@@ -97,8 +92,8 @@ else if($_GET['func'] == "forgotten_pass")
 					":Password" => password_hash($password, PASSWORD_BCRYPT),
 					":current_time" => time(),
 					":user_id" => $result['id']
-				)
-			);
+				));
+				
 			email($lang['Forgotten_Password_Email_Subject'], "forgotten_password", array(
 				"DOMAIN" => $config['url'],
 				"USER_ID" => $result['user_id'],
@@ -106,14 +101,10 @@ else if($_GET['func'] == "forgotten_pass")
 				"PASSWORD" => $password,
 				"KEY" => $key
 			), $result['user_email']);
-		}
-		else
-		{
+		} else {
 			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_INVALID_ID);
 		}
-	}
-	else
-	{
+	} else {
 		$page_master = new Template("forgotten_password.tpl");
 		$page_master->setVars(array(
 			"CSRF_TOKEN" => CSRF::getHTML()
@@ -121,8 +112,8 @@ else if($_GET['func'] == "forgotten_pass")
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Forgotten_Password'];
 		outputPage($page_master, $page_title);
+		exit();
 	}
-
 }
 else if($_GET['func'] == "activate_new_pass")
 {
@@ -139,10 +130,9 @@ else if($_GET['func'] == "activate_new_pass")
 		array(
 			":user_id" => $_GET['user_id'],
 			":key" => $_GET['key'],
-		)
-	);
-	if($result = $sql->fetch())
-	{
+		));
+	
+	if($result = $sql->fetch()) {
 		$db2->query("UPDATE `_PREFIX_users`
 			SET `user_password` = `new_password`,
 			`user_activation_key` = '',
@@ -155,31 +145,24 @@ else if($_GET['func'] == "activate_new_pass")
 		);
 
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_SUCCESS);
-	}
-	else
-	{
+	} else {
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
-}
-else
-{
-	if($user['user_id'] > 0)
-	{
+} else {
+	if($user['user_id'] > 0) {
 		showMessage(ERR_CODE_LOGIN_ALREADY_LOGGED_IN);
 	}
-	if(isset($_POST['Submit']))
-	{
+	
+	if(isset($_POST['Submit'])) {
 		CSRF::validate();
 
 		$user_id = User::check($_POST['UserName'], $_POST['PassWord']);
 		$oUser = User::findUser($user_id);
 
-		if($user_id > -1)
-		{
-			if($oUser->getLevel() == -1)
-			{
-				// Compte fermé
-				info_box($lang['Error'], $lang['Account_Disabled'], "login.php");
+		if($user_id > -1) {
+			if($oUser->getLevel() == -1) {
+				// Account closed.
+				showMessage(ERR_CODE_ACCOUNT_CLOSED, "login.php");
 			}
 
 			setcookie("UserName", $oUser->getUsername(), time()+604800);
@@ -193,19 +176,13 @@ else
 					":user_id" => $oUser->getId(),
 					":remote_ip" => $_SERVER['REMOTE_ADDR'],
 					":session_id" => session_id()
-				)
-			);
+				));
 
 			showMessage(ERR_CODE_LOGIN_SUCCESS);
-
-		}
-		else
-		{
+		} else {
 			showMessage(ERR_CODE_LOGIN_INVALID_ID);
 		}
-	}
-	else
-	{
+	} else {
 		$page_master = new Template("login.tpl");
 		$page_master->setVars(array(
 			"CSRF_TOKEN" => CSRF::getHTML()
@@ -213,12 +190,7 @@ else
 
 		$page_title = $config['site_name'] . " &raquo; " . $lang['Login'];
 		outputPage($page_master, $page_title);
+		exit();
 	}
 }
-
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright � 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>
