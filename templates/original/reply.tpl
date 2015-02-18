@@ -3,7 +3,7 @@
   <td align="left" style="padding-left:5px;" valign="bottom"><a href="index.php">{C.site_name}</a> &raquo; <a href="view_forum.php?fid={FORUM_ID}">{FORUM_NAME}</a> &raquo; <a href="view_topic.php?tid={TOPIC_ID}">{TOPIC_NAME}</a> &raquo; <b>{L.Reply}</b></td>
  </tr>
 </table>
-<!-- BEGIN error -->
+<!-- BLOCK error -->
 <table width=70%>
  <tr>
   <th>{L.The_following_errors_occoured}:</th>
@@ -14,7 +14,7 @@
   </td>
  </tr>
 </table>
-<!-- END error -->
+<!-- END BLOCK error -->
 <form method="post" action="">
 {CSRF_TOKEN}
 <table width="100%" align="center">

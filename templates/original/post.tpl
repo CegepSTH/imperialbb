@@ -54,6 +54,8 @@
 				tabindex="2"
 				onkeyup="getNbCharactersLeft()"
 				onchange="getNbCharactersLeft()"
+				onblur="getNbCharactersLeft()"
+				onfocus="getNbCharactersLeft()"
 				class="value-edit post-body">{BODY}</textarea>
 
 			<div class="character-indicator" id="CharsLeft">
@@ -61,10 +63,13 @@
 			</div>
 			<script>
 				function getNbCharactersLeft() {
-					var nbCharsLeft = 2000 - document.getElementById("body").value.length;
-					document.getElementById("CharsLeft").innerHTML = "{L.Chars_left}" + nbCharsLeft;
+					var tLimit = 2000;
+					var nbCharsLeft = tLimit - document.getElementById("body").value.length;
+					document.getElementById("CharsLeft").textContent = "{L.Chars_left}" + nbCharsLeft;
 
 					if(nbCharsLeft <= 0) {
+						document.getElementById("body").value = document.getElementById("body").value.slice(0, tLimit);
+						document.getElementById("CharsLeft").textContent = "{L.Chars_left}" + 0;
 						document.getElementById("Submit").disabled = true;
 						document.getElementById("Submit").value = "{L.Disabled}";
 					} else {
@@ -72,6 +77,7 @@
 						document.getElementById("Submit").value = "{L.Submit}";
 					}
 				}
+				getNbCharactersLeft();
 			</script>
 		</div>
 		<div class="extra">
