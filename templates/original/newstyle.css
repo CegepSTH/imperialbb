@@ -111,6 +111,10 @@
 		.block-form-admin label * {
 			width: 100%;
 		}
+		.block-form-admin input[type="checkbox"] {
+			width: initial;
+			text-align:center;
+		}
 /* A no-border property. Kind of useless, but used still. */
 .no-border {
 	border: none;
