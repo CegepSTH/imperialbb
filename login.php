@@ -53,14 +53,7 @@ if($_GET['func'] == "activate")
 }
 else if($_GET['func'] == "logout")
 {
-	setcookie("UserName");
-	setcookie("Password");
-	$_SESSION['user_id'] = -1;
-	session_regenerate_id();
-	
-	$db2->query("DELETE FROM `_PREFIX_sessions`
-		WHERE `ip` = :remote_ip",
-		array(":remote_ip" => $_SERVER['REMOTE_ADDR']) );
+	Session::refreshCurrent(-1);
 	
 	showMessage(ERR_CODE_LOGGED_OUT);
 }
@@ -182,19 +175,7 @@ else
 				info_box($lang['Error'], $lang['Account_Disabled'], "login.php");
 			}
 
-			setcookie("UserName", $oUser->getUsername(), time()+604800);
-			setcookie("Password", "What happens after midnight stays secret :^)", time()+604800);
-			$_SESSION['user_id'] = $oUser->getId();
-			
-			$db2->query("UPDATE `_PREFIX_sessions`
-				SET `user_id` = :user_id
-				WHERE `ip` = :remote_ip && `session_id` = :session_id",
-				array(
-					":user_id" => $oUser->getId(),
-					":remote_ip" => $_SERVER['REMOTE_ADDR'],
-					":session_id" => session_id()
-				)
-			);
+			Session::refreshCurrent($oUser->getId());
 
 			showMessage(ERR_CODE_LOGIN_SUCCESS);
 

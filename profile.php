@@ -504,10 +504,19 @@ if($_GET['func'] == "edit")
     	// ===========================
     	// Profile Online Status
     	// ===========================
+
+		// A session is considered online if the last action time is in the
+		// last 30 minutes.
+		$online_time_limit = time() - 30 * 60;
+
     	$online_sql = $db2->query("SELECT *
 			FROM `_PREFIX_sessions`
-			WHERE `user_id` = :user_id",
-			array(":user_id" => intval($_GET['id'])));
+			WHERE `user_id` = :user_id AND `time` > :time_limit;",
+			array(
+				":user_id" => intval($_GET['id']),
+				":time_limit" => $online_time_limit
+			)
+		);
 		
     	if($online_sql->fetch()) {
 			$tplViewProfile->setVar("USER_ONLINE", $lang['Online']);
