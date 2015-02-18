@@ -39,8 +39,11 @@ $sql = $db2->query("SELECT *
 	LIMIT " . $pp->limit . ""
 );
 
-while($result = $sql->fetch()) 
-{
+while($result = $sql->fetch())  {
+	if($result['user_level'] <= 1 || $result['user_rank'] <= 0) {
+		continue;
+	}
+	
     $membername = '';
     $membername = format_membername($result['user_rank'],$result['user_id'],$result['username']);
 	$page_master->addToBlock("member", array(

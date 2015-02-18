@@ -79,8 +79,8 @@ function confirm_msg($name, $message, $url, $no_url = '', $values = '')
 //===========================================
 function create_date($format, $stamp)
 {
-        global $config;
-        return (gmdate($format, $stamp + (3600 * $config['timezone'])));
+	global $config;
+	return (gmdate($format, $stamp + (3600 * $config['timezone'])));
 }
 
 //===========================================
@@ -138,76 +138,8 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 
 	if($insert_bbcode) {
 		$text = bbcode($text);
-		/*
-		// [b]Bold Text[/b]
-		$bb_search[] = "#\[b\]((\[(?!/b\])|(\n|.))*?)\[/b\]#is";
-		$bb_replace[] = "<b>\\1</b>";
-
-		// [u]Underlined Text[/u]
-		$bb_search[] = "#\[u\]((\[(?!/u\])|(\n|.))*?)\[/u\]#is";
-		$bb_replace[] = "<u>\\1</u>";
-
-		// [i]Italics Text[/i]
-		$bb_search[] = "#\[i\]((\[(?!/i\])|(\n|.))*?)\[/i\]#is";
-		$bb_replace[] = "<i>\\1</i>";
-
-		// [hr]
-		$bb_search[] = "#\[hr\]#is";
-		$bb_replace[] = "<hr />";
-
-		// [img]http://www.domain.com[/img]
-		$bb_search[] = "#\[img\](https?://)([\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#is";
-		$bb_replace[] = "<img src=\"\\1\\2\" />";
-
-		// [url=http://www.domain.com]Domain[/url] (With xxxx:// prefix)
-		$bb_search[] = "#\[url=(([\w]+?://)?[\#$\w%~/&.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#is";
-		$bb_replace[] = "<a href=\"\\1\" target=\"blank\">\\3</a>";
-
-		// [url=www.domain.com]Domain[/url] (Without xxxx:// prefix)
-		$bb_search[] = "#\[url=([\w\#$%&~/.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#is";
-		$bb_replace[] = "<a href=\"http://\\1\" target=\"blank\">\\2</a>";
-
-		// [url]http://www.domain.com[/url] (With xxxx:// prefix)
-		$bb_search[] = "#\[url\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is";
-		$bb_replace[] = "<a href=\"\\1\\2\" target=\"blank\">\\2</a>";
-	
-		// [url]www.domain.com[/url] (Without xxxx:// prefix)
-		$bb_search[] = "#\[url\]((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is";
-		$bb_replace[] = "<a href=\"http://\\1\" target=\"blank\">\\1</a>";
-
-		// [color=xxx]Text[/color]
-		$bb_search[] = "#\[color=([a-zA-Z]+|\#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))\]((\[(?!/color\])|(\n|.))*?)\[/color\]#is";
-		$bb_replace[] = "<span style=\"color:\\1\">\\3</span>";
-	
-		// [size=xxx]Text[/size]
-		$bb_search[] = "#\[size=([1-4](\.5)?)\]((\[(?!/size\])|(\n|.))*?)\[/size\]#is";
-		$bb_replace[] = "<span style=\"font-size:\\1ex\">\\3</span>";
-	
-		// [align=xxx]Text[/align]
-		$bb_search[] = "#\[align=(left|center|right)\]((\[(?!/align\])|(\n|.))*?)\[/align\]#is";
-		$bb_replace[] = "<div align=\"\\1\">\\2</div>";
-
-		// [quote]Text[/quote]
-		$bb_search[] = "#\[quote\]((\[(?!/quote\])|(\n|.))*?)\[/quote\]#is";
-		$bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Quote']."</b></td></tr><tr><td>\\1</td></table>";
-	
-		// [quote=xxx]Text[/quote]
-		$bb_search[] = "#\[quote=([\w\#$%&~/.\-;:=,?@\r\n \[\]\(\)\?+]*?)\]((\[(?!/quote\])|(\n|.))*?)\[/quote\]#is";
-		$bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Quote']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
-	
-		// [code]Text[/code]
-		$bb_search[] = "#\[code\]((\[(?!/code\])|(\n|.))*?)\[/code\]#is";
-		$bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b></td></tr><tr><td>\\1</td></table>";
-
-		// [code=zzz]Text[/code]
-		$bb_search[] = "#\[code=([\w\#$%&~/.\-;:=,?@\r\n \[\]\(\)\?+]*?)\]((\[(?!/code\])|(\n|.))*?)\[/code\]#is";
-		$bb_replace[] = "<table width=\"90%\" align=\"center\" class=\"quotetable\"><tr><td width=\"100%\" height=\"25\"><b>".$lang['Code']."</b>&nbsp;&nbsp;Username: \\1</td></tr><tr><td>\\2</td></table>";
-
-		$text = preg_replace($bb_search, $bb_replace, $text);
-
-		$text = preg_replace("#\r\n#i", "<br />", $text); // Je ne sais pas si ça fonctionne...
-		* */
 	}
+	
 	return $text;
 }
 
@@ -502,20 +434,23 @@ function ifelse($condition, $true='', $false='')
 function format_membername($member_rank, $member_id, $member_name)
 {
 	global $config, $user, $theme, $lang, $db2;
-
+	
 	$format = '';
-	$db2->query("SELECT *
-		FROM `_PREFIX_ranks`
-		WHERE `rank_id` = :member_rank",
-		array(
-			':member_rank' => $member_rank
-		)
-	);
-
-	while($rank = $db2->fetch())
-	{
-		$format .= "<a href=\"profile.php?id=".$member_id."\"><span style=\"";
+	
+	if(!isset($ranks) || empty($ranks)) {
+		static $ranks = null;
 		
+		$db2->query("SELECT *
+			FROM `_PREFIX_ranks`
+			WHERE `rank_id` = :member_rank",
+			array(':member_rank' => $member_rank));
+			
+		$ranks = $db2->fetchAll();
+	}
+	
+	$format .= "<a href=\"profile.php?id=".$member_id."\"><span style=\"";
+	
+	foreach($ranks as $rank) {
 		if(!empty($rank['rank_color'])) {
 			$format .= " color: ".$rank['rank_color'].";";
 		} 
@@ -537,8 +472,12 @@ function format_membername($member_rank, $member_id, $member_name)
 		} else {
 			$format .= " font-style: normal;";
 		}
-		$format .="\">" . $member_name . "</span></a>";
+		
+		
 	}
+	
+	$format .="\">" . $member_name . "</span></a>";
+	
 	return $format;
 }
 
