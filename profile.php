@@ -416,15 +416,7 @@ if($_GET['func'] == "edit")
 
 			// Then logout user
 			if($user['user_level'] < 5) {
-
-				setcookie("UserName");
-				setcookie("Password");
-				$_SESSION['user_id'] = -1;
-				session_regenerate_id();
-
-				$db2->query("DELETE FROM `_PREFIX_sessions`
-						 WHERE `ip` = :remote_ip",
-					array(":remote_ip" => $_SERVER['REMOTE_ADDR']));
+				Session::completeLogout();
 			}
 
 			showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);

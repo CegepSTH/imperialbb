@@ -14,6 +14,17 @@
 		<label for="Password">{L.Password}:</label>
 		<input type="password" name="PassWord" id="PassWord" />
 	</div>
+	<div class="form-row">
+		<label for="KeepConnected">Keep connected:</label>
+		<select name="KeepConnected" id="KeepConnected" class="value-input">
+			<option value="{Constant.PLOGIN_DUR_SESSION}">No</option>
+			<option value="{Constant.PLOGIN_DUR_WEEK}">1 week</option>
+			<option value="{Constant.PLOGIN_DUR_MONTH}">1 month</option>
+			<option value="{Constant.PLOGIN_DUR_HALF_YEAR}">6 months</option>
+			<option value="{Constant.PLOGIN_DUR_YEAR}">1 year</option>
+			<option value="{Constant.PLOGIN_DUR_FOREVER}">Forever</option>
+		</select>
+	</div>
 	<div class="links">
 		[ <a href="register.php">{L.Register}</a> | <a href="login.php?func=forgotten_pass">{L.Forgotten_Password}</a> ]
 	</div>

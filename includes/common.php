@@ -91,9 +91,17 @@ Template::addNamespace("C", $config);
 // CONSTANTS TEMPLATE
 // Hack: for reference array. The thing is we want to keep namespaces 
 // as array references, because $lang var would be heavy to copy from.
-$contants_tpl_values_nocopyrino = array("ANNOUNCMENT" => "".ANNOUNCMENT,
+$contants_tpl_values_nocopyrino = array(
+	"ANNOUNCMENT" => "".ANNOUNCMENT,
 	"PINNED" => "".PINNED, 
-	"GENERAL" => "".GENERAL);
+	"GENERAL" => "".GENERAL,
+	"PLOGIN_DUR_SESSION" => "".PLOGIN_DUR_SESSION,
+	"PLOGIN_DUR_WEEK" => "".PLOGIN_DUR_WEEK,
+	"PLOGIN_DUR_MONTH" => "".PLOGIN_DUR_MONTH,
+	"PLOGIN_DUR_HALF_YEAR" => "".PLOGIN_DUR_HALF_YEAR,
+	"PLOGIN_DUR_YEAR" => "".PLOGIN_DUR_YEAR,
+	"PLOGIN_DUR_FOREVER" => "".PLOGIN_DUR_FOREVER
+);
 Template::addNamespace("Constant", $contants_tpl_values_nocopyrino);
 
 // Get user data and put into array
@@ -109,14 +117,8 @@ if($row = $sql->fetch()) {
 	$user = $row;
 	unset($user['user_password']); // Unset the password just to be safe..
 } else {
-	setcookie("UserName");
-	setcookie("Password");
-	$_SESSION['user_id'] = -1;
-	session_regenerate_id();
-	$db2->query("DELETE FROM `_PREFIX_sessions`
-		WHERE `ip` = :remote_addr",
-		array(':remote_addr' => $_SERVER['REMOTE_ADDR']));
-	
+	Session::completeLogout();
+
 	showMessage(ERR_CODE_UNABLE_FIND_USER_INFORMATIONS, "index.php");
 }
 

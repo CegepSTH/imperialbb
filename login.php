@@ -51,7 +51,7 @@ if($_GET['func'] == "activate")
 }
 else if($_GET['func'] == "logout")
 {
-	Session::refreshCurrent(-1);
+	Session::completeLogout();
 	
 	showMessage(ERR_CODE_LOGGED_OUT);
 }
@@ -159,6 +159,37 @@ else if($_GET['func'] == "activate_new_pass")
 			}
 
 			Session::refreshCurrent($oUser->getId());
+
+			if(isset($_POST['KeepConnected'])) {
+
+				$persist_login = true;
+				$persistance_duration = 0;
+				$seconds_in_day = 24 * 60 * 60;
+				switch($_POST['KeepConnected']) {
+					case PLOGIN_DUR_WEEK:
+						$persistance_duration = 7 * $seconds_in_day;
+					break;
+					case PLOGIN_DUR_MONTH:
+						$persistance_duration = 31 * $seconds_in_day;
+					break;
+					case PLOGIN_DUR_HALF_YEAR:
+						$persistance_duration = 182 * $seconds_in_day;
+					break;
+					case PLOGIN_DUR_YEAR:
+						$persistance_duration = 365 * $seconds_in_day;
+					break;
+					case PLOGIN_DUR_FOREVER:
+						$persistance_duration = 5 * 365 * $seconds_in_day;
+					break;
+					default:
+						$persist_login = false;
+					break;
+				}
+
+				if($persist_login) {
+					Session::persistLogin($oUser->getId(), $persistance_duration);
+				}
+			}
 
 			showMessage(ERR_CODE_LOGIN_SUCCESS);
 		} else {
