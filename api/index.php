@@ -39,6 +39,18 @@ if(!isset($_GET['act']) || trim($_GET['act']) == "") {
 	exit();	
 }
 
+if($_GET['act'] == "appcheck") {
+	$bAuth = ImperialService::checkAppToken($_GET['tok']);
+	
+	if($bAuth) {
+		echo "UNAUTHORIZED";
+	} else {
+		echo "AUTHORIZED";
+	}
+	
+	exit();
+}
+
 // Parse actions.
 if($_GET['act'] == "forums") {
 	$forumsList = ImperialService::getAllForumsList();
@@ -58,7 +70,7 @@ if($_GET['act'] == "forums") {
 		exit();
 	}
 	
-	$result = ImperialService::getTopicsList($_GET['fid'], 0, 10);
+	$result = ImperialService::getTopicsList($_GET['fid'], 0, 20);
 	$json = json_encode($result);
 	
 	echo $json;
@@ -76,6 +88,29 @@ if($_GET['act'] == "forums") {
 	}
 	
 	$result = ImperialService::getTopicPostsList($_GET['tid'], 0, 20);
+	$json = json_encode($result);
+	
+	echo $json;
+	exit();
+} else if ($_GET['act'] == "profile") {
+	if((!isset($_GET['uid']) && !is_numeric($_GET['uid'])) 
+		|| (!isset($_GET['u']) && trim($_GET['u']) == "")) 
+	{
+		$error = array(
+			"error" => "INVALID_PROFILE_ID_USERNAME",
+			"error_level" => "FATAL",
+			"error_msg" => "User id or username was not specified or invalid.");
+		$json = json_encode($error);
+		
+		echo $json;
+		exit();		
+	}
+	
+	// if uid is null then take username. 
+	$uid = $_GET['uid'] ?: $_GET['u'];
+	$result = ImperialService::getUserInfo($uid);
+	
+	$json = json_encode($error);
 	echo $json;
 	exit();
 }

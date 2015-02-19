@@ -23,6 +23,7 @@ class ImperialService {
 		if (!isset($infos["cat_name"]) || !isset($infos["cat_orderby"])) {
 			return false;
 		}
+		global $database;
 		
 		$oDb = new Database($database, $database["prefix"]);
 		$values = array(":name" => $infos["cat_name"], ":orderby" => $infos["cat_orderby"]);
@@ -57,7 +58,7 @@ class ImperialService {
 			|| !isset($infos["forum_mod"]) || !isset($infos["forum_redirect_url"])) {
 			return false;
 		}
-		
+		global $database;
 		$oDb = new Database($database, $database["prefix"]);
 		$values = array(":name" => $infos["forum_name"], ":orderby" => $infos["forum_orderby"],
 			":catId" => $infos["forum_cat_id"], ":desc" => $infos["forum_desc"], ":type" => $infos["forum_type"], 
@@ -88,6 +89,7 @@ class ImperialService {
 			|| !isset($infos["rank"]) || !isset($infos["birthday"])) {
 			return true;
 		}
+		global $database;
 		
 		$oUser = new User(-1, $infos["username"], $infos["email"]);
 		$oUser->setPassword($infos["password"]);
@@ -119,6 +121,8 @@ class ImperialService {
 		} else if ($n_start < 0 || $n_end < 0) {
 			return array();
 		}
+		
+		global $database;
 		
 		$oDb = new Database($database, $database["prefix"]);
 		$query = "SELECT * FROM `_PREFIX_users` "; 
@@ -170,8 +174,10 @@ class ImperialService {
 	 * @returns Returns the raw array.
 	 */
 	public static function getAllForumsList() {
+		global $database;
 		$oDb = new Database($database, $database["prefix"]);
-		$oDb->query("SELECT * FROM `_PREFIX_forums` 
+		$oDb->query("SELECT `forum_id`, `forum_name`, `forum_description`, `forum_topics`, `forum_posts`
+			FROM `_PREFIX_forums` 
 			ORDER BY `forum_type`, `forum_id`");
 		
 		$unformatted = $oDb->fetchAll();
@@ -189,6 +195,8 @@ class ImperialService {
 	 * @returns An array of all categories.
 	 */
 	public static function getAllCategoriesList() {
+		global $database;
+		
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query("SELECT * FROM `_PREFIX_categories` 
 			ORDER BY `cat_orderby`, `cat_name`");
@@ -220,6 +228,8 @@ class ImperialService {
 			return array();
 		}
 		
+		global $database;
+		
 		$query = "SELECT * FROM `_PREFIX_posts` 
 			WHERE `post_topic_id`=:topicId
 			ORDER BY `post_id` ";
@@ -245,34 +255,35 @@ class ImperialService {
 	 * Gets topic list for the specified forum.
 	 * 
 	 * @param $n_forumId Forum's id
-	 * 
 	 * @param $n_start First post position
-	 * 
 	 * @param $n_end Last post position
 	 * 
 	 * @returns Topics array ordered by categories and orderby.
 	 */
 	public static function getTopicsList($n_forumId, $n_start, $n_end) {
-		if(!is_numeric($n_topicId) || !is_numeric($n_start) 
+		if(!is_numeric($n_forumId) || !is_numeric($n_start) 
 			|| !is_numeric($n_end)) {
 				
 			return array();
 		}
+		global $database;
 		
-		$query = "SELECT * FROM `_PREFIX_topics` 
-			WHERE `forum_id`=:forumId
-			ORDER BY `forum_cat_id`, `forum_orderby`";
+		$query = "SELECT `topic_id`, `topic_title`, `username` AS `topic_author`, `topic_replies`, `topic_views`, `topic_forum_id` 
+			FROM `_PREFIX_topics` 
+				JOIN `_PREFIX_users` ON `topic_user_id` = `user_id`
+			WHERE `topic_forum_id`=:forumId
+			ORDER BY `topic_id`";
 		
 		// For the limit clause, there's worlds of differences between DBMS
 		// MsSQL is not supported, because it's /quite/ difficult.
-		if($database["dbtype"] == "mysql") $query .= "LIMIT ".$start.",".$end;
-		else if($database["dbtype"] == "pgsql") $query .= "LIMIT ".$end." OFFSET ".$start;
+		if($database["dbtype"] == "mysql") $query .= "LIMIT ".$n_start.",".$n_end;
+		else if($database["dbtype"] == "pgsql") $query .= "LIMIT ".$n_end." OFFSET ".$n_start;
 		
 		$oDb = new Database($database, $database["prefix"]);
-		$oDb->query($query, array(":forumId" => $n_topicId));
+		$oDb->query($query, array(":forumId" => $n_forumId));
 		
 		$unformatted = $oDb->fetchAll();
-		
+
 		if(is_null($unformatted)) {
 			return array();
 		}
@@ -291,6 +302,8 @@ class ImperialService {
 		if(!is_numeric($id)) {
 			return array();
 		}
+		
+		global $database;
 		
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query("SELECT * FROM `_PREFIX_users` WHERE `user_id`=:id", array(":id" => $id));
@@ -318,6 +331,8 @@ class ImperialService {
 			return false;
 		}
 		
+		global $database;
+		
 		$values = array(":name" => $infos["cat_name"], ":orderby" => $infos["cat_orderby"],
 			":id" => $infos["cat_id"]);
 		
@@ -340,6 +355,7 @@ class ImperialService {
 	 * @returns True if success, false otherwise.
 	 */
 	public static function setUserInfo(array $infos) {
+		global $database;
 		
 		$values = array(":username" => $infos["username"], ":upass" => $infos["user_password"], 
 			":email" => $infos["user_email"], ":level" => intval($infos["user_level"]), 
@@ -379,6 +395,8 @@ class ImperialService {
 			return false;
 		}
 		
+		global $database;
+		
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query("SELECT * FROM `_PREFIX_sessions` WHERE `session_id`=:token", 
 			array(":token" => $str_token));
@@ -403,10 +421,11 @@ class ImperialService {
 	 * @returns True if valid, false otherwise.
 	 */
 	public static function checkAppToken($str_token) {
+		global $database;
 		$oDb = new Database($database, $database["prefix"]);
-		$oDb->query("SELECT * FROM `_PREFIX_api_apps` WHERE `app_token`=:token", 
+		$oDb->query("SELECT * FROM `_PREFIX_api_apps` WHERE `app_token`=:token LIMIT 1", 
 			array(":token" => $str_token));
-		
+
 		$result = $oDb->fetch();
 		
 		if(is_null($result)) {
