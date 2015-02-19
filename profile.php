@@ -42,7 +42,7 @@ if($_GET['func'] == "edit")
 			$error .= $lang['Email_Addresses_Dont_Match'] . "<br />";
 		}
 
-		if($config['allow_uploaded_avatar'] && !empty($_FILES['Upload_Avatar']['name'])) {
+		if($config['allow_uploaded_avatar'] && !empty($_FILES['']['name'])) {
 			// Check uploaded avatar filesize
 			$image_size = GetImageSize($_FILES['Upload_Avatar']['tmp_name']);
 			if(!in_array($_FILES['Upload_Avatar']['type'], explode(";", $config['avatar_upload_mime_types']))) {
@@ -91,7 +91,77 @@ if($_GET['func'] == "edit")
 			$_POST['language'] = $user['user_language'];
 		}
 
+		if(isset($_POST['Close_Account'])){
+			if(strlen($_POST['Close_Account_Reason']) < 1){
+				$error .= "No reason mentionned, request aborded"; // TODO : HARDCODED
+			}
+			else {
+				$token = md5(time() . $user['user_id']);
 
+				$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
+						 VALUES (:user_id, :token, :token_type)";
+				$params = array(
+					':user_id' => $user['user_id'],
+					':token' => $token,
+					':token_type' => 1);
+
+				$db2->query($template_sql, $params);
+
+				// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
+				// Sinon.. Envoyer un PM aux admin.
+
+				$get_config = "SELECT *
+							FROM `_PREFIX_config`
+							WHERE `config_name` = :use_smtp
+							OR `config_name` = :url";
+				$db2->query($get_config, array(":use_smtp" => "use_smtp", ":url" => "url"));
+				$answer = $db2->fetchAll();
+
+				foreach($answer as $key => $value){
+					if($value['config_name'] == "url"){
+						$url = $value['config_value'];
+					}
+					else if($value['config_name'] == 'use_smtp'){
+						$use_smtp = $value['config_value'];
+					}
+				}
+
+				if ($use_smtp == 0) {
+
+					echo $url;
+
+					// Get all administrators
+					$db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
+
+					$body = $lang['Body_On_Pm'] . $url . 'profile.php?func=CloseAccount&token=' . $token . $lang['Body_On_Pm_2'] .
+							"\r\n\r\n reason : " . $_POST['Close_Account_Reason'];
+
+					while ($administrator = $db2->fetch()) {
+						$db2->query("INSERT INTO `" . $db_prefix . "pm`
+						VALUES (
+						'',
+						:title,
+						:body,
+						:receiver,
+						:sender,
+						'1',
+						'1',
+						:pm_time
+						)",
+							array(
+								":title" => $lang['Title_On_Pm'],
+								":body" => $body,
+								":receiver" => $administrator['user_id'],
+								":sender" => $user['user_id'],
+								":pm_time" => time()
+							)
+						);
+					}
+				}
+				// Ça me dit fuckall ces err code là avec le show message...
+				showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
+			}
+		}
 
 		if(strlen($error) > 0) {
 			$tplEditProfile = new Template("edit_profile.tpl");
@@ -172,9 +242,7 @@ if($_GET['func'] == "edit")
 				$oUser->setAvatarLocation("");
 
 			} else if($config['allow_remote_avatar'] && !empty($_POST['Remote_Avatar_URL'])) {
-				if($user['user_avatar_type'] == "2") {
 					unlink("images/avatars/uploads/".$user['user_avatar_location']."");
-				}
 				
 				$oUser->setAvatarType(REMOTE_AVATAR);
 				$oUser->setAvatarLocation($_POST['Remote_Avatar_URL']);
@@ -217,78 +285,6 @@ if($_GET['func'] == "edit")
 			$oUser->setBirthday($birthdate);
 
 			$oUser->update();
-
-			if(isset($_POST['Close_Account'])){
-				if(strlen($_POST['Close_Account_Reason']) < 1){
-					$error .= $lang['User_Didnt_provide_A_Reason'];
-				}
-				else {
-					$token = md5(time() . $user['user_id']);
-
-					$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
-						 VALUES (:user_id, :token, :token_type)";
-					$params = array(
-						':user_id' => $user['user_id'],
-						':token' => $token,
-						':token_type' => 1);
-
-					$db2->query($template_sql, $params);
-
-					// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
-					// Sinon.. Envoyer un PM aux admin.
-
-					$get_config = "SELECT *
-							FROM `_PREFIX_config`
-							WHERE `config_name` = :use_smtp
-							OR `config_name` = :url";
-					$db2->query($get_config, array(":use_smtp" => "use_smtp", ":url" => "url"));
-					$answer = $db2->fetchAll();
-
-					foreach($answer as $key => $value){
-						if($value['config_name'] == "url"){
-							$url = $value['config_value'];
-						}
-						else if($value['config_name'] == 'use_smtp'){
-							$use_smtp = $value['config_value'];
-						}
-					}
-
-					if ($use_smtp == 0) {
-
-						echo $url;
-
-						// Get all administrators
-						$db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
-
-						$body = $lang['Body_On_Pm'] . $url . 'profile.php?func=CloseAccount&token=' . $token . $lang['Body_On_Pm_2'] .
-							"\r\n\r\n reason : " . $_POST['Close_Account_Reason'];
-
-						while ($administrator = $db2->fetch()) {
-							$db2->query("INSERT INTO `" . $db_prefix . "pm`
-								VALUES (
-								'',
-								:title,
-								:body,
-								:receiver,
-								:sender,
-								'1',
-								'1',
-								:pm_time
-								)",
-								array(
-									":title" => $lang['Title_On_Pm'],
-									":body" => $body,
-									":receiver" => $administrator['user_id'],
-									":sender" => $user['user_id'],
-									":pm_time" => time()
-								)
-							);
-						}
-					}
-					showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
-				}
-			}
-
 			showMessage(ERR_CODE_PROFILE_UPDATE_SUCCESS, "profile.php?id=".$user['user_id']);
 		}
 
@@ -565,6 +561,10 @@ if($_GET['func'] == "edit")
     		if($oUser->getAvatarType() == UPLOADED_AVATAR) {
     			$av_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
     		}
+    		if($oUser->getAvatarType() == REMOTE_AVATAR) {
+    			$av_loc = $oUser->getAvatarLocation();
+    		}
+    		
     		$tplViewProfile->addToBlock("avatar_on", array(
     			"AUTHOR_AVATAR_LOCATION" => $av_loc
     		));
