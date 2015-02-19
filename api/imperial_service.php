@@ -427,7 +427,7 @@ class ImperialService {
 			array(":token" => $str_token));
 
 		$result = $oDb->fetch();
-		
+
 		if(is_null($result)) {
 			return false;
 		} else {

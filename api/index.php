@@ -41,11 +41,12 @@ if(!isset($_GET['act']) || trim($_GET['act']) == "") {
 
 if($_GET['act'] == "appcheck") {
 	$bAuth = ImperialService::checkAppToken($_GET['tok']);
+	header("Content-type: plain/text");
 	
 	if($bAuth) {
-		echo "UNAUTHORIZED";
-	} else {
 		echo "AUTHORIZED";
+	} else {
+		echo "UNAUTHORIZED";
 	}
 	
 	exit();
