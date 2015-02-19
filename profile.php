@@ -42,7 +42,7 @@ if($_GET['func'] == "edit")
 			$error .= $lang['Email_Addresses_Dont_Match'] . "<br />";
 		}
 
-		if($config['allow_uploaded_avatar'] && !empty($_FILES['Upload_Avatar']['name'])) {
+		if($config['allow_uploaded_avatar'] && !empty($_FILES['']['name'])) {
 			// Check uploaded avatar filesize
 			$image_size = GetImageSize($_FILES['Upload_Avatar']['tmp_name']);
 			if(!in_array($_FILES['Upload_Avatar']['type'], explode(";", $config['avatar_upload_mime_types']))) {
@@ -242,9 +242,7 @@ if($_GET['func'] == "edit")
 				$oUser->setAvatarLocation("");
 
 			} else if($config['allow_remote_avatar'] && !empty($_POST['Remote_Avatar_URL'])) {
-				if($user['user_avatar_type'] == "2") {
 					unlink("images/avatars/uploads/".$user['user_avatar_location']."");
-				}
 				
 				$oUser->setAvatarType(REMOTE_AVATAR);
 				$oUser->setAvatarLocation($_POST['Remote_Avatar_URL']);
@@ -555,6 +553,10 @@ if($_GET['func'] == "edit")
     		if($oUser->getAvatarType() == UPLOADED_AVATAR) {
     			$av_loc = $root_path . $config['avatar_upload_dir'] . "/" . $oUser->getAvatarLocation();
     		}
+    		if($oUser->getAvatarType() == REMOTE_AVATAR) {
+    			$av_loc = $oUser->getAvatarLocation();
+    		}
+    		
     		$tplViewProfile->addToBlock("avatar_on", array(
     			"AUTHOR_AVATAR_LOCATION" => $av_loc
     		));

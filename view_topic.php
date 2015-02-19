@@ -240,9 +240,8 @@ if($topic = $db2->fetch()) {
 			"AUTHOR_JOINED" => create_date("D d M Y", $post['user_date_joined']),
 			"AUTHOR_POSTS" => $post['user_posts'],
 			"AUTHOR_LOCATION" => $post['user_location'],
-			"AUTHOR_RANK" => $post['rank_name'],
 			"RANK_IMG_URL" => $post['rank_image'],
-			"AUTHOR_AVATAR_LOCATION" => $post['user_avatar_location'], 
+			"AUTHOR_AVATAR_LOCATION" => file_exists($post['user_avatar_location']) ? $post['user_avatar_location'] : "images/avatars/blank_avatar.gif", 
 			"block_post_mod_links" => "",
 			"block_quote_button" => "",
 			"block_topic_email_link" => "",
@@ -368,4 +367,5 @@ else
 
 outputPage($tplViewTopic);
 exit();
+
 ?>

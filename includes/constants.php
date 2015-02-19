@@ -155,5 +155,7 @@ define("ERR_CODE_LOGGED_OUT", 744);
 
 // CSRF
 define("ERR_CODE_INVALID_REQUEST", 11000);
+// portal
+define("ERR_CODE_NEWS_NOT_FOUND", 12000);
 
 ?>

@@ -127,7 +127,7 @@ div#quick_reply {
 				<td rowspan="4">
 					<h3>{AUTHOR_NAME}</h3>
 					<img src="{AUTHOR_AVATAR_LOCATION}"><br>
-					<img src="{RANK_IMG_URL}" alt="{AUTHOR_RANK}" title="AUTHOR_RANK" /><br>
+					<img src="{RANK_IMG_URL}" alt="{AUTHOR_RANK}" title="{AUTHOR_RANK}" /><br>
 					<span style="line-height:20px;">{AUTHOR_RANK}</span><br>
 					<span style="font-weight:bold; line-height: 20px;">{L.Posts}:</span> {AUTHOR_POSTS}<br>
 					<span style="font-weight:bold; line-height: 20px;">{L.Date_Joined}:</span> {AUTHOR_JOINED}<br>

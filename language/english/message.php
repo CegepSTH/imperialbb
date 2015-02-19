@@ -68,4 +68,5 @@ $lang['err_code'.ERR_CODE_UNABLE_SEND_MAIL] = "Unable to send mail";
 $lang['err_code'.ERR_CODE_INVALID_REQUEST] = "Invalid request sent. Please go back and try again.";
 $lang['err_code'.ERR_CODE_ACCOUNT_CLOSED] = "Sorry, but this account was closed.";
 $lang['err_code'.ERR_CODE_ACCOUNT_CREATED] = "Your account was successfully created! You may now login!";
+$lang['err_code'.ERR_CODE_NEWS_NOT_FOUND] = "Sorry, the news you requested couldn't be found.";
 ?>
