@@ -64,7 +64,7 @@ else
 		"CSRF_TOKEN" => CSRF::getHTML()
 	));
 	$page_master->setVar("ALL_TIMES_ARE_TIMEZONE",
-		sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$config['user_timezone']])
+		sprintf($lang['All_Times_Are_TZ'], $lang['tz'][$config['timezone']])
 	);
 }
 

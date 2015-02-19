@@ -163,6 +163,8 @@ if(isset($_POST['submit']) || $_GET['func'] == "unanswered" || $_GET['func'] == 
 			WHERE `forum_cat_id`=:cid
 			ORDER BY `forum_orderby`", array(":ugroup" => $user['user_usergroup'], ":cid" => $cat_result['cat_id']));
 
+		$blockForumRow = "";
+
 		while($forum_result = $result->fetch()) {
 			if(($forum_result['forum_read'] <= $user['user_level'] 
 				&& $forum_result['ug_read'] == 0) || $forum_result['ug_read'] == 1)

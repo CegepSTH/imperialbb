@@ -23,9 +23,6 @@ if(!defined("IN_IBB")) {
 $page_gen_start = explode(' ',microtime());
 $page_gen_start = $page_gen_start[0] + $page_gen_start[1];
 
-// Sessions start
-session_start();
-
 // Run all the includes
 require_once($root_path . "includes/config.php");
 
@@ -52,6 +49,11 @@ switch($debug)
 require_once($root_path . "classes/database.php");
 $db2 = new Database($database, $db_prefix);
 
+require_once($root_path . "includes/sessions.php");
+Session::start();
+Session::updateLastVisitTime();
+Session::updateCurrentSessionTime();
+
 require_once($root_path . "classes/csrf.php");
 
 require_once($root_path . "classes/template.php");
@@ -64,7 +66,6 @@ require_once($root_path . "includes/rendering.php");
 
 include_once($root_path . "includes/constants.php");
 include_once($root_path . "includes/init.php");
-include_once($root_path . "includes/sessions.php");
 include_once($root_path . "includes/functions.php");
 include_once($root_path . "classes/class_language.php");
 
@@ -94,7 +95,7 @@ $contants_tpl_values_nocopyrino = array("ANNOUNCMENT" => "".ANNOUNCMENT,
 	"PINNED" => "".PINNED, 
 	"GENERAL" => "".GENERAL);
 Template::addNamespace("Constant", $contants_tpl_values_nocopyrino);
-	
+
 // Get user data and put into array
 $sql = $db2->query("SELECT u.*, l.`language_folder` AS 'user_language_folder', l.`language_name`
 	FROM (`_PREFIX_users` u LEFT JOIN

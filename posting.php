@@ -30,7 +30,7 @@ function renderPoll($page_master) {
 }
 
 function renderPostEditBlocks($page_master) {
-	global $config;
+	global $config, $user;
 
 	if($config['html_enabled'] == true) {
 		$page_master->addToBlock("disable_html", array());

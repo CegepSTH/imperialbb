@@ -130,7 +130,9 @@ INSERT INTO `ibb_config` (`config_id`, `config_name`, `config_value`, `config_pr
 (34, 'forum_root', '', 0, '', 0, 0, ''),
 (35, 'admincp_notepad', 'I&#039;m watching you Michael. Fuckerino. &amp;&amp;&amp;rnTest', 0, 'textbox', 0, 0, ''),
 (36, 'censor_enabled', '0', 0, 'true/false', 8, 3, 'Post_Configuration'),
-(37, 'paginate_pernum', '10', 0, 'textbox', 0, 0, 'General_Configuration');
+(37, 'paginate_pernum', '10', 0, 'textbox', 0, 0, 'General_Configuration')
+(38, 'pm_per_page', '20', 0, 'textbox', 0, 0, 'General_Configuration')
+(39, 'members_per_page', '20', 0, 'textbox', 0, 0, 'General_Configuration');
 
 -- --------------------------------------------------------
 

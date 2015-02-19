@@ -69,7 +69,7 @@
 	<!-- BLOCK forums_table_end -->
 	</table>
 	<!-- END BLOCK forums_table_end -->
-	<div class="panel-footer">
+	<div class="panel-footer nocenter">
 		<form method="post" action="?act=forums&func=add_forum&cid={CAT_ID}">
 			{L.Create_Forum} : <input type="text" name="name">
 			<input type="submit" name="no_submit" value="{L.Submit}" />

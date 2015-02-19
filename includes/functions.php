@@ -411,20 +411,42 @@ function load_forum_stats($page_master)
 {
 	global $config, $user, $lang, $db2;
 
+	// A session is considered online if the last action time is in the
+	// last 30 minutes.
+	$online_time_limit = time() - 30 * 60;
+
 	//Online Listing
-	$db2->query("SELECT u.* FROM `_PREFIX_sessions` s LEFT JOIN `_PREFIX_users` u ON (u.`user_id` = s.`user_id`)");
+	$sql = $db2->query("SELECT u.*
+		FROM `_PREFIX_users` AS u
+		WHERE u.`user_id` IN (
+			SELECT DISTINCT s.`user_id`
+			FROM `_PREFIX_sessions` AS s
+			WHERE s.`time` > :time_limit
+		);",
+		array(
+			":time_limit" => $online_time_limit
+		)
+	);
 	$online_list = '';
 	$users_online = 0;
-	$guests_online = 0;
 	
-	while($result = $db2->fetch()) {
+	while($result = $sql->fetch()) {
 		if($result['user_id'] != -1) {
 			$users_online++;
 			$online_list .= format_membername($result['user_rank'],$result['user_id'],$result['username']).', ';
-		} else {
-			$guests_online++;
 		}
 	}
+
+	$guests_online = 0;
+	$db2->query("SELECT COUNT(*) AS `guest_count`
+			FROM `_PREFIX_sessions` AS s
+			WHERE s.`time` > :time_limit AND s.`user_id` = -1;",
+		array(
+			":time_limit" => $online_time_limit
+		)
+	);
+	$result = $db2->fetch();
+	$guests_online = $result["guest_count"];
 	
 	$total_online = $users_online + $guests_online;
 	$length = strlen($online_list) - 2;
@@ -465,9 +487,9 @@ function load_forum_stats($page_master)
 	$online_today = '';
 	$onlinetoday = 0;
 	$stime = time()-(60*60*24);
-    $db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_lastvisit` > $stime ORDER BY `user_lastvisit` DESC");
+    $sql = $db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_lastvisit` > $stime ORDER BY `user_lastvisit` DESC");
     
-	while($result = $db2->fetch()) {
+	while($result = $sql->fetch()) {
 		if($result['user_id'] != -1) {
 			$onlinetoday++;
 			$todaylist .= format_membername($result['user_rank'],$result['user_id'],$result['username']).', ';
