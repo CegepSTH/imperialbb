@@ -90,6 +90,7 @@ $lang['sqltime'] = "SQL Processing Time: %s (%s SQL)"; //%s No of SQL seconds //
 $lang['phptime'] = "PHP Processing Time: %s (%s PHP)"; //%s No of PHP seconds //%s Percentage PHP
 $lang['Page_Generated_In_X_Seconds'] = "Page Generation : %s seconds"; // %s = No of seconds
 $lang['Query_Count'] = "SQL Queries : %s"; // %s = No of queries
+$lang['Quote'] = "Quote: ";
 
 // IM's
 $lang['AIM'] = "AIM";
