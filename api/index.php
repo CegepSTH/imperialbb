@@ -1,47 +1,16 @@
 <?php
 define("IBB_WEB_SERVICE", 1);
 require_once("imperial_service.php");
+header("Content-type: application/json");
 
-// Check if token was supplied.
-if(!isset($_GET['tok']) || trim($_GET['tok']) == "") {
-	$error = array(
-		"error" => "NO_TOKEN_ERROR", 
-		"error_level" => "FATAL",
-		"error_msg" => "No token was given.");
-	
-	$json = json_encode($error);
-	
-	echo $json;
-	exit();
-} else {
-	// Verify if user is ok to access.
-	if(ImperialService::checkAppToken($_GET['tok']) == false) {
-		$error = array(
-			"error" => "BAD_TOKEN_BAD_ERROR",
-			"error_level" => "FATAL", 
-			"error_msg" => "Specified token is invalid.");
-		$json = json_encode($error);
-		echo $json;
-		exit();
-	}
-}
-
-// Is action specified?
-if(!isset($_GET['act']) || trim($_GET['act']) == "") {
-	$error = array(
-		"error" => "NO_ACTION_ERROR", 
-		"error_level" => "FATAL",
-		"error_msg" => "No action was specified.");
-	
-	$json = json_encode($error);
-	
-	echo $json;
-	exit();	
-}
+ValidateAccess();
 
 if($_GET['act'] == "appcheck") {
 	$bAuth = ImperialService::checkAppToken($_GET['tok']);
-	header("Content-type: plain/text");
+	
+	// As exception, change header to text/plain and return a single
+	// word statement. 
+	header("Content-type: text/plain");
 	
 	if($bAuth) {
 		echo "AUTHORIZED";
@@ -100,7 +69,7 @@ if($_GET['act'] == "forums") {
 		$error = array(
 			"error" => "INVALID_PROFILE_ID_USERNAME",
 			"error_level" => "FATAL",
-			"error_msg" => "User id or username was not specified or invalid.");
+			"error_msg" => "User id or username were not specified or were invalid.");
 		$json = json_encode($error);
 		
 		echo $json;
@@ -111,7 +80,17 @@ if($_GET['act'] == "forums") {
 	$uid = $_GET['uid'] ?: $_GET['u'];
 	$result = ImperialService::getUserInfo($uid);
 	
-	$json = json_encode($error);
+	if(empty($result)) {
+		$error = array(
+			"error" => "USER_NOT_FOUND",
+			"error_level" => "FATAL",
+			"error_msg" => "The requested user `".$uid."` couldn't be found.");
+		$json = json_encode($error);
+		echo $json;
+		exit();
+	}
+	
+	$json = json_encode($result);
 	echo $json;
 	exit();
 }
