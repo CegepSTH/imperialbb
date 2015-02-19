@@ -53,6 +53,7 @@ $lang['Manage_Languages'] = "Manage Languages";
 $lang['Templates'] = "Templates";
 $lang['Add_Template'] = "Add Template";
 $lang['Manage_Templates'] = "Manage Templates";
+$lang['Manage_portal'] = "Manage portal";
 
 // ------------------------
 // General

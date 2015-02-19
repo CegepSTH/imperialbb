@@ -69,4 +69,5 @@ $lang['err_code'.ERR_CODE_INVALID_REQUEST] = "Invalid request sent. Please go ba
 $lang['err_code'.ERR_CODE_ACCOUNT_CLOSED] = "Sorry, but this account was closed.";
 $lang['err_code'.ERR_CODE_ACCOUNT_CREATED] = "Your account was successfully created! You may now login!";
 $lang['err_code'.ERR_CODE_NEWS_NOT_FOUND] = "Sorry, the news you requested couldn't be found.";
+$lang['err_code'.ERR_CODE_NEWS_ALL_FIELDS_REQUIRED] = "The news requires all fields.";
 ?>

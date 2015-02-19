@@ -12,7 +12,8 @@ function getAdminMenuDefinition() {
 
 	$menu = array(
 		$lang['General_Admin'] => array(
-			$lang['Configuration'] => "config.php",
+		$lang['Manage_portal'] => "portal.php",
+			$lang['Configuration'] => "config.php"
 		),
 		
 		$lang['Forum_Admin'] => array(

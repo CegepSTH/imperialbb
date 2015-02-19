@@ -30,14 +30,15 @@ if(isset($_GET['nid']) && is_numeric($_GET['nid'])) {
 	}
 } else {
 	// I SAID SHOW ALL THE NEWS
-	$db2->query("SELECT `news_id`, `news_title`, `news_content`, `username`, `user_id`, `user_avatar_location`, `news_timestamp`
+	$newsDb = $db2->query("SELECT `news_id`, `news_title`, `news_content`, `username`, `user_id`, `user_avatar_location`, `news_timestamp`
 		FROM `_PREFIX_portal_news`
 		JOIN `_PREFIX_users` ON `user_id` = `news_author_id`",
 		array());
 	
 	$newsCount = 0;
-	while($result = $db2->fetch()) {
-		$tplNews->addToBlock("news_item", array("TITLE" => $result['news_title'], 
+	while($result = $newsDb->fetch()) {
+		$tplNews->addToBlock("news_item", array(
+			"TITLE" => $result['news_title'], 
 			"AUTHOR_AVATAR" => ($result['user_avatar_location'] ? "uploads/".$result['user_avatar_location'] : "blank_avatar.gif" ),
 			"CONTENT" => format_text(shortentext($result['news_content'], 500, false), true, true, true, false), 
 			"AUTHOR_NAME" => $result['username'], 

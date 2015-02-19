@@ -297,7 +297,7 @@ fieldset legend {
 	background-color:#dddddd;
 }
 form { }
-form input, form textarea {
+form input, button, form textarea {
 	border:1px solid #999999;
 	border-bottom-color:#cccccc;
 	border-right-color:#cccccc;
@@ -582,7 +582,7 @@ div.table h4 {
 {
 	text-align: center;
 }
-.config-panel .panel-footer input[type="submit"],
+.config-panel .panel-footer input[type="submit"]
 .config-panel .panel-footer input[type="reset"]
 {
 	background: #246bb2;

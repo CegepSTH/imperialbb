@@ -64,4 +64,8 @@ $lang['err_code'.ERR_CODE_CATEGORY_INVALID_ID] = "Category identifier is invalid
 $lang['err_code'.ERR_CODE_FORUM_UPDATED] = "Forum was updated successfully.";
 $lang['err_code'.ERR_CODE_FORUM_DELETED] = "Forum was deleted successfully.";
 $lang['err_code'.ERR_CODE_CATEGORY_DELETED] = "Category was deleted successfully.";
+$lang['err_code'.ERR_CODE_NEWS_NOT_FOUND] = "Sorry, the news you requested couldn't be found.";
+$lang['err_code'.ERR_CODE_NEWS_ALL_FIELDS_REQUIRED] = "The news requires all fields.";
+$lang['err_code'.ERR_CODE_NEWS_INSERT_SUCCESS] = "The news was created successfully.";
+$lang['err_code'.ERR_CODE_NEWS_INSERT_FAILED] = "The news couldn't be added to database!";
 ?>
