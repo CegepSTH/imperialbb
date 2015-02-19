@@ -45,7 +45,7 @@ class CSRF {
 	 *
 	 * @return A string representing the CSRF token.
 	 */
-	private static function generateToken()	{
+	 public static function generateToken()	{
 		$token_bytes = self::generateRandomBytes(32);
 
 		// Calling hash() with false returns the hash with hex digits.

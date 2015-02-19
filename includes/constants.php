@@ -13,6 +13,14 @@ define("NO_AVATAR", 0);
 define("UPLOADED_AVATAR", 1);
 define("REMOTE_AVATAR", 2);
 
+// Persistent login durations.
+define("PLOGIN_DUR_SESSION", 0); // For the browser session or no persistance.
+define("PLOGIN_DUR_WEEK", 1);
+define("PLOGIN_DUR_MONTH", 2);
+define("PLOGIN_DUR_HALF_YEAR", 3);
+define("PLOGIN_DUR_YEAR", 4);
+define("PLOGIN_DUR_FOREVER", 5); // Technically 5 years.
+
 //ERRORS
 define("ERR_CODE_USERNAME_NOT_SET", 10);
 define("ERR_CODE_USER_NOT_FOUND", 20);
