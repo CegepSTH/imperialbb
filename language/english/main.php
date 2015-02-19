@@ -197,6 +197,9 @@ $lang['Location'] = "Location";
 $lang['Members'] = "Members";
 $lang['Members_List'] = "Members List";
 
+// PORTAL
+$lang['Portal'] = "Portal";
+
 // ---------------------------
 // Search
 // ---------------------------
