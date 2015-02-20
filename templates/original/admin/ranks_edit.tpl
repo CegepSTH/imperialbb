@@ -25,31 +25,31 @@ div.hidden {
    {L.Add_Rank}
   </th>
  </tr>
- <form method="post" action="" name="add_rank">
+ <form method="post" action="ranks.php?func=edit&id={RANK_ID}" name="edit_rank">
  {CSRF_TOKEN}
  <tr>
-  <td class="cell1" width="50%">{L.Name}</td><td class="cell2"><input type="text" name="name"></td>
+  <td class="cell1" width="50%">{L.Name}</td><td class="cell2"><input type="text" name="name" value="{NAME}" required></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Color}</td><td class="cell2"><input type="text" id="color" name="color">&nbsp;&nbsp;<input type="button" value="{L.Pick}" onclick="color_picker('color_picker', 'block', event.pageX, event.pageY)"></td>
+  <td class="cell1">{L.Color}</td><td class="cell2"><input type="text" id="color" name="color" value="{COLOR}">&nbsp;&nbsp;<input type="button" value="{L.Pick}" onclick="color_picker('color_picker', 'block', event.pageX, event.pageY)"></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Bold}</td><td class="cell2"><input type="checkbox" name="bold" value="1"></td>
+  <td class="cell1">{L.Bold}</td><td class="cell2"><input type="checkbox" name="bold" value="1" {BOLD}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Underline}</td><td class="cell2"><input type="checkbox" name="underline" value="1"></td>
+  <td class="cell1">{L.Underline}</td><td class="cell2"><input type="checkbox" name="underline" value="1" {UNDERLINE}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Italics}</td><td class="cell2"><input type="checkbox" name="italics" value="1"></td>
+  <td class="cell1">{L.Italics}</td><td class="cell2"><input type="checkbox" name="italics" value="1" {ITALICS}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Display_Rank}</td><td class="cell2"><input type="checkbox" name="display_rank" value="1" /></td>
+  <td class="cell1">{L.Display_Rank}</td><td class="cell2"><input type="checkbox" name="display_rank" value="1" {DISPLAY_RANK}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Special_Rank}</td><td class="cell2"><input type="checkbox" name="special_rank" value="1" onclick="special_rank_onclick(this.checked);" /></td>
+  <td class="cell1">{L.Special_Rank}</td><td class="cell2"><input type="checkbox" id="special_rank" name="special_rank" value="1" onclick="special_rank_onclick(this.checked);" {SPECIAL_RANK}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Minimum_Posts}</td><td class="cell2"><input type="text" name="minimum_posts" value="0" /></td>
+  <td class="cell1">{L.Minimum_Posts}</td><td class="cell2"><input type="text" name="minimum_posts" value="{MINIMUM_POSTS}" /></td>
  </tr>
  <tr>
   <th colspan="2" height="25">
@@ -141,17 +141,24 @@ function create_colorpicker() {
 	document.write(contents);
 }
 
+if(document.getElementById('special_rank').checked) {
+	document.edit_rank.minimum_posts.disabled = true;
+	document.edit_rank.minimum_posts.value = '{L.Disabled}';
+	document.edit_rank.minimum_posts.style.background = 'Transparent';
+	document.edit_rank.minimum_posts.style.border = '0';
+}
+
 function special_rank_onclick(value) {
 	if(value) {
-		document.add_rank.minimum_posts.disabled = true;
-		document.add_rank.minimum_posts.value = '{L.Disabled}';
-		document.add_rank.minimum_posts.style.background = 'Transparent';
-		document.add_rank.minimum_posts.style.border = '0';
+		document.edit_rank.minimum_posts.disabled = true;
+		document.edit_rank.minimum_posts.value = '{L.Disabled}';
+		document.edit_rank.minimum_posts.style.background = 'Transparent';
+		document.edit_rank.minimum_posts.style.border = '0';
 	} else {
-		document.add_rank.minimum_posts.disabled = false;
-		document.add_rank.minimum_posts.value = '0';
-		document.add_rank.minimum_posts.style.background = '';
-		document.add_rank.minimum_posts.style.border = '';
+		document.edit_rank.minimum_posts.disabled = false;
+		document.edit_rank.minimum_posts.value = '0';
+		document.edit_rank.minimum_posts.style.background = '';
+		document.edit_rank.minimum_posts.style.border = '';
 	}
 }
 </script>

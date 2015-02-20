@@ -656,7 +656,7 @@ function _generate_category_dropdown($forum_id, $template_name, $prefix, $check_
 			"SELECTED" => $selected
 		));
 
-		_generate_category_dropdown($forum_result['forum_id'], $template_name, $prefix . "-+", $check_selected);
+		_generate_category_dropdown($forum_result['forum_id'], $template_name, $prefix . "-+", $check_selected, $tplAddForum);
 	}
 
 	return true;

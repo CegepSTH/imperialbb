@@ -73,4 +73,6 @@ $lang['err_code'.ERR_CODE_NEWS_UPDATE_FAILED] = "Couldn't update the news. Pleas
 $lang['err_code'.ERR_CODE_NEWS_UPDATE_SUCCESS] = "News has been updated.";
 $lang['err_code'.ERR_CODE_NEWS_DELETE_FAILED] = "News deletion failed. Try again.";
 $lang['err_code'.ERR_CODE_NEWS_DELETE_SUCCESS] = "News was deleted successfully.";
+$lang['err_code'.ERR_CODE_RANK_CREATE_FAIL] = "Couldn't create rank.";
+$lang['err_code'.ERR_CODE_RANKS_UPDATE_FAILED] = "Coudln't update rank.";
 ?>
