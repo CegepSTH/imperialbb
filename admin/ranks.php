@@ -41,16 +41,22 @@ if($_GET['func'] == "add")
         	$minimum_posts = $_POST['minimum_posts'];
         }
         
-		$values = array(":name" => $_POST['name'], ":color" => $_POST['color'], ":image" => $_POST['image'], ":bold" => $_POST['bold'],
+		$values = array(":name" => $_POST['name'], ":color" => $_POST['color'], ":image" => isset($_POST['image']) ? $_POST['image'] : "", ":bold" => $_POST['bold'],
 			":underline" => $_POST['underline'], ":italics" => $_POST['italics'], ":rorderby" => $rank_orderby, ":srank" => $special_rank, 
 			":minposts" => $special_rank);
 		
 		$db2->query("INSERT INTO `_PREFIX_ranks` (`rank_name`, `rank_color`, `rank_image`, `rank_bold`, `rank_underline`, `rank_italics`, `rank_orderby`, `rank_special`, `rank_minimum_posts`) 
 		VALUES (:name, :color, :image, :bold, :underline, :italics, :rorderby, :srank, :minposts)", $values);
 		
-		$_SESSION["return_url"] = "ranks.php";
-		header("Location: error.php?code=".ERR_CODE_RANK_CREATED);
-		exit();
+		if($db2->lastInsertId() > 0) {
+			$_SESSION["return_url"] = "ranks.php";
+			header("Location: error.php?code=".ERR_CODE_RANK_CREATED);
+			exit();
+		} else {
+			$_SESSION["return_url"] = "ranks.php";
+			header("Location: error.php?code=".ERR_CODE_RANK_CREATE_FAIL);
+			exit();			
+		}
 	}
 	else
 	{
@@ -118,9 +124,15 @@ else if($_GET['func'] == "edit")
 			`rank_italics`=:italics, `rank_orderby`=:rorderby, `rank_special`=:rspecial, `rank_minimum_posts`=:rminposts 
 			WHERE `rank_id`=:rid", $values);
 			
-		$_SESSION["return_url"] = "ranks.php";
-		header("Location: error.php?code=".ERR_CODE_RANKS_UPDATED);
-		exit();
+		if($db2->rowCount() > 0) {
+			$_SESSION["return_url"] = "ranks.php";
+			header("Location: error.php?code=".ERR_CODE_RANKS_UPDATED);
+			exit();
+		} else {
+			$_SESSION["return_url"] = "ranks.php";
+			header("Location: error.php?code=".ERR_CODE_RANKS_UPDATE_FAILED);
+			exit();			
+		}
 	}
 	else
 	{
@@ -128,6 +140,8 @@ else if($_GET['func'] == "edit")
 		if ($result = $db2->fetch()) {
 			$tplRanksEdit = new Template("ranks_edit.tpl");
 			$tplRanksEdit->setVars(array(
+				"CSRF_TOKEN" => CSRF::getHTML(),
+				"RANK_ID" => $_GET['id'],
 				"ACTION" => $lang['Edit_Rank'],
 				"NAME" => $result['rank_name'],
 				"COLOR" => $result['rank_color'],
@@ -137,7 +151,7 @@ else if($_GET['func'] == "edit")
 				"ITALICS" => ($result['rank_italics'] == 1) ? 'checked="checked"' : '',
 				"DISPLAY_RANK" => ($result['rank_orderby'] > 0) ? 'checked="checked"' : '',
 				"SPECIAL_RANK" => ($result['rank_special'] == 1) ? 'checked="checked"' : '',
-				"MINIMUM_POSTS" => $result['rank_minimum_posts']
+				"MINIMUM_POSTS" => $result['rank_special'] == 1 ? "" : $result['rank_minimum_posts']
 			));
 			$tplRanks->addToTag("ranks_page", $tplRanksEdit);
 		} else {

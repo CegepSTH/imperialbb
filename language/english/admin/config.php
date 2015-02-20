@@ -28,6 +28,7 @@ $lang['url'] = "URL";
 $lang['footer'] = "Footer";
 $lang['register_auth_type'] = "Require Email Validation";
 $lang['timezone'] = "Timezone";
+$lang['show_portal'] = "Show portal";
 
 //
 // Offline Config

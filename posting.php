@@ -15,7 +15,7 @@ function renderPoll($page_master) {
 	));
 	$page_master->addToBlock("poll_trailer", array(
 		"POLL_ADD_CHOICE_URL" => "posting.php?func=newtopic&fid=" . $_GET['fid'] .
-			"&poll_choices=" . ($_GET['poll_choices'] + 1 ) . ""
+			"&poll_choices=" . (isset($_GET['poll_choices']) ? $_GET['poll_choices'] + 1 : "") . ""
 	));
 
 	if(!isset($_GET['poll_choices'])) $_GET['poll_choices'] = 5;

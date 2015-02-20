@@ -1,19 +1,4 @@
 <?php
-/*======================================================================*\
-|| #################################################################### ||
-|| #  				  Imperial Bulletin Board v2.x                    # ||
-|| # ---------------------------------------------------------------- # ||
-|| #  For licence, version amd changelog questions or concerns,       # ||
-|| #  navigate to the docs/ folder or visit the forums at the		  # ||
-|| #  website, http://www.imperialbb.com/forums. with your questions. # ||
-|| # ---------------------------------------------------------------- # ||
-|| # Name: class_language.php                                         # ||
-|| # ---------------------------------------------------------------- # ||
-|| #                "Copyright © 2006 M-ka Network"                   # ||
-|| # ---------------------------------------------------------------- # ||
-|| #################################################################### ||
-\*======================================================================*/
-
 if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
@@ -54,8 +39,10 @@ class Language {
 		}
 		else if(is_dir($root_path . "language/".$config['default_language'].""))
 		{
-			$db->query("UPDATE `".$db_prefix."users` SET `user_language` = '".$config['default_language']."' WHERE `user_id` = '".$user['user_id']."'");
-			$user['user_language'] = $config['language'];			$this->language = $user['user_language_folder'];
+			$db2->query("UPDATE `_PREFIX_users` SET `user_language`=:dlang WHERE `user_id`=:uid", 
+				array(":dlang" => $config['default_language'], ":uid" => $user['user_id']));
+			$user['user_language'] = $config['language'];			
+			$this->language = $user['user_language_folder'];
 			$this->add_file("main");
 			if(defined("IN_ADMIN")) {
                 $this->add_file("main_admin");
@@ -102,9 +89,4 @@ class Language {
 
 }
 
-/*======================================================================*\
-|| #################################################################### ||
-|| #                 "Copyright © 2006 M-ka Network"                  # ||
-|| #################################################################### ||
-\*======================================================================*/
 ?>

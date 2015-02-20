@@ -10,6 +10,9 @@
 </p>
 <!-- END BLOCK news_read_complete -->
 
+<div style="display:inline-block;margin-top:1em;margin-bottom:-1.2em;">
+{PAGINATION}
+</div>
 <!-- BLOCK news_item -->
 <div class="panel" style="margin-left: 5em;margin-right: 5em;margin-top:2em;border-bottom:2px solid #ccc;">
 <h3 class="panel-header">{TITLE}</h3>
@@ -28,3 +31,6 @@
 </article>
 </div>
 <!-- END BLOCK news_item -->
+<div style="display:inline-block;">
+{PAGINATION}
+</div>

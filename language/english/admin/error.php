@@ -64,4 +64,15 @@ $lang['err_code'.ERR_CODE_CATEGORY_INVALID_ID] = "Category identifier is invalid
 $lang['err_code'.ERR_CODE_FORUM_UPDATED] = "Forum was updated successfully.";
 $lang['err_code'.ERR_CODE_FORUM_DELETED] = "Forum was deleted successfully.";
 $lang['err_code'.ERR_CODE_CATEGORY_DELETED] = "Category was deleted successfully.";
+$lang['err_code'.ERR_CODE_NEWS_NOT_FOUND] = "Sorry, the news you requested couldn't be found.";
+$lang['err_code'.ERR_CODE_NEWS_ALL_FIELDS_REQUIRED] = "The news requires all fields.";
+$lang['err_code'.ERR_CODE_NEWS_INSERT_SUCCESS] = "The news was created successfully.";
+$lang['err_code'.ERR_CODE_NEWS_INSERT_FAILED] = "The news couldn't be added to database!";
+$lang['err_code'.ERR_CODE_INVALID_NEWS_ID] = "Invalid news identifier.";
+$lang['err_code'.ERR_CODE_NEWS_UPDATE_FAILED] = "Couldn't update the news. Please try later.";
+$lang['err_code'.ERR_CODE_NEWS_UPDATE_SUCCESS] = "News has been updated.";
+$lang['err_code'.ERR_CODE_NEWS_DELETE_FAILED] = "News deletion failed. Try again.";
+$lang['err_code'.ERR_CODE_NEWS_DELETE_SUCCESS] = "News was deleted successfully.";
+$lang['err_code'.ERR_CODE_RANK_CREATE_FAIL] = "Couldn't create rank.";
+$lang['err_code'.ERR_CODE_RANKS_UPDATE_FAILED] = "Coudln't update rank.";
 ?>

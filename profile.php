@@ -91,75 +91,64 @@ if($_GET['func'] == "edit")
 			$_POST['language'] = $user['user_language'];
 		}
 
-		if(isset($_POST['Close_Account'])){
+		if(isset($_POST['Close_Account'])) {
 			if(strlen($_POST['Close_Account_Reason']) < 1){
-				$error .= "No reason mentionned, request aborded"; // TODO : HARDCODED
-			}
-			else {
-				$token = md5(time() . $user['user_id']);
+				showMessage(ERR_CODE_ACC_DELETE_NO_REASON_PROVIDED, $_SERVER['HTTP_REFERER']);
+			} else {
+				$token = "del\$_".md5(time() . $user['user_id']);
 
-				$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
-						 VALUES (:user_id, :token, :token_type)";
+				$query = "INSERT INTO `_PREFIX_sessions` (`session_id`, `ip`, `user_id`, `time_created`)
+						 VALUES (:sid, :ip, :uid, :time)";
 				$params = array(
-					':user_id' => $user['user_id'],
-					':token' => $token,
-					':token_type' => 1);
+					":sid" => $token,
+					":ip" => $_SERVER['REMOTE_ADDR'],
+					":uid" => $user['user_id'],
+					":time" => time());
 
-				$db2->query($template_sql, $params);
+				$db2->query($query, $params);
 
-				// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
-				// Sinon.. Envoyer un PM aux admin.
-
-				$get_config = "SELECT *
-							FROM `_PREFIX_config`
-							WHERE `config_name` = :use_smtp
-							OR `config_name` = :url";
-				$db2->query($get_config, array(":use_smtp" => "use_smtp", ":url" => "url"));
+				$get_config = "SELECT * FROM `_PREFIX_config`
+							WHERE `config_name` = :use_smtp";
+				$db2->query($get_config, array(":use_smtp" => "use_smtp"));
 				$answer = $db2->fetchAll();
+				
+				$url = "";
+				$use_smtp = 0;
+				$use_smtp = $answer[0]['config_value'];
+				
+				$body = $lang['Body_On_Pm'].'profile.php?func=CloseAccount&token='.$token.$lang['Body_On_Pm_2'].
+					"\r\n\r\n".$lang['Reason'].trim($_POST['Close_Account_Reason']);
 
-				foreach($answer as $key => $value){
-					if($value['config_name'] == "url"){
-						$url = $value['config_value'];
-					}
-					else if($value['config_name'] == 'use_smtp'){
-						$use_smtp = $value['config_value'];
-					}
-				}
-
+				// If stmp==0 => send PM to admins. 
+				// Else, send email
 				if ($use_smtp == 0) {
-
-					echo $url;
-
 					// Get all administrators
-					$db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
+					$admQuery = $db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
 
-					$body = $lang['Body_On_Pm'] . $url . 'profile.php?func=CloseAccount&token=' . $token . $lang['Body_On_Pm_2'] .
-							"\r\n\r\n reason : " . $_POST['Close_Account_Reason'];
-
-					while ($administrator = $db2->fetch()) {
-						$db2->query("INSERT INTO `" . $db_prefix . "pm`
-						VALUES (
-						'',
-						:title,
-						:body,
-						:receiver,
-						:sender,
-						'1',
-						'1',
-						:pm_time
-						)",
-							array(
-								":title" => $lang['Title_On_Pm'],
+					while ($administrator = $admQuery->fetch()) {
+						$db2->query("INSERT INTO `_PREFIX_pm` 
+							VALUES ('', :title, :body, :receiver, :sender, '1', '1', :pm_time )",
+							array(":title" => $lang['Title_On_Pm'],
 								":body" => $body,
 								":receiver" => $administrator['user_id'],
 								":sender" => $user['user_id'],
-								":pm_time" => time()
-							)
-						);
+								":pm_time" => time()));
+					}
+					
+					showMessage(ERR_CODE_DELETION_PM_SENT, "profile.php?func=edit");
+				} else {
+					$headers = "From: noreply@".$_SERVER["HTTP_HOST"]."\r\n" .
+						"Reply-To: noreply@".$_SERVER['HTTP_HOST']."\r\n" .
+						"X-Mailer: PHP/".phpversion();
+						
+					if(mail($user['username'], $lang['Account_Closure'], $body, $headers)) {
+						showMessage(ERR_CODE_DELETION_CHECK_MAIL, "index.php");
+					} else {
+						showMessage(ERR_CODE_COULDNT_DELETE_ACCOUNT, "index.php");
 					}
 				}
-				// Ça me dit fuckall ces err code là avec le show message...
-				showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
+
+				
 			}
 		}
 
@@ -314,6 +303,7 @@ if($_GET['func'] == "edit")
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
+			$birthday = array("", "", "");
 			$birthday = explode("-", $oUser->getBirthday());
 			$day = $birthday[2];
 			$month = $birthday[1];
@@ -389,93 +379,33 @@ if($_GET['func'] == "edit")
 	if($user['user_id'] < 0) {
 		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 	}
-	if(isset($_GET['token'])){
-		// TODO : Delete account
-		// GET WHO'S THE TOKEN GIVEN TO
-
-		$token = $_GET['token'];
-		$retrieve_user_id_template = "SELECT * FROM `_PREFIX_users_token` where `token`=:token";
-
-		$db2->query($retrieve_user_id_template, array(":token" => $token));
-
-		$user_token = $db2->fetch();
-		$user_id = $user_token['user_id'];
-
-		if(isset($user_id)){
+	if(isset($_GET['token'])) {
+		$db2->query("SELECT `user_id` FROM `_PREFIX_sessions` WHERE `session_id`=:token", array(":token" => $_GET['token']));
+		
+		if($user_token = $db2->fetch()) {
 			// Remove the user email and set the account as "inactive"
-			$remove_account = "UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid";
-			$db2->query($remove_account, array(":userid" => $user_id));
+			$db2->query("UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid", 
+				array(":userid" => $user_token['user_id']));
 
-			// remove the token
-			$remove_token_template = "DELETE FROM `_PREFIX_users_token`
-									  WHERE `user_id` = :userid";
+			$ok = $db2->rowCount() > 0;
+			
+			$db2->query("DELETE FROM `_PREFIX_sessions`
+				WHERE `session_id` = :token", array(":token" => $token));
+			
+			if($db2->rowCount() > 0 && $ok) {
+				// Then logout user
+				if($user['user_level'] < 5 && $user_token['user_id'] == $user['user_id']) {
+					Session::completeLogout();
+				}
 
-			$db2->query($remove_token_template, array(":userid" => $user_id));
-
-			// Then logout user
-			if($user['user_level'] < 5) {
-				Session::completeLogout();
+				showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
+			} else {
+				showMessage(ERR_CODE_COULDNT_DELETE_ACCOUNT);
 			}
-
-			showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
-		}
-		else{
+		} else {
 			showMessage(ERR_CODE_INVALID_TOKEN_ID, "profile.php?func=edit");
 		}
-	} /*else {
-		$oUser = User::findUser($user['user_id']);
-		$token = md5(time().$user['user_id']);
-
-		$template_sql = "INSERT INTO `_PREFIX_users_token` (user_id, token, token_type)
-						 VALUES (:user_id, :token, :token_type)";
-		$params = array(
-			':user_id' => $user['user_id'],
-			':token' => $token,
-			':token_type' => 1);
-
-		$db2->query($template_sql, $params);
-
-		// TODO : Envoyer un courriel avec le lien get qui contient le hash pour supprimer le compte
-		// Sinon.. Envoyer un PM aux admin.
-
-		$get_smtp_config = "SELECT *
-							FROM `ibb_config`
-							WHERE `config_name` = :use_smtp";
-		$db2->query($get_smtp_config, array(":use_smtp" => "use_smtp"));
-		$use_smtp = $db2->fetch();
-
-		if($use_smtp['config_value'] == 0) {
-
-			// Get all administrators
-			$db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
-
-			$body = $lang['Body_On_Pm'].$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].'&token='.$token.$lang['Body_On_Pm_2'];
-
-			while($administrator = $db2->fetch()) {
-				$db2->query("INSERT INTO `" . $db_prefix . "pm`
-						VALUES (
-						'',
-						:title,
-						:body,
-						:receiver,
-						:sender,
-						'1',
-						'1',
-						:pm_time
-						)",
-					array(
-						":title" => $lang['Title_On_Pm'],
-						":body" => $body,
-						":receiver" => $administrator['user_id'],
-						":sender" => $user['user_id'],
-						":pm_time" => time()
-					)
-				);
-			}
-		}
-		// Ça me dit fuckall ces err code là avec le show message...
-		showMessage(ERR_CODE_DELETION_CHECK_MAIL, "profile.php?func=edit");
-	}*/
+	} 
 } else {
 	if(!isset($_GET['id']) || $_GET['id'] < 0) {
 		showMessage(ERR_CODE_INVALID_USER_ID, "index.php");

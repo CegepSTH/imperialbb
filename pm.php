@@ -81,7 +81,7 @@ if($_GET['func'] == "send")
 				
 			if($result = $sql->fetch()) {
 				if($_POST['action'] == "pm") {
-					$db2->query("INSERT INTO `".$db_prefix."pm`
+					$db2->query("INSERT INTO `_PREFIX_pm`
 						VALUES (
 						'',
 						:title,
@@ -445,10 +445,10 @@ else
 
 	$pm_query = $db2->query("SELECT pm.*,
 		u.`username`
-		FROM (`".$db_prefix."pm` pm
-			LEFT JOIN `".$db_prefix."users` u ON u.`user_id` = pm.`pm_sent_from`)
+		FROM (`_PREFIX_pm` pm
+			LEFT JOIN `_PREFIX_users` u ON u.`user_id` = pm.`pm_sent_from`)
 		$where_query
-		ORDER BY pm.`pm_date`
+		ORDER BY pm.`pm_date` DESC
 		LIMIT ".$pp->limit."",
 		array(
 			":user_id" => $user['user_id']

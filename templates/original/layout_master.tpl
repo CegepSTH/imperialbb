@@ -64,7 +64,7 @@
 					<!-- BLOCK navf_logged_in -->
 					<a href="index.php">{L.Home}</a>&nbsp;&ndash;&nbsp;
 					{ADMIN_LINK}
-					<a href="portal.php">{L.Portal}</a>
+					<a href="portal.php">{L.Portal}</a>&nbsp;&ndash;&nbsp;
 					<a href="search.php">{L.Search}</a>&nbsp;&ndash;&nbsp;
 					<a href="members.php">{L.Members}</a>&nbsp;&ndash;&nbsp;
 					<a href="profile.php?func=edit">{L.User_CP}</a>&nbsp;&ndash;&nbsp;

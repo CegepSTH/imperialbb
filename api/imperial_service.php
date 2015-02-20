@@ -306,7 +306,11 @@ class ImperialService {
 		global $database;
 		
 		$oDb = new Database($database, $database["prefix"]);
-		$oDb->query("SELECT * FROM `_PREFIX_users` WHERE `user_id`=:id", array(":id" => $id));
+		$oDb->query("SELECT `user_id`, `username`, `user_signature`, `user_email`, 
+		`user_date_joined`, `user_rank`, `user_posts`, `user_location`, `user_website`,
+		`user_avatar_location`, `user_birthday`
+		FROM `_PREFIX_users` 
+		WHERE `user_id`=:id", array(":id" => $id));
 		$result = $oDb->fetch();
 		
 		if(is_null($result)) {
@@ -356,28 +360,18 @@ class ImperialService {
 	 */
 	public static function setUserInfo(array $infos) {
 		global $database;
+		$query = "UPDATE `_PREFIX_users` SET ";
+		$values = array();
+		$bit = false;
 		
-		$values = array(":username" => $infos["username"], ":upass" => $infos["user_password"], 
-			":email" => $infos["user_email"], ":level" => intval($infos["user_level"]), 
-			":group" => intval($infos["user_usergroup"]), ":signature" => $infos["signature"], 
-			":rank" => intval($infos["user_rank"]), ":aim" => $infos["user_aim"],
-			":icq" => $infos["user_icq"], ":msn" => $infos["user_msn"], ":yahoo" => $infos["user_yahoo"],
-			":epm" => $infos["user_email_on_pm"], ":tid" => intval($infos["user_template"]), 
-			":lid" => intval($infos["user_language"]), ":timez" => $infos["user_timezone"], 
-			":posts" => intval($infos["user_posts"]), ":location" => $infos["user_location"],
-			":website" => $infos["user_website"], ":bday" => $infos["user_birthday"],
-			":uid" => $infos["user_id"]);
+		foreach($infos as $column => $value) {
+			$query .= ($bit ? ", " : "") . "`".$column."`=:".$column."";
+			$values[":".$column] = $value;
+			$bit = true;
+		}
 		
 		$oDb = new Database($database, $database["prefix"]);
-		$oDb->query("UPDATE `_PREFIX_users` 
-			SET `username`=:username, `user_password`=:upass, 
-				`user_email`=:email, `user_level`=:level, `user_usergroup`=:group,
-				`user_signature`=:signature, `user_rank`=:rank, `user_aim`=:aim, 
-				`user_icq`=:icq, `user_msn`=:msn, `user_yahoo`=:yahoo, 
-				`user_email_on_pm`=:epm, `user_template`=:tid, `user_language`=:lid,
-				`user_timezone`=:timez, `user_posts`=:posts, `user_location`=:location, 
-				`user_website`=:website, `user_birthday`=:bday
-			WHERE `user_id`=:uid", $values);
+		$oDb->query($query, $values);
 		$result = $oDb->fetch();
 		
 		$ok = $oDb->rowCount();
@@ -427,7 +421,7 @@ class ImperialService {
 			array(":token" => $str_token));
 
 		$result = $oDb->fetch();
-		
+
 		if(is_null($result)) {
 			return false;
 		} else {
@@ -459,6 +453,48 @@ class ImperialService {
 			
 		
 		return $return;
+	}
+}
+
+/**
+ * Validate access.
+ */
+function ValidateAccess() {
+	// Check if token was supplied.
+	if(!isset($_GET['tok']) || trim($_GET['tok']) == "") {
+		$error = array(
+			"error" => "NO_TOKEN_ERROR", 
+			"error_level" => "FATAL",
+			"error_msg" => "No token was given.");
+	
+		$json = json_encode($error);
+	
+		echo $json;
+		exit();
+	} else {
+		// Verify if user is ok to access.
+		if(ImperialService::checkAppToken($_GET['tok']) == false) {
+			$error = array(
+				"error" => "BAD_TOKEN_BAD_ERROR",
+				"error_level" => "FATAL", 
+				"error_msg" => "Specified token is invalid.");
+			$json = json_encode($error);
+			echo $json;
+			exit();
+		}
+	}
+	
+	// Is action specified?
+	if(!isset($_GET['act']) || trim($_GET['act']) == "") {
+		$error = array(
+			"error" => "NO_ACTION_ERROR", 
+			"error_level" => "FATAL",
+			"error_msg" => "No action was specified.");
+	
+		$json = json_encode($error);
+	
+		echo $json;
+		exit();	
 	}
 }
 

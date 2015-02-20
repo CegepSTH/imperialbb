@@ -6,13 +6,11 @@ div.hidden {
 <div id="color_picker" class="hidden" style="position: absolute;">
  <table width="150" cellspacing="0">
   <tr>
-   <td class="cell1" style="font-weight:bold;">{L.Color_Picker}</td><td align="right" valign="top" class="cell1"><input type="button" Value="X" onclick="color_picker('color_picker', 'none')" style="color:red;" title="{L.Close}" /></td>
+   <th style="font-weight:bold;">{L.Color_Picker}</th><th align="right"><button onclick="togglePicker()"> X </button></th>
   </tr>
   <tr>
-   <td colspan="2">
-    <script>
-     create_colorpicker();
-    </script>
+   <td colspan="2" id="color_pickers">
+	<!--// COLORS GOING THERE -->
    </td>
   </tr>
  </table>
@@ -25,31 +23,31 @@ div.hidden {
    {L.Add_Rank}
   </th>
  </tr>
- <form method="post" action="" name="add_rank">
+ <form method="post" action="ranks.php?func=edit&id={RANK_ID}" name="edit_rank">
  {CSRF_TOKEN}
  <tr>
-  <td class="cell1" width="50%">{L.Name}</td><td class="cell2"><input type="text" name="name"></td>
+  <td class="cell1" width="50%">{L.Name}</td><td class="cell2"><input type="text" name="name" value="{NAME}" required></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Color}</td><td class="cell2"><input type="text" id="color" name="color">&nbsp;&nbsp;<input type="button" value="{L.Pick}" onclick="color_picker('color_picker', 'block', event.pageX, event.pageY)"></td>
+  <td class="cell1">{L.Color}</td><td class="cell2"><input type="text" id="color" name="color" value="{COLOR}">&nbsp;&nbsp;<input type="button" value="{L.Pick}" onclick="togglePicker()"></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Bold}</td><td class="cell2"><input type="checkbox" name="bold" value="1"></td>
+  <td class="cell1">{L.Bold}</td><td class="cell2"><input type="checkbox" name="bold" value="1" {BOLD}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Underline}</td><td class="cell2"><input type="checkbox" name="underline" value="1"></td>
+  <td class="cell1">{L.Underline}</td><td class="cell2"><input type="checkbox" name="underline" value="1" {UNDERLINE}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Italics}</td><td class="cell2"><input type="checkbox" name="italics" value="1"></td>
+  <td class="cell1">{L.Italics}</td><td class="cell2"><input type="checkbox" name="italics" value="1" {ITALICS}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Display_Rank}</td><td class="cell2"><input type="checkbox" name="display_rank" value="1" /></td>
+  <td class="cell1">{L.Display_Rank}</td><td class="cell2"><input type="checkbox" name="display_rank" value="1" {DISPLAY_RANK}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Special_Rank}</td><td class="cell2"><input type="checkbox" name="special_rank" value="1" onclick="special_rank_onclick(this.checked);" /></td>
+  <td class="cell1">{L.Special_Rank}</td><td class="cell2"><input type="checkbox" id="special_rank" name="special_rank" value="1" onclick="special_rank_onclick(this.checked);" {SPECIAL_RANK}></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Minimum_Posts}</td><td class="cell2"><input type="text" name="minimum_posts" value="0" /></td>
+  <td class="cell1">{L.Minimum_Posts}</td><td class="cell2"><input type="text" name="minimum_posts" value="{MINIMUM_POSTS}" /></td>
  </tr>
  <tr>
   <th colspan="2" height="25">
@@ -66,33 +64,20 @@ function colorpicker_mouseover(color) {
 	document.getElementById('colorPickerSelectedColor').style.backgroundColor = color;
 	document.getElementById('colorPickerSelectedColorValue').innerHTML = color;
 }
+
 function colorpicker_pickcolor(color) {
 	document.getElementById('color').value = color;
-	color_picker('color_picker', 'none');
+	togglePicker();
 }
 
-function color_picker(id,state,x,y) {
-
-	// NS Fix
-	x = document.all ? (event.clientX + document.body.scrollLeft) : x;
-	y = document.all ? (event.clientY + document.body.scrollTop) : y;
-
-	if (document.getElementById) {
-		var style2 = document.getElementById(id).style;
-		if(state) {
-			style2.display = state;
-			style2.top = y;
-			style2.left = (x + 20);
-		} else {
-			style2.display = style2.display? "":"block";
-		}
-	} else if (document.all) {
-		var style2 = document.all[id].style;
-		style2.display = style2.display? "":"block";
-
-	} else if(document.layers) {
-		var style2 = document.layers[id].style;
-		style2.display = style2.display? "":"block";
+function togglePicker() {
+	var ele = document.getElementById("color_picker");
+	
+	if(ele.className == "") {
+		ele.className = "hidden";
+	} else {
+		create_colorpicker();
+		ele.className = "";
 	}
 }
 
@@ -121,37 +106,45 @@ function create_colorpicker() {
 	var width = 18;
 	var contents = "";
 
-	contents += '<table cellspacing="1" cellpadding="0" STYLE="background:white; border-color:black; border-width:1px; border-style:solid;">';
+	contents += '<table cellspacing="1" cellpadding="0" style="background:white; border-color:black; border-width:1px; border-style:solid;">';
 	for(var i=0;i<total;i++){
 		if((i % width) == 0){
 			contents += "<tr>";
 		}
-		contents += '<td bgcolor="'+colors[i]+'"  style="border-color:black; border-width:1px; border-style:solid;"><font size="-3"><a href="#" onClick="colorpicker_pickcolor(\''+colors[i]+'\');" onMouseOver="colorpicker_mouseover(\''+colors[i]+'\');" style="text-decoration:none;">&nbsp;&nbsp;&nbsp;</a></font></td>';
+		contents += '<td bgcolor="'+colors[i]+'"  style="cursor: pointer;border-color:black; border-width:1px; border-style:solid;" onclick="colorpicker_pickcolor(\''+colors[i]+'\');" onmouseover="colorpicker_mouseover(\''+colors[i]+'\');"></td>';
 
 		if( ((i+1)>=total) ||(((i+1) % width) == 0)){
 			contents += "</tr>";
 		}
 	}
-	if(document.getElementById){
+	if(document.getElementById("color_picker")){
 		var width1 = Math.floor(width/2);
 		var width2 = width = width1;
 		contents += '<tr><td colspan="'+width1+'" bgcolor="#ffffff" id="colorPickerSelectedColor">&nbsp;</td><td colspan="'+width2+'" align="center" id="colorPickerSelectedColorValue">#FFFFFF</td></tr>';
 	}
 	contents += "</table>";
-	document.write(contents);
+	document.getElementById("color_pickers").innerHTML = contents;
+	document.getElementById("color_picker").className = "";
+}
+
+if(document.getElementById('special_rank').checked) {
+	document.edit_rank.minimum_posts.disabled = true;
+	document.edit_rank.minimum_posts.value = '{L.Disabled}';
+	document.edit_rank.minimum_posts.style.background = 'Transparent';
+	document.edit_rank.minimum_posts.style.border = '0';
 }
 
 function special_rank_onclick(value) {
 	if(value) {
-		document.add_rank.minimum_posts.disabled = true;
-		document.add_rank.minimum_posts.value = '{L.Disabled}';
-		document.add_rank.minimum_posts.style.background = 'Transparent';
-		document.add_rank.minimum_posts.style.border = '0';
+		document.edit_rank.minimum_posts.disabled = true;
+		document.edit_rank.minimum_posts.value = '{L.Disabled}';
+		document.edit_rank.minimum_posts.style.background = 'Transparent';
+		document.edit_rank.minimum_posts.style.border = '0';
 	} else {
-		document.add_rank.minimum_posts.disabled = false;
-		document.add_rank.minimum_posts.value = '0';
-		document.add_rank.minimum_posts.style.background = '';
-		document.add_rank.minimum_posts.style.border = '';
+		document.edit_rank.minimum_posts.disabled = false;
+		document.edit_rank.minimum_posts.value = '0';
+		document.edit_rank.minimum_posts.style.background = '';
+		document.edit_rank.minimum_posts.style.border = '';
 	}
 }
 </script>
