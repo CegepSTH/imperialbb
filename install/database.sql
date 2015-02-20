@@ -522,6 +522,15 @@ CREATE TABLE IF NOT EXISTS `ibb_persistent_sessions` (
 	`expiry_time` INT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `ibb_portal_news` (
+  `news_id` int(11) NOT NULL AUTO_INCREMENT, 
+  `news_title` varchar(255) COLLATE utf8_bin NOT NULL, 
+  `news_author_id` int(11) COLLATE utf8_bin NOT NULL,
+  `news_content` int(11) NOT NULL, 
+  `news_timestamp` int(11) NOT NULL, 
+PRIMARY KEY (`news_id`)
+) ENGINE=InnoDB DEFAULT CARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
