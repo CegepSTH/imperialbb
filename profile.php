@@ -137,7 +137,7 @@ if($_GET['func'] == "edit")
 							"\r\n\r\n reason : " . $_POST['Close_Account_Reason'];
 
 					while ($administrator = $db2->fetch()) {
-						$db2->query("INSERT INTO `" . $db_prefix . "pm`
+						$db2->query("INSERT INTO `_PREFIX_pm`
 						VALUES (
 						'',
 						:title,

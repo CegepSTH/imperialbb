@@ -579,7 +579,7 @@ else
 
 function _generate_subforums($forum_id, $forum_route, $page_master, &$category_content)
 {
-	global $db2, $db_prefix ,$lang;
+	global $db2, $lang;
 
 	$subforums_sql = $db2->query("SELECT `forum_id`, `forum_name`, `forum_description`, `forum_redirect_url`, `forum_topics`, `forum_posts` 
 		FROM `_PREFIX_forums` 
@@ -664,7 +664,7 @@ function _generate_category_dropdown($forum_id, $template_name, $prefix, $check_
 
 function _delete_subforums($forum_id)
 {
-	global $db2, $db_prefix;
+	global $db2;
 
 	$db_sub = $db2->query("SELECT `forum_id` FROM `_PREFIX_forums` WHERE `forum_cat_id`=:fid AND `forum_type` = 'f'", array(":fid" => $forum_id));
 	

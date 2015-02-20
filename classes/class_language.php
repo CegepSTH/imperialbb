@@ -39,8 +39,10 @@ class Language {
 		}
 		else if(is_dir($root_path . "language/".$config['default_language'].""))
 		{
-			$db->query("UPDATE `".$db_prefix."users` SET `user_language` = '".$config['default_language']."' WHERE `user_id` = '".$user['user_id']."'");
-			$user['user_language'] = $config['language'];			$this->language = $user['user_language_folder'];
+			$db2->query("UPDATE `_PREFIX_users` SET `user_language`=:dlang '".."' WHERE `user_id`=:uid", 
+				array(":dlang" => $config['default_language'], ":uid" => $user['user_id']));
+			$user['user_language'] = $config['language'];			
+			$this->language = $user['user_language_folder'];
 			$this->add_file("main");
 			if(defined("IN_ADMIN")) {
                 $this->add_file("main_admin");
