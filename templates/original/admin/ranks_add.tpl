@@ -6,13 +6,11 @@ div.hidden {
 <div id="color_picker" class="hidden" style="position: absolute;">
  <table width="150" cellspacing="0">
   <tr>
-   <td class="cell1" style="font-weight:bold;">{L.Color_Picker}</td><td align="right" valign="top" class="cell1"><input type="button" Value="X" onclick="color_picker('color_picker', 'none')" style="color:red;" title="{L.Close}" /></td>
+   <th style="font-weight:bold;">{L.Color_Picker}</th><th align="right"><button onclick="togglePicker()"> X </button></th>
   </tr>
   <tr>
-   <td colspan="2">
-    <script>
-     create_colorpicker();
-    </script>
+   <td colspan="2" id="color_pickers">
+	<!--// COLORS GOING THERE -->
    </td>
   </tr>
  </table>
@@ -31,7 +29,7 @@ div.hidden {
   <td class="cell1" width="50%">{L.Name}</td><td class="cell2"><input type="text" name="name"></td>
  </tr>
  <tr>
-  <td class="cell1">{L.Color}</td><td class="cell2"><input type="text" id="color" name="color">&nbsp;&nbsp;<input type="button" value="{L.Pick}" onclick="color_picker('color_picker', 'block', event.pageX, event.pageY)"></td>
+  <td class="cell1">{L.Color}</td><td class="cell2"><input type="text" id="color" name="color">&nbsp;&nbsp;<input type="button" value="{L.Pick}" onclick="togglePicker()"></td>
  </tr>
  <tr>
   <td class="cell1">{L.Bold}</td><td class="cell2"><input type="checkbox" name="bold" value="1"></td>
@@ -66,33 +64,20 @@ function colorpicker_mouseover(color) {
 	document.getElementById('colorPickerSelectedColor').style.backgroundColor = color;
 	document.getElementById('colorPickerSelectedColorValue').innerHTML = color;
 }
+
 function colorpicker_pickcolor(color) {
 	document.getElementById('color').value = color;
-	color_picker('color_picker', 'none');
+	togglePicker();
 }
 
-function color_picker(id,state,x,y) {
-
-	// NS Fix
-	x = document.all ? (event.clientX + document.body.scrollLeft) : x;
-	y = document.all ? (event.clientY + document.body.scrollTop) : y;
-
-	if (document.getElementById) {
-		var style2 = document.getElementById(id).style;
-		if(state) {
-			style2.display = state;
-			style2.top = y;
-			style2.left = (x + 20);
-		} else {
-			style2.display = style2.display? "":"block";
-		}
-	} else if (document.all) {
-		var style2 = document.all[id].style;
-		style2.display = style2.display? "":"block";
-
-	} else if(document.layers) {
-		var style2 = document.layers[id].style;
-		style2.display = style2.display? "":"block";
+function togglePicker() {
+	var ele = document.getElementById("color_picker");
+	
+	if(ele.className == "") {
+		ele.className = "hidden";
+	} else {
+		create_colorpicker();
+		ele.className = "";
 	}
 }
 
@@ -121,24 +106,25 @@ function create_colorpicker() {
 	var width = 18;
 	var contents = "";
 
-	contents += '<table cellspacing="1" cellpadding="0" STYLE="background:white; border-color:black; border-width:1px; border-style:solid;">';
+	contents += '<table cellspacing="1" cellpadding="0" style="background:white; border-color:black; border-width:1px; border-style:solid;">';
 	for(var i=0;i<total;i++){
 		if((i % width) == 0){
 			contents += "<tr>";
 		}
-		contents += '<td bgcolor="'+colors[i]+'"  style="border-color:black; border-width:1px; border-style:solid;"><font size="-3"><a href="#" onClick="colorpicker_pickcolor(\''+colors[i]+'\');" onMouseOver="colorpicker_mouseover(\''+colors[i]+'\');" style="text-decoration:none;">&nbsp;&nbsp;&nbsp;</a></font></td>';
+		contents += '<td bgcolor="'+colors[i]+'"  style="cursor: pointer;border-color:black; border-width:1px; border-style:solid;" onclick="colorpicker_pickcolor(\''+colors[i]+'\');" onmouseover="colorpicker_mouseover(\''+colors[i]+'\');"></td>';
 
 		if( ((i+1)>=total) ||(((i+1) % width) == 0)){
 			contents += "</tr>";
 		}
 	}
-	if(document.getElementById){
+	if(document.getElementById("color_picker")){
 		var width1 = Math.floor(width/2);
 		var width2 = width = width1;
 		contents += '<tr><td colspan="'+width1+'" bgcolor="#ffffff" id="colorPickerSelectedColor">&nbsp;</td><td colspan="'+width2+'" align="center" id="colorPickerSelectedColorValue">#FFFFFF</td></tr>';
 	}
 	contents += "</table>";
-	document.write(contents);
+	document.getElementById("color_pickers").innerHTML = contents;
+	document.getElementById("color_picker").className = "";
 }
 
 function special_rank_onclick(value) {
