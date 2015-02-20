@@ -4,6 +4,13 @@ define("IN_IBB", 1);
 $root_path = "./";
 include_once($root_path . "includes/common.php");
 
+if($config['show_portal'] == 1) {
+	if(!isset($_COOKIE['has_seen_portal'])) {
+		header("Location: portal.php");
+		exit();
+	}
+}
+
 $language->add_file("board_home");
 Template::addNamespace("L", $lang);
 
