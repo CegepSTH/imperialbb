@@ -141,7 +141,7 @@ if($_GET['func'] == "edit")
 						"Reply-To: noreply@".$_SERVER['HTTP_HOST']."\r\n" .
 						"X-Mailer: PHP/".phpversion();
 						
-					if(mail($user['username'], $lang['Account_Closure'], $body, $headers)) {
+					if(mail($user['username'], $lang['Account_closure'], $body, $headers)) {
 						showMessage(ERR_CODE_DELETION_CHECK_MAIL, "index.php");
 					} else {
 						showMessage(ERR_CODE_COULDNT_DELETE_ACCOUNT, "index.php");
@@ -303,11 +303,10 @@ if($_GET['func'] == "edit")
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
-			$birthday = array("", "", "");
-			$birthday = explode("-", $oUser->getBirthday());
-			$day = $birthday[2];
-			$month = $birthday[1];
-			$year = $birthday[0] ?: '';
+			$birthday = parseBirthday($oUser->getBirthday());
+			$day = $birthday["day"];
+			$month = $birthday["month"];
+			$year = $birthday["year"] ?: '';
 			$day_options = '';
 			for($i = 1; $i<=31; $i++) {
                 $day_options .= fetch_make_options($i, $i, $day);
