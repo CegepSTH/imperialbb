@@ -84,6 +84,9 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 		$text = preg_replace("#\"#", "&quot;", $text);
 	}
 
+	$text = str_replace("\r\n", "<br>", $text);
+	$text = str_replace("\n", "<br>", $text);
+
 	if($insert_smilies) {
 		$db2->query("SELECT `smilie_code`, `smilie_url` FROM `_PREFIX_smilies`");
 		
