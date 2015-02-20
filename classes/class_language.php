@@ -39,7 +39,7 @@ class Language {
 		}
 		else if(is_dir($root_path . "language/".$config['default_language'].""))
 		{
-			$db2->query("UPDATE `_PREFIX_users` SET `user_language`=:dlang '".."' WHERE `user_id`=:uid", 
+			$db2->query("UPDATE `_PREFIX_users` SET `user_language`=:dlang WHERE `user_id`=:uid", 
 				array(":dlang" => $config['default_language'], ":uid" => $user['user_id']));
 			$user['user_language'] = $config['language'];			
 			$this->language = $user['user_language_folder'];
