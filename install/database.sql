@@ -515,6 +515,13 @@ CREATE TABLE IF NOT EXISTS `ibb_users` (
 INSERT INTO `ibb_users` (`user_id`, `username`, `user_password`, `user_email`, `user_date_joined`, `user_lastvisit`, `user_level`, `user_usergroup`, `user_signature`, `user_rank`, `user_aim`, `user_icq`, `user_msn`, `user_yahoo`, `user_email_on_pm`, `user_template`, `user_language`, `user_timezone`, `user_posts`, `user_activation_key`, `user_location`, `user_website`, `user_avatar_type`, `user_avatar_location`, `user_avatar_dimensions`, `user_password_reset_request`, `user_new_password`, `user_birthday`) VALUES
 (-1, 'Guest', '', '', 0, 1422464343, 1, 0, '', 1, '', '', '', '', 0, 1, 1, '0', 0, '', '', '', 0, '', '', 0, '', '');
 
+
+CREATE TABLE IF NOT EXISTS `ibb_persistent_sessions` (
+	`persistance_token` VARCHAR(225) NOT NULL,
+	`user_id` INT NOT NULL,
+	`expiry_time` INT NOT NULL
+);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

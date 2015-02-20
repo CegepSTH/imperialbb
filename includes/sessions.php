@@ -18,12 +18,27 @@ if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
 
+// For token generation.
 require_once($root_path."classes/csrf.php");
 
+/**
+ * A class to manage user and guest sessions.
+ * 
+ * Also, manages the last visit date and persistent logins for members.
+ * 
+ * @author Michael Tran
+ */
 class Session {
 	const PERSISTENT_LOGIN_COOKIE_KEY = "PersistentLoginToken";
 
-	public static function createNew($user_id = -1) {
+	/**
+	 * createNew Creates a new session for the specified user id in the database.
+	 * 
+	 * The value -1 is the user id of guests.
+	 * 
+	 * @param $user_id The user id to create a session for.
+	 */
+	private static function createNew($user_id = -1) {
 		global $db2;
 
 		session_regenerate_id();
@@ -54,7 +69,12 @@ class Session {
 		$_SESSION["user_id"] = $user_id;
 	}
 
-	public static function delete($session_id) {
+	/**
+	 * delete Deletes the specified session from the database.
+	 * 
+	 * @param $session_id The session id to delete.
+	 */
+	private static function delete($session_id) {
 		global $db2;
 
 		$db2->query("DELETE FROM `_PREFIX_sessions`
@@ -65,15 +85,42 @@ class Session {
 		);
 	}
 
-	public static function refresh($session_id, $new_user_id) {
+	/**
+	 * refresh Refreshes the specified session with a new user id.
+	 * 
+	 * Prevents session fixation attacks. The function refreshCurrent
+	 * must be called when the user level changes to prevent this attack.
+	 * 
+	 * @param $session_id The session id to refresh.
+	 * After this call, the session id will be no longer valid.
+	 * @param $new_user_id The new user id of the session.
+	 */
+	private static function refresh($session_id, $new_user_id) {
 		self::delete($session_id);
 		self::createNew($new_user_id);
 	}
 
+	/**
+	 * refreshCurrent Refreshes the current session with a new user id.
+	 * 
+	 * Prevents session fixation attacks. This function must be called when the
+	 * user level changes to prevent this attack. A example of a user level
+	 * change is logging in and logging out.
+	 * 
+	 * @param $new_user_id The new user id of the session.
+	 */
 	public static function refreshCurrent($new_user_id) {
 		self::refresh(session_id(), $new_user_id);
 	}
 
+	/**
+	 * updateSessionTime Updates the last activity time of the specified
+	 * session.
+	 * 
+	 * Used for online users statistics.
+	 * 
+	 * @param $session_id The session id to update the last activity time.
+	 */
 	public static function updateSessionTime($session_id) {
 		global $db2;
 
@@ -87,10 +134,25 @@ class Session {
 		);
 	}
 
+	/**
+	 * updateCurrentSessionTime Updates the last activity time of the current
+	 * session.
+	 * 
+	 * Used for online users statistics.
+	 */
 	public static function updateCurrentSessionTime() {
 		self::updateSessionTime(session_id());
 	}
 
+	/**
+	 * start Begins a session, resuming a persisted login if available.
+	 * 
+	 * This function ensures that the session id was created by PHP's session
+	 * system and not controlled by a malicious user.
+	 * 
+	 * If a session could not be found, an attempt to resume a persisted
+	 * login is done, else a new guest session is opened.
+	 */
 	public static function start() {
 		global $db2;
 
@@ -112,6 +174,14 @@ class Session {
 		}
 	}
 
+	/**
+	 * persistLogin Persists a user login across PHP and browser sessions.
+	 * 
+	 * The persistance is implemented with a token in a cookie.
+	 *
+	 * @param $user_id The user id to persist the login.
+	 * @param $persistance_duration The duration of the persistance.
+	 */
 	public static function persistLogin($user_id, $persistance_duration) {
 		global $db2;
 
@@ -140,6 +210,15 @@ class Session {
 		);
 	}
 
+	/**
+	 * refreshPersistentLogin Refreshes the token for a persistent login.
+	 * 
+	 * The persistent login token should be refreshed each time it is
+	 * used (when the start() method resumes a session) to prevent token
+	 * reuse.
+	 * 
+	 * @param $absolute_expiration_time The absolute expiration time.
+	 */
 	private static function refreshPersistentLogin($absolute_expiration_time) {
 		global $db2;
 
@@ -198,6 +277,14 @@ class Session {
 		return true;
 	}
 
+	/**
+	 * deletePersistentLogin Deletes a persistent login session.
+	 *
+	 * Also unsets the cookie containing the token.
+	 * Called on logout to clear the persistance.
+	 * 
+	 * @param $token The persistent login token to delete.
+	 */
 	private static function deletePersistentLogin($token) {
 		global $db2;
 
@@ -215,6 +302,12 @@ class Session {
 		);
 	}
 
+	/**
+	 * completeLogout Completes the logout process.
+	 * 
+	 * This function changes the session's user id to the user id of
+	 * guests (-1) and clears the persistent login if present.
+	 */
 	public static function completeLogout() {
 		self::refreshCurrent(-1);
 
@@ -224,6 +317,13 @@ class Session {
 		}
 	}
 
+	/**
+	 * updateLastVisitTime Updates the last visit time of the current member.
+	 * 
+	 * Has no effect on guests.
+	 * Used for online indication on user profile and for the list of users
+	 * who were online in the last 24 hours.
+	 */
 	public static function updateLastVisitTime() {
 		global $db2, $user;
 
