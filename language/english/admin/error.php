@@ -68,4 +68,9 @@ $lang['err_code'.ERR_CODE_NEWS_NOT_FOUND] = "Sorry, the news you requested could
 $lang['err_code'.ERR_CODE_NEWS_ALL_FIELDS_REQUIRED] = "The news requires all fields.";
 $lang['err_code'.ERR_CODE_NEWS_INSERT_SUCCESS] = "The news was created successfully.";
 $lang['err_code'.ERR_CODE_NEWS_INSERT_FAILED] = "The news couldn't be added to database!";
+$lang['err_code'.ERR_CODE_INVALID_NEWS_ID] = "Invalid news identifier.";
+$lang['err_code'.ERR_CODE_NEWS_UPDATE_FAILED] = "Couldn't update the news. Please try later.";
+$lang['err_code'.ERR_CODE_NEWS_UPDATE_SUCCESS] = "News has been updated.";
+$lang['err_code'.ERR_CODE_NEWS_DELETE_FAILED] = "News deletion failed. Try again.";
+$lang['err_code'.ERR_CODE_NEWS_DELETE_SUCCESS] = "News was deleted successfully.";
 ?>

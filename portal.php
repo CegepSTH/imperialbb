@@ -17,6 +17,7 @@ if(isset($_GET['nid']) && is_numeric($_GET['nid'])) {
 		array(":nid" => $_GET['nid']));
 	
 	if($result = $db2->fetch()) {
+		$tplNews->setVar("PAGINATION", "");
 		// Show news boyssss
 		$tplNews->addToBlock("news_item", array("TITLE" => $result['news_title'], 
 			"CONTENT" => format_text($result['news_content'], true, true, true, false), 
@@ -29,11 +30,17 @@ if(isset($_GET['nid']) && is_numeric($_GET['nid'])) {
 		showMessage(ERR_CODE_NEWS_NOT_FOUND, "portal.php");
 	}
 } else {
+	$db2->query("SELECT COUNT(*) AS `count` FROM `_PREFIX_portal_news`", array());
+	$count = $db2->fetch();
+	$pagination = $pp->paginate($count['count'], $config['posts_per_page']);
 	// I SAID SHOW ALL THE NEWS
 	$newsDb = $db2->query("SELECT `news_id`, `news_title`, `news_content`, `username`, `user_id`, `user_avatar_location`, `news_timestamp`
 		FROM `_PREFIX_portal_news`
-		JOIN `_PREFIX_users` ON `user_id` = `news_author_id`",
+		JOIN `_PREFIX_users` ON `user_id` = `news_author_id`
+		LIMIT ".$pp->limit,
 		array());
+	
+	$tplNews->setVar("PAGINATION", $pagination);
 	
 	$newsCount = 0;
 	while($result = $newsDb->fetch()) {
