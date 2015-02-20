@@ -448,7 +448,7 @@ else
 		FROM (`_PREFIX_pm` pm
 			LEFT JOIN `_PREFIX_users` u ON u.`user_id` = pm.`pm_sent_from`)
 		$where_query
-		ORDER BY pm.`pm_date`
+		ORDER BY pm.`pm_date` DESC
 		LIMIT ".$pp->limit."",
 		array(
 			":user_id" => $user['user_id']

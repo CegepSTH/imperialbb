@@ -1,15 +1,4 @@
 <?php
-
-/**********************************************************
-*
-*			language/english/profile.php
-*
-*	      ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
@@ -26,13 +15,13 @@ $lang['Admin_Review'] = "By security measure, an administrator will have to appr
 $lang['Account_Has_Been_Removed'] = "Account has been removed";
 $lang['User_Didnt_provide_A_Reason'] = "Account has been removed";
 
-$lang['Account_Has_Been_Removed_Message'] = "Account is now inactive, we have removed your email from our database.";
+$lang['Account_Has_Been_Removed_Message'] = "Account is now inactive, we removed your email from our database.";
 $lang['Invalid_Token_Id'] = "Invalid token ID, please try again";
 
-$lang['Body_On_Pm'] = "Hi, please consider closing my account, [url=http://";
+$lang['Body_On_Pm'] = "Hi, please consider closing my account, [url=";
 $lang['Body_On_Pm_2'] = "]by clicking on this link[/url]. Thank you.";
 $lang['Title_On_Pm'] = "Please disable my account";
-
+$lang['Reason'] = "Reason: ";
 
 //
 // Edit Profile
@@ -83,5 +72,6 @@ $lang['Yahoo_Messenger'] = "Yahoo Messenger";
 $lang['lastvisit'] = "Last Visit";
 $lang['Quote'] = "Quote";
 $lang['Code'] = "Code";
+$lang['Account_closure'] = "Account Closure";
 
 ?>

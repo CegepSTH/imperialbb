@@ -138,13 +138,18 @@
 			{L.False}<input type="radio" name="email_on_pm" value="0" {EOP_FALSE}>
 		</label>
 	</div>
-	<div class="form-admin-row">
+	<h4>{L.Account_closure}</h4>
+	<div class="form-admin-row" style="text-align:center;">
 		<em>{L.Only_fill_in_if_you_want_to_close_your_account}</em>
+	</div>
+	<div class="form-admin-row">
 		<label for="close_Account">{L.Close_Account}</label>
 		<label>
 			<input type="checkbox" name="Close_Account" id="Close_Account"  />
 		</label>
-		<label for="Close_Account_Reason" style="color: red">{L.Reason}</label>
+	</div>
+	<div class="form-admin-row">
+		<label for="Close_Account_Reason" style="color: red;">{L.Reason}</label>
 		<label>
 			<input type="text" name="Close_Account_Reason" id="Close_Account_Reason">
 		</label>
