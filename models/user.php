@@ -495,8 +495,12 @@ class User {
 	/**
 	 * setActivationKey Creates the activation key.
 	 */
-	function setActivationKey() {
-		$this->m_activation_key = generate_activate_key();
+	function setActivationKey($str_token = "") {
+		if($str_token != "") {
+			$this->m_activation_key = $str_token;
+		} else {
+			$this->m_activation_key = generate_activate_key();
+		}
 	}
 	
 	/**

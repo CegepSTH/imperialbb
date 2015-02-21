@@ -49,36 +49,28 @@ else if($_GET['func'] == "forgotten_pass")
 			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_INVALID_ID);
 		}
 
-		$query = $db2->query("SELECT `user_id`, `username`, `user_email`
-			FROM `_PREFIX_users`
-			WHERE `username` = :username AND `user_email` = :email",
-			array(
-				":username" => $_POST['username'],
-				":email" => $_POST['email']
-			));
+		$oUser = User::findUser($_POST['username']);
+		
+		if($oUser == null) {
+			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_ERROR);
+		}
+		
+		if($oUser->getEmail() != trim($_POST['email'])) {
+			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_ERROR);
+		}
+		
+		$oUser->setActivationKey();
+		$password = generate_activate_key(7);
+		$oUser->update();
 
-		if($result = $query->fetch()) {
-			$key = generate_activate_key();
-			$password = generate_activate_key(7);
-			$db2->query("UPDATE `_PREFIX_users`
-				SET `user_activation_key` = :key,
-				`user_new_password` = :password,
-				`user_password_reset_request` = :current_time
-				WHERE `user_id` = :user_id",
-				array(
-					":key" => $key,
-					":password" => password_hash($password, PASSWORD_BCRYPT),
-					":current_time" => time(),
-					":user_id" => $result['id']
-				));
-				
+		if($result = $query->fetch()) {				
 			email($lang['Forgotten_Password_Email_Subject'], "forgotten_password", array(
 				"DOMAIN" => $config['url'],
-				"USER_ID" => $result['user_id'],
-				"USERNAME" => $result['username'],
-				"PASSWORD" => $password,
-				"KEY" => $key
-			), $result['user_email']);
+				"USER_ID" => $oUser->getId()."",
+				"USERNAME" => $oUser->getUsername(),
+				"PASSWORD" => $oUser->getActivationKey(),
+				"KEY" => $oUser->getActivationKey()
+			), $oUser->getEmail());
 		} else {
 			showMessage(ERR_CODE_LOGIN_RESET_PASSWORD_INVALID_ID);
 		}
@@ -101,31 +93,17 @@ else if($_GET['func'] == "activate_new_pass")
 	if(!isset($_GET['key'])) {
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
-
-	$sql = $db2->query("SELECT `user_id` FROM `_PREFIX_users`
-		WHERE `user_id` = :user_id && `user_activation_key` = :key
-		LIMIT 1",
-		array(
-			":user_id" => $_GET['user_id'],
-			":key" => $_GET['key'],
-		));
+	$oUser = User::findUser($_GET['user_id']);
 	
-	if($result = $sql->fetch()) {
-		$db2->query("UPDATE `_PREFIX_users`
-			SET `user_password` = `new_password`,
-			`user_activation_key` = '',
-			`user_password_reset_request` = '',
-			`user_new_password` = ''
-			 WHERE `user_id` = :user_id",
-			array(
-				":user_id" => $_GET['user_id']
-			)
-		);
-
+	if($oUser->getActivationKey() == $_GET['key']) {
+		$oUser->setPassword($oUser->getActivationKey());
+		$oUser->updatePassword();
+		$oUser->setActivationKey("null");
+		$oUser->update();
 		showMessage(ERR_CODE_LOGIN_ACTIVATION_SUCCESS);
-	} else {
-		showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 	}
+	
+	showMessage(ERR_CODE_LOGIN_ACTIVATION_ERROR);
 } else {
 	if($user['user_id'] > 0) {
 		showMessage(ERR_CODE_LOGIN_ALREADY_LOGGED_IN);
