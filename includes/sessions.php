@@ -169,7 +169,15 @@ class Session {
 		$result = $db2->fetch();
 		if($result["session_count"] != 1) {
 			if(!self::continuePersistentLogin()) {
-				self::createNew();
+				self::createNew(-1);
+			}
+		} else {
+			// PHP expired the session, resume persistent login or create new.
+			if(!isset($_SESSION["user_id"])) {
+				if(!self::continuePersistentLogin()) {
+					self::delete($current_id);
+					self::createNew(-1);
+				}
 			}
 		}
 	}
