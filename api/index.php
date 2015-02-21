@@ -21,6 +21,36 @@ if($_GET['act'] == "appcheck") {
 	exit();
 }
 
+if($_GET['act'] == "login") {
+	if(!isset($_GET['uname']) || empty($_GET['uname'])
+		|| !isset($_GET['word']) || empty($_GET['word'])) 
+	{
+		$error = array(
+			"error" => "INVALID_USER_CREDENTIALS",
+			"error_level" => "WARNING",
+			"error_msg" => "User credentials were invalid. Please ensure everything is sent properly.");
+		$json = json_encode($error);
+		echo $json;
+		exit();		
+	} 
+	
+	$result = ImperialService::login($_GET['uname'], $_GET['word'], $_SERVER['REMOTE_ADDR']);
+	
+	if(!is_array($result)) {
+		$error = array(
+			"error" => "INVALID_USER_CREDENTIALS",
+			"error_level" => "WARNING",
+			"error_msg" => "User provided invalid credentials.");
+		$json = json_encode($error);
+		echo $json;
+		exit();				
+	} else {
+		$out = json_encode($result);
+		echo $out;
+		exit();
+	}
+}
+
 // Parse actions.
 if($_GET['act'] == "forums") {
 	$forumsList = ImperialService::getAllForumsList();

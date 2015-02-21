@@ -142,6 +142,61 @@ function bbcode_fixed_replace($op, $end, array &$matches, $post) {
 	return $post;
 }
 
+function unbbcode($post)
+{	
+	global $lang;
+
+	$matches = array();
+	$post = str_replace("[code]", "\r\n------\r\nCode:\r\n", $post);
+	$post = str_replace("[/code]", "\r\n-------\r\n", $post);
+	
+	$post = str_replace("[b]", "", $post);
+	$post = str_replace("[/b]", "", $post);
+	
+	$post = str_replace("[i]", "", $post);
+	$post = str_replace("[/i]", "", $post);
+	
+	$post = str_replace("[u]", "", $post);
+	$post = str_replace("[/u]", "", $post);
+	
+	$post = str_replace("[hr]", "\r\n----------\r\n", $post);
+	
+	//[img]
+	$post = preg_replace("#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#s",
+		"", $post);
+
+	// [url=]
+	$post = preg_replace("#\[url=(([\w]+?://)?[\#$\w%~/&.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#s", 
+		"\\1", $post);
+	
+    // [url=www.domain.com]Domain[/url] (Without xxxx:// prefix)
+    $post = preg_replace("#\[url=([\w\#$%&~/.\-;:=,?@+]*?)\]([^?\n\r\t].*?)\[/url\]#is", 
+		"\\1\"", $post);
+
+	$post = preg_replace("#\[url\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is",
+		"\\1\\2", $post);
+
+    // [url]www.domain.com[/url] (Without xxxx:// prefix)
+    $post = preg_replace("#\[url\]((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/url\]#is", "\\1", $post);
+
+    // [color=xxx]Text[/color]
+    $post = preg_replace("#\[color=([a-zA-Z]+|\#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))\]((\[(?!/color\])|(\n|.))*?)\[/color\]#s", 
+		"\\3", $post);
+
+    // [size=xxx]Text[/size]
+    $post = preg_replace("#\[size=([1-4](\.5)?)\]((\[(?!/size\])|(\n|.))*?)\[/size\]#s", 
+		"\\3", $post);
+
+    // [align=xxx]Text[/align]
+    $post = preg_replace("#\[align=(left|center|right)\]((\[(?!/align\])|(\n|.))*?)\[/align\]#s", 
+		"\\2", $post);
+	$post = preg_replace("#\[quote=(.*?)\]#", "\r\n------\r\nQuote:\r\n", $post);
+	$post = str_replace("[quote]", "\r\n------\r\nQuote:\r\n", $post);
+	$post = str_replace("[/quote]", "\r\n------\r\n", $post);
+
+    return $post;
+}
+
 //===========================================
 // @Name: function bbcode();
 // @Desc: Handles BBCode methods

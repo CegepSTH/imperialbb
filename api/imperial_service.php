@@ -7,6 +7,7 @@ define("IN_IBB", 1);
 $root_path = "../";
 require_once("../includes/config.php");
 require_once("../classes/database.php");
+require_once("../includes/functions.php");
 require_once("../models/user.php");
 
 // Service class.
@@ -230,19 +231,42 @@ class ImperialService {
 		
 		global $database;
 		
-		$query = "SELECT * FROM `_PREFIX_posts` 
+		$query = "SELECT `post_id`, `post_user_id`, `post_text`, `post_timestamp`,
+			`username`, `user_signature`, `user_avatar_location`, `rank_name` 
+			FROM `_PREFIX_posts` 
+			JOIN `_PREFIX_users` ON `user_id` = `post_user_id`
+			JOIN `_PREFIX_ranks` ON `rank_id` = `user_rank`
 			WHERE `post_topic_id`=:topicId
 			ORDER BY `post_id` ";
 		
 		// For the limit clause, there's worlds of differences between DBMS
 		// MsSQL is not supported, because it's /quite/ difficult.
-		if($database["dbtype"] == "mysql") $query .= "LIMIT ".$start.",".$end;
-		else if($database["dbtype"] == "pgsql") $query .= "LIMIT ".$end." OFFSET ".$start;
+		if($database["dbtype"] == "mysql") {
+			$query .= "LIMIT ".$n_start.",".$n_end;
+		} else if($database["dbtype"] == "pgsql") {
+			$query .= "LIMIT ".$n_end." OFFSET ".$n_start;
+		}
 		
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query($query, array(":topicId" => $n_topicId));
 		
 		$unformatted = $oDb->fetchAll();
+		
+		foreach($unformatted as $key => $value) {
+			//$unformatted[$key]["post_text"] = unbbcode($value["post_text"]);
+			if(trim($value["user_signature"]) != "") {
+				$unformatted[$key]["user_signature"] = "____________\r\n".$value["user_signature"];
+			}
+		}
+		
+		$oDb->query("SELECT `topic_views` FROM `_PREFIX_topics` WHERE `topic_id`=:tid LIMIT 1", 
+			array(":tid" => $n_topicId));
+		
+		$views = $oDb->fetch();
+		
+		// Update to say we viewed the topic. 
+		$oDb->query("UPDATE `_PREFIX_topics` SET `topic_views`=:count WHERE `topic_id`=:tid", 
+			array(":count" => intval($views['topic_views'] + 1), ":tid" => $n_topicId));
 		
 		if(is_null($unformatted)) {
 			return array();
@@ -436,19 +460,45 @@ class ImperialService {
 	 */
 	public static function login($str_user, $str_pass, $ip) {
 		$return = array();
-		$id = User::check($str_user, $str_pass);
+		$id = User::findUser($str_user);
 		
-		if(id != -1) {
+		if($id == null) {
 			return false;
 		}
 		
-		$return["id"] = $id;
-		$return["token"] = md5(time()."".$id);
+		global $database;
 		
-		$oDb = new Database($database, $database["prefix"]);
-		$oDb->query("INSERT INTO `_PREFIX_sessions` (`session_id`, `ip`, `user_id`, `time`, `time_created`)
+		$ok = User::check($str_user, $str_pass);
+
+		if($ok < 0) {
+			return false;
+		}
+
+		$db = new Database($database, $database["prefix"]);
+		$db->query("SELECT `rank_name` FROM `_PREFIX_ranks` 
+			WHERE `rank_id`=:rid LIMIT 1", 
+			array(":rid" => $id->getRankId()));
+		
+		$rank = $db->fetch();
+		
+		$return["id"] = $id->getId();
+		$return["token"] = "app_".md5(time()."".$id->getId());
+		$return["username"] = $id->getUsername();
+		$return["date_joined"] = $id->getDateJoined();
+		$return["email"] = $id->getEmail();
+		$return["avatar_location"] = $id->getAvatarLocation();
+		$return["posts_count"] = $id->getPostsCount();
+		$return["signature"] = $id->getSignature();
+		$return["rank_name"] = $rank["rank_name"];
+
+		// Delete possible previous user app token,
+		$db->query("DELETE FROM `_PREFIX_sessions` WHERE `user_id`=:uid AND `session_id` LIKE '%app\$_'", 
+		array(":uid" => $id->getId()));
+		
+		// Insert new user token.
+		$db->query("INSERT INTO `_PREFIX_sessions` (`session_id`, `ip`, `user_id`, `time`, `time_created`)
 			VALUES (:token, :ip, :uid, :time, :timec)", 
-			array(":token" => $return["token"], ":ip" => $ip, ":uid" => $id, 
+			array(":token" => $return["token"], ":ip" => $ip, ":uid" => $id->getId(), 
 				":time" => time(), ":timec" => time()));
 			
 		
