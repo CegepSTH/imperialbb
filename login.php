@@ -67,7 +67,7 @@ else if($_GET['func'] == "forgotten_pass")
 				WHERE `user_id` = :user_id",
 				array(
 					":key" => $key,
-					":Password" => password_hash($password, PASSWORD_BCRYPT),
+					":password" => password_hash($password, PASSWORD_BCRYPT),
 					":current_time" => time(),
 					":user_id" => $result['id']
 				));

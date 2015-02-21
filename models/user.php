@@ -766,7 +766,7 @@ class User {
 	/**
 	 * check Checks if the user's credentials are valid.
 	 * 
-	 * @returns True if valid, false otherwise.
+	 * @returns User id. -1 if not found.
 	 */
 	static function check($username, $password) {
 		if(!is_string($username) || !is_string($password)) {
