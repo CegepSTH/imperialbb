@@ -245,25 +245,19 @@ if($_GET['func'] == "edit")
 			}
 
 			if(isset($_POST['day'])) {
-                $day 	= trim($_POST['day']);
+                $day = trim($_POST['day']);
             }
 			
 			if(isset($_POST['month'])) {
-                $month 	= trim($_POST['month']);
+                $month = trim($_POST['month']);
             }
             
 			if(isset($_POST['year'])) {
-                $year 	= trim($_POST['year']);
+                $year = trim($_POST['year']);
             }
 			
-			if($day && $month) {
-			    $birthday = (strlen($year) == 4) ? $year : ((strlen($year) == 2) ? "19$year" : "0000")
-                            ."-".(($month<10) ? "0$month" : $month)."-".(($day<10) ? "0$day" : $day);
-            } else {
-                $birthday = '0000-00-00';
-            }
-
-			$birthdate = htmlspecialchars($birthday);
+			$birthday = '';
+			$birthday = $year."-".$month."-".$day; 
 
 			$oUser->setMessengers(array("aim" => $_POST['aim'], "icq" => $_POST['icq'], "msn" => $_POST['msn'], "yahoo" => $_POST['yahoo']));
 			$oUser->setEmailOnPm($_POST['email_on_pm']);
@@ -271,7 +265,7 @@ if($_GET['func'] == "edit")
 			$oUser->setWebsite($_POST['website']);
 			$oUser->setTemplateId($_POST['template']);
 			$oUser->setLanguageId($_POST['language']);
-			$oUser->setBirthday($birthdate);
+			$oUser->setBirthday($birthday);
 
 			$oUser->update();
 			showMessage(ERR_CODE_PROFILE_UPDATE_SUCCESS, "profile.php?id=".$user['user_id']);

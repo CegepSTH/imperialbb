@@ -739,9 +739,14 @@ function in_array_r($needle, $haystack, $strict = false) {
 
 function parseBirthday($str_birthday) {
 	$birthday = explode("-", $str_birthday);
-	$day = $birthday[2];
-	$month = $birthday[1];
-	$year = $birthday[0] ?: '';
+	$day = "0";
+	$month = "0";
+	$year = "0";
+	if(count($birthday) == 3) { 
+		$day = $birthday[2];
+		$month = $birthday[1];
+		$year = $birthday[0] ?: '';
+	}
 	$res = array("day" => $day, "month" => $month, "year" => $year);
 	return $res;
 }
