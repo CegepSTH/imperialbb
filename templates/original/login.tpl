@@ -18,6 +18,7 @@
 		<label for="KeepConnected">Keep connected:</label>
 		<select name="KeepConnected" id="KeepConnected" class="value-input">
 			<option value="{Constant.PLOGIN_DUR_SESSION}">No</option>
+			<option value="{Constant.PLOGIN_DUR_DAY}">1 day</option>
 			<option value="{Constant.PLOGIN_DUR_WEEK}">1 week</option>
 			<option value="{Constant.PLOGIN_DUR_MONTH}">1 month</option>
 			<option value="{Constant.PLOGIN_DUR_HALF_YEAR}">6 months</option>
