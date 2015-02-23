@@ -257,7 +257,9 @@ if($_GET['func'] == "edit")
             }
 			
 			$birthday = '';
-			$birthday = $year."-".$month."-".$day; 
+			$birthday = str_pad($year, 4, "0", STR_PAD_LEFT)."-"
+				.str_pad($month, 2, "0", STR_PAD_LEFT)."-"
+				.str_pad($day, 2, "0", STR_PAD_LEFT); 
 
 			$oUser->setMessengers(array("aim" => $_POST['aim'], "icq" => $_POST['icq'], "msn" => $_POST['msn'], "yahoo" => $_POST['yahoo']));
 			$oUser->setEmailOnPm($_POST['email_on_pm']);
@@ -368,7 +370,7 @@ if($_GET['func'] == "edit")
 			exit();
 		}
 	}
-}else if($_GET['func'] == "CloseAccount"){
+} else if($_GET['func'] == "CloseAccount"){
 	if($user['user_id'] < 0) {
 		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 	}
@@ -429,15 +431,11 @@ if($_GET['func'] == "edit")
     	// ===========================
     	// Profile Birthday
     	// ===========================
-    	if($user['user_birthday'] && $user['user_birthday'] != '0000-00-00') {
-    		$bday_array = explode('-', $user['user_birthday']);
-    		$bday_array[1] = fetch_months($bday_array[1]);
+    	if($oUser->getBirthday() != "" && $oUser->getBirthday() != '0000-00-00') {
+			$bday_array = parseBirthday($oUser->getBirthday());
+    		$bday_array = explode('-', $oUser);
+    		$bday_array["month"] = fetch_months($bday_array["month"]);
     		
-    		if($bday_array[0] == '0000') {
-    			$birthday =  $bday_array[1].' / '.$bday_array[2];
-    		} else {
-    			$birthday =  $bday_array[1].' / '.$bday_array[2].' / '.$bday_array[0];
-    		}
     	} else {
     		$birthday = $lang['NA'];
     	}
@@ -455,7 +453,7 @@ if($_GET['func'] == "edit")
     		$age = '';
     	}
     	$tplViewProfile->setVars(array(
-    		"BIRTHDAY" => $birthday,
+    		"BIRTHDAY" => $oUser->getBirthday(),
     		"USER_AGE" => $age,
     	));
 

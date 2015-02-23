@@ -140,13 +140,22 @@ div.clear{
 		</ul>
         <ul class="dates">
         <!-- BLOCK date_day -->
-			<li id="li-{CURRENT_DATE}" class="{DATE_CLASS}">{DATE_CONTENT}</li>
+			<li id="li-{CURRENT_DATE}" class="{DATE_CLASS}">
+				<p style="word-wrap: break-word; line-height:1em; margin:0;	">
+					{DATE_CONTENT}
+				</p>
+				{block_event_item}
+			</li>
         <!-- END BLOCK date_day -->
         </ul>
 	</div>
 	<div class="clear"></div>
 </div>
-
+<!-- BLOCK event_item -->
+<p style="margin:0px;word-wrap: break-word; line-height: 1em; font-size: 0.45em;text-align:left;padding-left:5px; font-weight: normal;">
+	<a href="{E_LINK}">{E_TITLE}</a>
+</p>
+<!-- END BLOCK event_item -->
   
 
 

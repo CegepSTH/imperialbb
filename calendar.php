@@ -9,6 +9,17 @@ Template::addNamespace("L", $lang);
 
 $cal = new Calendar($lang);
 
+$db2->query("SELECT `user_birthday`, `username`, `user_id` 
+	FROM `_PREFIX_users` 
+	WHERE `user_birthday`=:bday", 
+	array(":bday" => (string)(date("Y-m-d"))));
+
+while($result = $db2->fetch()) {
+	$cal->addEvent($result["username"], 
+		"profile.php?id=".$result["user_id"], 
+		parseBirthday($result["user_birthday"]));
+}
+
 outputPage($cal->getTPL());
 exit();
 ?>

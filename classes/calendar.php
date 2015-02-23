@@ -21,6 +21,8 @@ class Calendar {
     private $currentDate = null;  
     private $daysInMonth = 0;
     private $naviHref = null;
+    // Array of array as: [] =>( "title" => , "link" => , "date" => array ("day" => , "month" => , "year" =>) )
+    private $events = array();
      
     /**
      * Constructor
@@ -40,6 +42,31 @@ class Calendar {
 			$lang["October"], $lang["November"], $lang["December"]);
     }
         
+    /**
+     * Adds an event with a title and a link.
+     * 
+     * @param $title Title of the link / event. Must be set.
+     * 
+     * @param $link Link to the event, if any. Can be empty.
+     * 
+     * @param $date array ("day" => , "month" => , "year" =>) 
+     * If there's only a day set, each month of each year it will show. 
+     * If there's a day and month set, this occurence repeats each year.
+     * If all set, only once.
+     * 
+     */
+    public function addEvent($title, $link, array $date) {
+		if(!is_string($title) || empty($title) 
+			|| !is_string($link) || empty($date)) 
+		{
+			return;
+		}
+		
+		$this->events[] = array("title" => trim($title), 
+			"link" => trim($link),
+			"date" => $date);
+	}
+    
     /**
     * print out the calendar
     */
@@ -121,10 +148,30 @@ class Calendar {
             $cellContent = null;
         }
         
+        // Check events.
+        $eventBlock = "";
+
+        foreach($this->events as $id => $array) {
+			if($this->events[$id]["date"]["day"] == $this->currentDay) {
+				if(empty($this->events[$id]["date"]["month"]) 
+					|| intval($this->events[$id]["date"]["month"]) == intval($this->currentMonth)) 
+				{
+					if (empty($this->events[$id]["date"]["year"]) 
+						|| intval($this->events[$id]["date"]["year"]) == intval($this->currentYear))
+					{
+						$eventBlock .= $tpl->renderBlock("event_item", 
+							array("E_TITLE" => $this->events[$id]["title"], 
+								"E_LINK" => $this->events[$id]["link"]));
+					}
+				}
+			}
+		}        
+        
 		$tpl->addToBlock("date_day", array("DATE_CLASS" => ($cellNumber % 7 == 1 ? ' start ': ($cellNumber%7==0?' end ' : ' ')).
 			($cellContent == null ? 'mask' : ''), 
 			"CURRENT_DATE" => $this->currentDate, 
-			"DATE_CONTENT" => $cellContent));
+			"DATE_CONTENT" => $cellContent,
+			"block_event_item" => $eventBlock));
     }
      
     /**

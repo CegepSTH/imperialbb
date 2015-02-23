@@ -406,7 +406,7 @@ function fetch_months($number)
 		$months = explode('-', $lang['profile_months']);
 	}
 	
-	return $months[$number -1];
+	return $months[max(0, $number - 1)];
 }
 
 //===========================================
