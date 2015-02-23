@@ -17,13 +17,13 @@
 	<div class="form-row">
 		<label for="KeepConnected">Keep connected:</label>
 		<select name="KeepConnected" id="KeepConnected" class="value-input">
-			<option value="{Constant.PLOGIN_DUR_SESSION}">No</option>
-			<option value="{Constant.PLOGIN_DUR_DAY}">1 day</option>
-			<option value="{Constant.PLOGIN_DUR_WEEK}">1 week</option>
-			<option value="{Constant.PLOGIN_DUR_MONTH}">1 month</option>
-			<option value="{Constant.PLOGIN_DUR_HALF_YEAR}">6 months</option>
-			<option value="{Constant.PLOGIN_DUR_YEAR}">1 year</option>
-			<option value="{Constant.PLOGIN_DUR_FOREVER}">Forever</option>
+			<option value="{Constant.PLOGIN_DUR_SESSION}">{L.Persistent_Login_None}</option>
+			<option value="{Constant.PLOGIN_DUR_DAY}">{L.Persistent_Login_Day}</option>
+			<option value="{Constant.PLOGIN_DUR_WEEK}">{L.Persistent_Login_Week}</option>
+			<option value="{Constant.PLOGIN_DUR_MONTH}">{L.Persistent_Login_Month}</option>
+			<option value="{Constant.PLOGIN_DUR_HALF_YEAR}">{L.Persistent_Login_Half_Year}</option>
+			<option value="{Constant.PLOGIN_DUR_YEAR}">{L.Persistent_Login_Year}</option>
+			<option value="{Constant.PLOGIN_DUR_FOREVER}">{L.Persistent_Login_Forever}</option>
 		</select>
 	</div>
 	<div class="links">
