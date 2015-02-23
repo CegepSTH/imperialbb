@@ -8,10 +8,8 @@ ValidateAccess();
 if($_GET['act'] == "profile") {
 	$lstErrors = array();
 	$keys = array(
-		"user_id" => "", "user_signature" => "", "user_signature" => "",
-		"user_email" => "", "user_date_joined" => "", "user_rank" => "",
-		"user_posts" => "", "user_location" => "", "user_website" => "",
-		"user_avatar_location" => "", "user_birthday" => "", "user_password" => "");
+		"id" => "", "signature" => "", "email" => "",
+		"location" => "", "website" => "");
 	
 	foreach($keys as $key => $value) {
 		if(!isset($_POST[$key])) {
@@ -20,24 +18,14 @@ if($_GET['act'] == "profile") {
 			$keys[$key] = $_POST[$key];
 		}
 	}
-	
-	if(!empty($keys)) {
-		$error = array(
-			"error" => "USER_NOT_FOUND",
-			"error_level" => "FATAL",
-			"errors_arr" => $lstErrors);
-		$json = json_encode($error);
-		echo $json;
-		exit();
-	}
-	
+
 	$ok = ImperialService::setUserInfo($keys);
 	
-	$error = array(
-		"error" => "SUCCESS");
+	$error = array();
 		
 	if($ok) {
-		
+		echo "SUCCESS";
+		exit();
 	} else {
 		$error = array(
 			"error" => "USER_COULDNT_UPDATE",

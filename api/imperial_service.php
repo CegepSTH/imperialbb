@@ -384,19 +384,16 @@ class ImperialService {
 	 */
 	public static function setUserInfo(array $infos) {
 		global $database;
-		$query = "UPDATE `_PREFIX_users` SET ";
-		$values = array();
-		$bit = false;
-		
-		foreach($infos as $column => $value) {
-			$query .= ($bit ? ", " : "") . "`".$column."`=:".$column."";
-			$values[":".$column] = $value;
-			$bit = true;
-		}
-		
+		$query = "UPDATE `_PREFIX_users` 
+			SET `user_signature`=:signature, `user_location`=:location, `user_website`=:website
+			WHERE `user_id`=:uid";
+		$values = array(":uid" => $infos["id"], 
+			":website" => $infos["website"],
+			":location" => $infos["location"], 
+			":signature" => $infos["signature"]);
+
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query($query, $values);
-		$result = $oDb->fetch();
 		
 		$ok = $oDb->rowCount();
 		
@@ -490,6 +487,8 @@ class ImperialService {
 		$return["posts_count"] = $id->getPostsCount();
 		$return["signature"] = $id->getSignature();
 		$return["rank_name"] = $rank["rank_name"];
+		$return["website"] = $id->getWebsite();
+		$return["location"] = $id->getLocation();
 
 		// Delete possible previous user app token,
 		$db->query("DELETE FROM `_PREFIX_sessions` WHERE `user_id`=:uid AND `session_id` LIKE '%app\$_'", 
