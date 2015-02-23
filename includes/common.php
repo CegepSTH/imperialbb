@@ -24,7 +24,7 @@ $page_gen_start = explode(' ',microtime());
 $page_gen_start = $page_gen_start[0] + $page_gen_start[1];
 
 // Run all the includes
-require_once($root_path . "includes/config.php");
+include_once($root_path . "includes/config.php");
 
 // If not installed... redirect back/to installer
 if(!defined("INSTALLED") || INSTALLED != 1)
