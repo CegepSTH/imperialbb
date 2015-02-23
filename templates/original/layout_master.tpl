@@ -27,6 +27,7 @@
 					<a href="index.php">{L.Home}</a>
 					{ADMIN_LINK}
 					<a href="portal.php">{L.Portal}</a>
+					<a href="calendar.php">{L.Calendar}</a>
 					<a href="search.php">{L.Search}</a>
 					<a href="members.php">{L.Members}</a>
 					<a href="profile.php?func=edit">{L.User_CP}</a>
@@ -36,6 +37,7 @@
 					<!-- BLOCK navh_guest -->
 					<a href="index.php">{L.Home}</a>
 					<a href="portal.php">{L.Portal}</a>
+					<a href="calendar.php">{L.Calendar}</a>
 					<a href="search.php">{L.Search}</a>
 					<a href="login.php">{L.Login}</a>
 					<a href="register.php">{L.Register}</a>
@@ -65,6 +67,7 @@
 					<a href="index.php">{L.Home}</a>&nbsp;&ndash;&nbsp;
 					{ADMIN_LINK}
 					<a href="portal.php">{L.Portal}</a>&nbsp;&ndash;&nbsp;
+					<a href="calendar.php">{L.Calendar}</a>&nbsp;&ndash;&nbsp;
 					<a href="search.php">{L.Search}</a>&nbsp;&ndash;&nbsp;
 					<a href="members.php">{L.Members}</a>&nbsp;&ndash;&nbsp;
 					<a href="profile.php?func=edit">{L.User_CP}</a>&nbsp;&ndash;&nbsp;
@@ -74,6 +77,7 @@
 					<!-- BLOCK navf_guest -->
 					<a href="index.php">{L.Home}</a>&nbsp;&ndash;&nbsp;
 					<a href="portal.php">{L.Portal}</a>&nbsp;&ndash;&nbsp;
+					<a href="calendar.php">{L.Calendar}</a>&nbsp;&ndash;&nbsp;
 					<a href="search.php">{L.Search}</a>&nbsp;&ndash;&nbsp;
 					<a href="login.php">{L.Login}</a>&nbsp;&ndash;&nbsp;
 					<a href="register.php">{L.Register}</a>

@@ -7,7 +7,7 @@ require_once("template.php");
 
 /**
 * @author  Xu Ding
-* @modification @mrtryhard
+* @modification mrtryhard 
 * @email   thedilab@gmail.com
 * @website http://www.StarTutorial.com
 * http://www.startutorial.com/articles/view/how-to-build-a-web-calendar-in-php

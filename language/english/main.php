@@ -1,17 +1,9 @@
 <?php
-/**********************************************************
-*
-*			language/english/main.php
-*
-*	      ImperialBB 2.X.X - By Nate and James
-*
-*		     (C) The IBB Group
-*
-***********************************************************/
-
 if(!defined("IN_IBB")) {
         die("Hacking Attempt");
 }
+
+$lang['Calendar'] = "Calendar";
 
 // ------------------------
 // Global Header Settings
