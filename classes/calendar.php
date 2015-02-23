@@ -74,7 +74,7 @@ class Calendar {
         $year = null;
         $month = null;
          
-        if(null == $year && isset($_GET['year'])) {
+        if($year == null && isset($_GET['year'])) {
             $year = $_GET['year'];
         } else if(null == $year) {
             $year = date("Y",time());  
@@ -86,7 +86,7 @@ class Calendar {
             $month = date("m",time());
         }                  
          
-        $this->currentYear = $year;         
+        $this->currentYear = $year;     
         $this->currentMonth = $month;
         $this->daysInMonth = $this->_daysInMonth($month,$year);  
         
@@ -98,7 +98,7 @@ class Calendar {
 		$tpl = new Template("calendar.tpl");
         $tpl->setVars(array("PREV_MONTH" => sprintf('%02d',$preMonth), 
 			"PREV_YEAR" => $preYear,
-			"CURRENT" => date('Y', strtotime($this->currentYear))." - ".$this->map(intval($this->currentMonth) - 1),
+			"CURRENT" => $this->currentYear." - ".$this->map(intval($this->currentMonth) - 1),
 			"NEXT_MONTH" => sprintf("%02d", $nextMonth), 
 			"NEXT_YEAR" => $nextYear
 			));  
