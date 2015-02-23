@@ -38,4 +38,35 @@ if($_GET['act'] == "profile") {
 	exit();	
 }
 
+if($_GET['act'] == "post") {
+	if(!isset($_POST['user_id']) || !isset($_POST['topic_id']) || !isset("post_body")) {
+		$error = array(
+			"error" => "POST_DATA_NOT_SET",
+			"error_level" => "FATAL",
+			"error_msg" => "There's a parameter missing, somewhere.");
+		$json = json_encode($error);
+		echo $json;
+		exit();
+	}
+	
+	$ok = ImperialService::sendPostToTopicId($_POST['post_body'], 
+		$_POST['user_id'], $_POST['topic_id']);
+		
+	$error = array();
+		
+	if($ok) {
+		echo "SUCCESS";
+		exit();
+	} else {
+		$error = array(
+			"error" => "POST_CANT_POST",
+			"error_level" => "FATAL",
+			"error_msg" => "Database is either busy, down, or Jim has died.");
+	}
+	
+	$json = json_encode($error);
+	echo $json;
+	exit();	
+}
+
 ?>

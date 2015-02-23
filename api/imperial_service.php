@@ -374,6 +374,43 @@ class ImperialService {
 	}
 	
 	/**
+	 * Sends post data to topic.
+	 * 
+	 * @param $str_data Post data. 
+	 * @param $n_userId User's id.
+	 * @param $n_topicId Topic's id.
+	 * 
+	 * @returns True if success, false otherwise.
+	 */
+	public static function sendPostToTopicId($str_data, $n_userId, $n_topicId) {
+		if(empty(trim($str_data)) || !is_string($str_data)) {
+			return false;
+		}
+		
+		if(!is_numeric($n_userId) || $n_userId < 0) {
+			return false;
+		}
+		
+		if(!is_numeric($n_topicId) || $n_topicId < 0) {
+			return false;
+		}
+		
+		global $database;
+		
+		$oDb = new Database($database, $database["prefix"]);
+		$oDb->query("INSERT INTO `_PREFIX_posts` (`post_topic_id`, `post_user_id`,
+			`post_text`, `post_timestamp`) 
+			VALUES (:tid, :user_id, :post_body, :post_time)",
+			array(":tid" => $n_topicId,
+				":user_id" => $n_userId,
+				":post_body" => $str_data,
+				":post_time" => time()
+				));
+		
+		return ($oDb->lastInsertId() > 0);
+	}
+	
+	/**
 	 * Sets the user informations
 	 * 
 	 * @param $infos Array containing user informations.
