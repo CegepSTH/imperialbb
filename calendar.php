@@ -9,11 +9,12 @@ Template::addNamespace("L", $lang);
 
 $cal = new Calendar($lang);
 
+$month = isset($_GET['month']) ? $_GET['month'] : date("m");
 // Birthdays
 $db2->query("SELECT `user_birthday`, `username`, `user_id` 
 	FROM `_PREFIX_users` 
-	WHERE `user_birthday`=:bday", 
-	array(":bday" => (string)(date("Y-m-d"))));
+	WHERE `user_birthday` LIKE :bday", 
+	array(":bday" => "%-".$month."-%"));
 
 while($result = $db2->fetch()) {
 	$bday = parseBirthday($result["user_birthday"]);
