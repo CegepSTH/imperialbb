@@ -31,10 +31,6 @@
 	</div>
 		
 	<div class="panel-header">
-		FTP Settings
-	</div>
-		
-	<div class="panel-header">
 		General Settings
 	</div>
 	
