@@ -91,6 +91,10 @@
 		<label for="UserName">Admin Email : </label>
 		<input type="text" name="admin_email" value="" size="65" />
 	</div>
+	<div>
+		<i>*ATTENTION: l'administrateur ne peux pas utiliser une adresse courriel comme gmail ou hotmail pour l'envoie de courriel : PHP ne fonctionne pas avec les serveur SMTP qui utilisent SSL.
+		Il est toutefois possible sans problème d'utiliser une adresse courriel liée au domaine sur lequel le site est hébergé ex : admin@3am-eternal.org fonctionne sur le serveur où 3am-eternal.org est hébergé sans problème. </i>
+	</div>
 	
 	<div class="panel-footer">
 		<input type="submit" name="Submit" value="Submit" /><input type="reset" value="Reset" />

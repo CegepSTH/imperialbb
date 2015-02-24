@@ -1,5 +1,8 @@
 <?php
 define("IN_IBB", 1);
+
+$root_path = "../";
+
 if(file_exists("../includes/config.php"))
 {
 	include("../includes/config.php");
@@ -19,7 +22,19 @@ if(file_exists("../includes/config.php"))
 	}
 }
 
-error_reporting(0);
+error_reporting(E_ALL);
+
+require_once($root_path . "classes/csrf.php");
+require_once($root_path . "includes/rendering.php");
+require_once($root_path . "classes/template.php");
+require_once($root_path . "language/english/install.php");
+
+Template::setBasePath($root_path . "templates/original/install");
+$template_vars = array(
+	"TEMPLATE_PATH" => $root_path . "templates/original"
+);
+Template::addNamespace("T", $template_vars);
+Template::addNamespace("L", $lang);
 
 if(!isset($_POST['Submit']))
 {
@@ -43,74 +58,17 @@ $path = "http://" . $server_name . $script_path;
 preg_match("#^(.*)/install/(.*)\$#", $path, $directory);
 $directory = $directory[1];
 
-page_header();
-echo <<<END
-					<form method="post" action="">
-						<table width="90%" align="center" class="maintable">
-							<tr>
-								<th colspan="2" height="25">Database Settings</th>
-							</tr>
-							<tr>
-								<td class="cell2" width="300">Database Type : </td><td class="cell1"><select name="dbtype"><option value="mysql">MySQL</option><option value="mysqli">MySQLi</option></select></td>
-							</tr>
-							<tr>
-								<td class="cell2">Database Host (Usually localhost) : </td><td class="cell1"><input type="text" name="dbhost" value="localhost" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Database Username : </td><td class="cell1"><input type="text" name="dbuser" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Database Password : </td><td class="cell1"><input type="password" name="dbpass" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Database Database Name : </td><td class="cell1"><input type="text" name="dbname" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<th colspan="2" height="25">FTP Settings</th>
-							</tr>
-							<tr>
-								<td class="cell2">Use FTP (Recommended) : </td><td class="cell1"><input type="radio" name="useftp" value="true" onclick="use_ftp(true);" id="useftp_true" CHECKED /><label for="useftp_true">True</label>  <input type="radio" name="useftp" value="false" onclick="use_ftp(false);" id="useftp_false" /><label for="useftp_false">False</label></td>
-							</tr>
-							<tr id="ftp_user">
-								<td class="cell2">FTP Username : </td><td class="cell1"><input type="text" name="ftpuser" value="" size="65" /></td>
-							</tr>
-							<tr id="ftp_pass">
-								<td class="cell2">FTP Password : </td><td class="cell1"><input type="password" name="ftppass" value="" size="65" /></td>
-							</tr>
-							<tr id="ftp_path">
-								<td class="cell2">FTP Path (E.G. /public_html/forums/ ) : </td><td class="cell1"><input type="text" name="ftppath" value="/" size="65" /></td>
-							</tr>
-							<tr>
-								<th colspan="2" height="25">General Settings</th>
-							</tr>
-							<tr>
-								<td class="cell2">Forum Name : </td><td class="cell1"><input type="text" name="forum_name" value="My Forum" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Forum Description : </td><td class="cell1"><input type="text" name="forum_desc" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Forum Path : </td><td class="cell1"><input type="text" name="forum_path" value="$directory" size="65" /></td>
-							</tr>
-							<tr>
-								<th colspan="2" height="25">Administrator Settings</th>
-							</tr>
-							<tr>
-								<td class="cell2">Admin Username : </td><td class="cell1"><input type="text" name="admin_user" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Admin Password : </td><td class="cell1"><input type="password" name="admin_pass" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<td class="cell2">Admin Email : </td><td class="cell1"><input type="text" name="admin_email" value="" size="65" /></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="2" class="desc_row" height="25"><input type="submit" name="Submit" value="Submit" /><input type="reset" value="Reset" />
-							</tr>
-						</table>
-					</form>
-END;
-page_footer();
+//page_header();
+
+$page_master = new Template("install.tpl");
+		$page_master->setVars(array(
+			"CSRF_TOKEN" => CSRF::getHTML(),
+			"DIRECTORY" => $directory
+		));
+
+		outputPage($page_master, $directory);
+
+//page_footer();
 
 }
 else
@@ -145,6 +103,7 @@ $dbhost = $_POST['dbhost'];
 $dbuser = $_POST['dbuser'];
 $dbpass = $_POST['dbpass'];
 $dbname = $_POST['dbname'];
+$dbtype = $_POST['dbtype'];
 
 $file_data = <<<END
 <?php
@@ -175,7 +134,7 @@ if(!defined("IN_IBB")) {
 	'dbuser' => '$dbuser',
 	'dbpass' => '$dbpass',
 	'dbname' => '$dbname',
-    'dbtype' => '$dbtype',
+	'dbtype' => '$dbtype',
 	'dbpcon' => 'n',
 	'prefix' => 'ibb_'
 );
@@ -235,7 +194,7 @@ foreach($file_content as $sql_line)
 	}
 }
 
-if(!mysql_query($_POST['dbtype'], "INSERT INTO `ibb_users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_rank`) VALUES ('".$_POST['admin_user']."', '".md5(md5($_POST['admin_pass']))."', '".$_POST['admin_email']."', '".time()."', '5', '3')"))
+if(!mysql_query("INSERT INTO `ibb_users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_rank`) VALUES ('".$_POST['admin_user']."', '".md5(md5($_POST['admin_pass']))."', '".$_POST['admin_email']."', '".time()."', '5', '3')"))
 {
 	echo "<b>Error</b> : #1 Unable to insert admin user : " . mysql_error() . "<br />";
 }
