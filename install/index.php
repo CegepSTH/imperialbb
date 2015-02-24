@@ -156,20 +156,6 @@ END;
 
 $db = mysql_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass']) or error_msg("Could not connect to mysql database:<br />".mysql_error());
 
-if($_POST['useftp'] == "true")
-{
-	echo "Uploading configuration file...  ";
-	$tmpname = @tempnam('/tmp', 'html');
-	@unlink($tmpname);
-	$fp = @fopen($tmpname, 'w');
-	@fwrite($fp, $file_data);
-	@fclose($fp);
-
-
-	$ftp->upload($tmpname, "includes/config.php", FTP_BINARY);
-	echo "Done<br /><br />";
-}
-
 if(!mysql_select_db($_POST['dbname'],$db))
 {
 	error_msg("Unable to select mysql database, please ensure it already exists");
@@ -199,22 +185,6 @@ if(!mysql_query("INSERT INTO `ibb_users` (`username`, `user_password`, `user_ema
 	echo "<b>Error</b> : #1 Unable to insert admin user : " . mysql_error() . "<br />";
 }
 
-if($_POST['useftp'] == "true")
-{
-	if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '".$_POST['ftpuser']."' WHERE `config_name` = 'ftp_user'"))
-	{
-		echo "<b>Error</b> : #2 Unable to update mysql data : " . mysql_error() . "<br />";
-	}
-	if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '". base64_encode($_POST['ftppass'])."' WHERE `config_name` = 'ftp_pass'"))
-	{
-		echo "<b>Error</b> : #3 Unable to update mysql data : " . mysql_error() . "<br />";
-	}
-	if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '".$_POST['ftppath']."' WHERE `config_name` = 'ftp_path'"))
-	{
-		echo "<b>Error</b> : #4 Unable to update mysql data : " . mysql_error() . "<br />";
-	}
-}
-
 if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '" . $_POST['forum_name'] . "' WHERE `config_name` = 'site_name'"))
 {
 	echo "<b>Error</b> : #5 Unable to update mysql data : " . mysql_error() . "<br />";
@@ -230,10 +200,7 @@ if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '" . $_POST['forum_pat
 
 echo "Done<br /><br />";
 
-if($_POST['useftp'] == "false")
-{
-	echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
-}
+echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
 
 echo <<<END
 							<br /><br /><h2>Forum Installed Successfully</h2><br />You may now continue to your board by <a href="../">Clicking Here</a>
