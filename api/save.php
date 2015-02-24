@@ -39,7 +39,7 @@ if($_GET['act'] == "profile") {
 }
 
 if($_GET['act'] == "post") {
-	if(!isset($_POST['user_id']) || !isset($_POST['topic_id']) || !isset("post_body")) {
+	if(!isset($_POST['user_id']) || !isset($_POST['topic_id']) || !isset($_POST['post_body'])) {
 		$error = array(
 			"error" => "POST_DATA_NOT_SET",
 			"error_level" => "FATAL",
@@ -51,7 +51,7 @@ if($_GET['act'] == "post") {
 	
 	$ok = ImperialService::sendPostToTopicId($_POST['post_body'], 
 		$_POST['user_id'], $_POST['topic_id']);
-		
+
 	$error = array();
 		
 	if($ok) {
