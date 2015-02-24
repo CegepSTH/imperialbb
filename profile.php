@@ -95,20 +95,27 @@ if($_GET['func'] == "edit")
 			if(strlen($_POST['Close_Account_Reason']) < 1){
 				showMessage(ERR_CODE_ACC_DELETE_NO_REASON_PROVIDED, $_SERVER['HTTP_REFERER']);
 			} else {
+                // Delete tokens older than 2 weeks
+                $olderThanTwoWeeks = time() - (14 * 24 * 60 * 60);
+                $query = "DELETE FROM `_PREFIX_users_token`
+                          WHERE `timestamp_token` <= :olderThan";
+                $db2->query($query, array(":olderThan" => $olderThanTwoWeeks));
+
+                // Create new token
 				$token = "del\$_".md5(time() . $user['user_id']);
 
-				$query = "INSERT INTO `_PREFIX_sessions` (`session_id`, `ip`, `user_id`, `time_created`)
-						 VALUES (:sid, :ip, :uid, :time)";
+				$query = "INSERT INTO `_PREFIX_users_token` (`user_id`, `token`, `token_type`, `timestamp_token`)
+						  VALUES (:user_id, :token, :token_type, :timestamp_token)";
 				$params = array(
-					":sid" => $token,
-					":ip" => $_SERVER['REMOTE_ADDR'],
-					":uid" => $user['user_id'],
-					":time" => time());
+					":user_id" => $token,
+					":token" => $token,
+					":token_type" => 1,
+					":timestamp_token" => time());
 
 				$db2->query($query, $params);
 
 				$get_config = "SELECT * FROM `_PREFIX_config`
-							WHERE `config_name` = :use_smtp";
+                               WHERE `config_name` = :use_smtp";
 				$db2->query($get_config, array(":use_smtp" => "use_smtp"));
 				$answer = $db2->fetchAll();
 				
@@ -384,8 +391,8 @@ if($_GET['func'] == "edit")
 
 			$ok = $db2->rowCount() > 0;
 			
-			$db2->query("DELETE FROM `_PREFIX_sessions`
-				WHERE `session_id` = :token", array(":token" => $token));
+			$db2->query("DELETE FROM `_PREFIX_users_token`
+				WHERE `token_id` = :token", array(":token" => $token));
 			
 			if($db2->rowCount() > 0 && $ok) {
 				// Then logout user
