@@ -383,7 +383,7 @@ class ImperialService {
 	 * @returns True if success, false otherwise.
 	 */
 	public static function sendPostToTopicId($str_data, $n_userId, $n_topicId) {
-		if(empty(trim($str_data)) || !is_string($str_data)) {
+		if(empty($str_data) || !is_string($str_data)) {
 			return false;
 		}
 		
@@ -396,7 +396,7 @@ class ImperialService {
 		}
 		
 		global $database;
-		
+		echo "WHAT";
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query("INSERT INTO `_PREFIX_posts` (`post_topic_id`, `post_user_id`,
 			`post_text`, `post_timestamp`) 
@@ -407,7 +407,22 @@ class ImperialService {
 				":post_time" => time()
 				));
 		
-		return ($oDb->lastInsertId() > 0);
+		$rows = ($oDb->lastInsertId() > 0);
+		$postId = $oDb->lastInsertId();
+		
+		$oDb->query("UPDATE `_PREFIX_topics` SET `topic_last_post`=:pid 
+			WHERE `topic_id`=:tid", 
+			array(":pid" => $postId, ":tid" => $n_topicId));
+			
+		$oDb->query("SELECT `topic_forum_id` FROM `_PREFIX_forums` 
+			WHERE `topic_id`=:tid LIMIT 1", array(":tid" => $n_topicId));
+		$result = $oDb->fetch();
+		
+		$oDb->query("UPDATE `_PREFIX_forums` SET `forum_last_post`=:pid 
+			WHERE `forum_id`=:fid", array(":pid" => $postId,
+			":fid" => $result["topic_forum_id"]));
+		
+		return $rows;
 	}
 	
 	/**
