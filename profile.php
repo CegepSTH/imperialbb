@@ -107,7 +107,7 @@ if($_GET['func'] == "edit")
 				$query = "INSERT INTO `_PREFIX_users_token` (`user_id`, `token`, `token_type`, `timestamp_token`)
 						  VALUES (:user_id, :token, :token_type, :timestamp_token)";
 				$params = array(
-					":user_id" => $token,
+					":user_id" => $user['user_id'],
 					":token" => $token,
 					":token_type" => 1,
 					":timestamp_token" => time());
@@ -382,17 +382,22 @@ if($_GET['func'] == "edit")
 		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 	}
 	if(isset($_GET['token'])) {
-		$db2->query("SELECT `user_id` FROM `_PREFIX_sessions` WHERE `session_id`=:token", array(":token" => $_GET['token']));
+
+		$db2->query("SELECT `user_id`
+                     FROM `_PREFIX_users_token`
+                     WHERE `token`=:token",
+                     array(":token" => $_GET['token']));
 		
 		if($user_token = $db2->fetch()) {
 			// Remove the user email and set the account as "inactive"
-			$db2->query("UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid", 
+			$db2->query("UPDATE `_PREFIX_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id` = :userid",
 				array(":userid" => $user_token['user_id']));
 
 			$ok = $db2->rowCount() > 0;
-			
+
+            // Delete token
 			$db2->query("DELETE FROM `_PREFIX_users_token`
-				WHERE `token_id` = :token", array(":token" => $token));
+                         WHERE `token` = :token", array(":token" => $_GET['token']));
 			
 			if($db2->rowCount() > 0 && $ok) {
 				// Then logout user
