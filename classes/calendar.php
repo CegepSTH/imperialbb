@@ -152,6 +152,10 @@ class Calendar {
         $eventBlock = "";
 
         foreach($this->events as $id => $array) {
+			if(is_null($this->currentDate) || empty($this->currentDate)) {
+				break;
+			}
+			
 			if(intval($this->events[$id]["date"]["day"]) == intval($this->currentDay) - 1) {
 				if(empty($this->events[$id]["date"]["month"]) 
 					|| intval($this->events[$id]["date"]["month"]) == intval($this->currentMonth)) 

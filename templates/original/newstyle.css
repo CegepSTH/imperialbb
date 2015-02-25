@@ -91,7 +91,7 @@
 		border-top:4px solid #376E8A;
 		color:#FFFFFF;
 		padding:10px;
-		color: #fffff;
+		color: #ffffff;
 		font-weight: bold;
 		text-align: center;
 		padding-top: 5px;
@@ -457,33 +457,33 @@ div.table h4 {
 
 .rTable {   	display: block;  width: 90%;  } 
 .rTableHeading, .rTableBody, .rTableFoot, .rTableRow{ height: 25px;  	clear: both;  } 
-.rTableHead, .rTableFoot{  background:#297ACC;	color:#ffffff;   	font-weight: ; } 
+.rTableHead, .rTableFoot{  background:#297ACC;	color:#ffffff;   	font-weight: normal; }
 .rTableCell, .rTableHead {   border-top:3px solid #2B5B78;   	float: left;   	height: 25px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 45%; } 
 .rTable:after {   	visibility: hidden;   	display: block;   	font-size: 0;   	content: " ";   	clear: both;   	height: 0; }
 
 .rTable2 {   	display: block;  width: 90%;  } 
 .rTableHeading2, .rTableBody2, .rTableFoot2, .rTableRow2{ height: 25px;  	clear: both;  } 
-.rTableHead2, .rTableFoot2{  background:#297ACC;	color:#ffffff;   	font-weight: ; text-align:center; } 
+.rTableHead2, .rTableFoot2{  background:#297ACC;	color:#ffffff;   	font-weight: normal; text-align:center; }
 /*.rTableCell2 {   border-top:3px solid #2B5B78;  	float: left;   	height: 30px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 45%; }*/
 .rTableCell2 {   	width:100.25%;
 	margin-bottom:10px;
 	font-size:0.90em; border-bottom:1px solid #dddddd;   	float: left;   	height: 30px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 45%; } 
 .rTableHead2 {   border-top:3px solid #2B5B78;   	float: left;   	height: 25px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 45%; } 
 .rTable2:after {   	visibility: hidden;   	display: block;   	font-size: 0;   	content: " ";   	clear: both;   	height: 0; }
-.rTableHead2{   background:#297ACC;	color:#ffffff;   	font-weight: ; text-align:center; width: 93.6%; } 
-.rTableFoot2{  background:#297ACC;	color:#ffffff;   	font-weight: ; width: 40%; border-top:3px solid #2B5B78;} 
+.rTableHead2{   background:#297ACC;	color:#ffffff;   	font-weight: normal; text-align:center; width: 93.6%; }
+.rTableFoot2{  background:#297ACC;	color:#ffffff;   	font-weight: normal; width: 40%; border-top:3px solid #2B5B78;}
 
 .rTable3{   	display: block;  width: 90%;  } 
 .rTableHeading3, .rTableBody3, .rTableFoot3, .rTableRow3{ height: 25px;  	clear: both;  } 
-.rTableHead3, .rTableFoot3{  background:#297ACC;	color:#ffffff;   	font-weight: ; text-align:center; } 
+.rTableHead3, .rTableFoot3{  background:#297ACC;	color:#ffffff;   	font-weight: normal; text-align:center; }
 /*.rTableCell2 {   border-top:3px solid #2B5B78;  	float: left;   	height: 30px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 45%; }*/
 .rTableCell3 {   	width:100.25%;
 	margin-bottom:10px;
 	font-size:0.90em; border-bottom:1px solid #dddddd;   	float: left;   	height: 30px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 45%; } 
 .rTableHead3 {   border-top:3px solid #2B5B78;   	float: left;   	height: 25px;   	overflow: hidden;   	padding: 3px 1.8%;   	width: 100%; } 
 .rTable3:after {   	visibility: hidden;   	display: block;   	font-size: 0;   	content: " ";   	clear: both;   	height: 0; }
-.rTableHead3{   background:#297ACC;	color:#ffffff;   	font-weight: ; text-align:center; width: 107.5%; } 
-.rTableFoot3{  background:#297ACC;	color:#ffffff;   	font-weight: ; width: 40%; border-top:3px solid #2B5B78;} 
+.rTableHead3{   background:#297ACC;	color:#ffffff;   	font-weight: normal; text-align:center; width: 107.5%; }
+.rTableFoot3{  background:#297ACC;	color:#ffffff;   	font-weight: normal; width: 40%; border-top:3px solid #2B5B78;}
 
 
 
