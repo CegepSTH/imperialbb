@@ -3,7 +3,7 @@
 </div>
 
 <div class="block-form-admin">
-<form method="post" action="panel login-panel">
+<form method="post" action="" class="panel login-panel">
 {CSRF_TOKEN}
 	<div class="panel-header">
 		<h4>{L.Search}</h4>
