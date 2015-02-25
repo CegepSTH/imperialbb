@@ -458,6 +458,17 @@ CREATE TABLE IF NOT EXISTS `ibb_upgrades` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `ibb_users_token`
+--
+CREATE TABLE IF NOT EXISTS `ibb_users_token` (
+`token_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(55) NOT NULL,
+  `token_type` int(11) NOT NULL,
+  `timestamp_token` int(11) DEFAULT NULL
+) ENGINE=MyISAM  DEFAULT  CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+--
 -- Table structure for table `ibb_usergroups`
 --
 
@@ -466,7 +477,7 @@ CREATE TABLE IF NOT EXISTS `ibb_usergroups` (
   `name` varchar(225) NOT NULL DEFAULT '',
   `desc` varchar(225) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT  CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 
 -- --------------------------------------------------------
