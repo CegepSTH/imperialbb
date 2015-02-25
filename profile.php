@@ -409,7 +409,7 @@ if($_GET['func'] == "edit")
 			if($db2->rowCount() > 0 && $ok) {
 				// Then logout user
 				if($user['user_level'] < 5 && $user_token['user_id'] == $user['user_id']) {
-					Session::completeLogout();
+					Session::logout();
 				}
 
                 // Send another pm to admins telling them that the account has been disabled.

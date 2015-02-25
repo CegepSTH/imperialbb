@@ -36,7 +36,7 @@ if($_GET['func'] == "activate")
 }
 else if($_GET['func'] == "logout")
 {
-	Session::completeLogout();
+	Session::logout();
 	
 	showMessage(ERR_CODE_LOGGED_OUT);
 }

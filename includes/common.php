@@ -118,7 +118,7 @@ if($row = $sql->fetch()) {
 	$user = $row;
 	unset($user['user_password']); // Unset the password just to be safe..
 } else {
-	Session::completeLogout();
+	Session::logout();
 
 	showMessage(ERR_CODE_UNABLE_FIND_USER_INFORMATIONS, "index.php");
 }
