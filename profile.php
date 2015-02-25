@@ -7,6 +7,33 @@ require_once($root_path."models/user.php");
 $language->add_file("profile");
 Template::addNamespace("L", $lang);
 
+function renderBirthdaySelector($oUser, $template) {
+	$birthday = parseBirthday($oUser->getBirthday());
+	$day = $birthday["day"];
+	$month = $birthday["month"];
+	$year = $birthday["year"] ?: '';
+	$day_options = '';
+	for($i = 1; $i<=31; $i++) {
+        $day_options .= fetch_make_options($i, $i, $day);
+    }
+
+	$month_options = '';
+	for($i = 1; $i<=12; $i++) {
+        $month_options .= fetch_make_options($i, fetch_months($i), $month);
+    }
+
+	$year_options = '';
+	for($i = 1905; $i <= 2020; $i++) {
+        $year_options .= fetch_make_options($i, $i, $year);
+    }
+
+    $template->setVars(array(
+		"DAY_OPTS"   => $day_options,
+		"MONTH_OPTS" => $month_options,
+		"YEAR_OPTS"  => $year_options,
+	));
+}
+
 if(!isset($_GET['func'])) $_GET['func'] = "";
 
 if($_GET['func'] == "edit")
@@ -176,6 +203,8 @@ if($_GET['func'] == "edit")
 				"EOP_FALSE" => ($_POST['email_on_pm'] == "0") ? "checked" : "",
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
+
+			renderBirthdaySelector($oUser, $tplEditProfile);
 			
 			if($user['user_avatar_type'] == 0) {
 				$tplEditProfile->addToBlock("current_avatar_off", array());
@@ -298,37 +327,15 @@ if($_GET['func'] == "edit")
 				"ICQ" => $ims["icq"],
 				"MSN" => $ims["msn"],
 				"YAHOO" => $ims["yahoo"],
-				"EOP_TRUE" => ($oUser->getEmailOnPm()."" == "1") ? "CHECKED" : "",
-				"EOP_FALSE" => ($oUser->getEmailOnPm().""  == "0") ? "CHECKED" : "",
+				"EOP_TRUE" => ($oUser->getEmailOnPm()) ? "CHECKED" : "",
+				"EOP_FALSE" => (!$oUser->getEmailOnPm()) ? "CHECKED" : "",
 				"REMOTE_AVATAR_URL" => ($oUser->getAvatarType() == REMOTE_AVATAR) ? $oUser->getAvatarLocation() : "",
 				"LOCATION" => $oUser->getLocation(),
 				"WEBSITE" => $oUser->getWebsite(),
 				"CSRF_TOKEN" => CSRF::getHTML()
 			));
 
-			$birthday = parseBirthday($oUser->getBirthday());
-			$day = $birthday["day"];
-			$month = $birthday["month"];
-			$year = $birthday["year"] ?: '';
-			$day_options = '';
-			for($i = 1; $i<=31; $i++) {
-                $day_options .= fetch_make_options($i, $i, $day);
-            }
-            
-			$month_options = '';
-			for($i = 1; $i<=12; $i++) {
-                $month_options .= fetch_make_options($i, fetch_months($i), $month);
-            }
-            
-			$year_options = '';
-			for($i = 1905; $i <= 2020; $i++) {
-                $year_options .= fetch_make_options($i, $i, $year);
-            }
-            $tplEditProfile->setVars(array(
-				"DAY_OPTS"   => $day_options,
-				"MONTH_OPTS" => $month_options,
-				"YEAR_OPTS"  => $year_options,
-			));
+			renderBirthdaySelector($oUser, $tplEditProfile);
 
 			if($oUser->getAvatarType() == NO_AVATAR) {
 				$tplEditProfile->addToBlock("current_avatar_off", array());
