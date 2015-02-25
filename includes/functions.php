@@ -247,7 +247,7 @@ function bbcode($post)
 	$post = str_replace("[hr]", "<hr>", $post);
 		
 	//[img]
-	$post = preg_replace("#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#s",
+	$post = preg_replace("#\[img\](https?://)([\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#s",
 		"<img src=\"$1$2\">", $post);
 
 	// [url=]
