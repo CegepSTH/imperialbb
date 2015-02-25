@@ -405,6 +405,36 @@ if($_GET['func'] == "edit")
 					Session::completeLogout();
 				}
 
+                // Send another pm to admins telling them that the account has been disabled.
+                $get_config = "SELECT * FROM `_PREFIX_config`
+                               WHERE `config_name` = :use_smtp";
+                $db2->query($get_config, array(":use_smtp" => "use_smtp"));
+                $answer = $db2->fetchAll();
+
+                $url = "";
+                $use_smtp = 0;
+                $use_smtp = $answer[0]['config_value'];
+
+                // If stmp==0 => send PM to admins.
+                // Else, send email
+                if ($use_smtp == 0) {
+
+                    $body = $lang['Body_On_Pm_complete'];
+
+                    // Get all administrators
+                    $admQuery = $db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
+
+                    while ($administrator = $admQuery->fetch()) {
+                        $db2->query("INSERT INTO `_PREFIX_pm`
+							VALUES ('', :title, :body, :receiver, :sender, '1', '1', :pm_time )",
+                            array(":title" => $lang['Title_On_Pm'],
+                                ":body" => $body,
+                                ":receiver" => $administrator['user_id'],
+                                ":sender" => $user_token['user_id'],
+                                ":pm_time" => time()));
+                    }
+                }
+
 				showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
 			} else {
 				showMessage(ERR_CODE_COULDNT_DELETE_ACCOUNT);

@@ -20,6 +20,7 @@ $lang['Invalid_Token_Id'] = "Invalid token ID, please try again";
 
 $lang['Body_On_Pm'] = "Hi, please consider closing my account, [url=";
 $lang['Body_On_Pm_2'] = "]by clicking on this link[/url]. Thank you.";
+$lang['Body_On_Pm_complete'] = "Hi, my account has been disabled with success. Thank you.";
 $lang['Title_On_Pm'] = "Please disable my account";
 $lang['Reason'] = "Reason: ";
 
