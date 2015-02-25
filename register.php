@@ -65,6 +65,7 @@ if(isset($_POST['Submit'])) {
 			$oUser->setLanguageId($config['default_template']);
 			$oUser->setTemplateId($config['default_language']);
 			$oUser->setRankId(1);
+            $oUser->setDateJoined(time());
 			$oUser->update();
 			
 			showMessage(ERR_CODE_ACCOUNT_CREATED, "login.php");
@@ -76,7 +77,8 @@ if(isset($_POST['Submit'])) {
 			$activation_key = generate_activate_key();
 			$oUser->setActivationKey($activation_key);
 			$oUser->setRankId(1);
-			$oUser->update(true);
+            $oUser->setDateJoined(time());
+            $oUser->update(true);
 			
 			email($lang['Email_New_Account_Subject'], "new_account", 
 				array("USER_ID" => $db2->lastInsertId(), 

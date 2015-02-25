@@ -99,15 +99,25 @@ if($_GET['func'] == "send")
 							":sender" => $user['user_id'],
 							":pm_time" => time()
 						));
-						
-					$pm_id = $db2->lastInsertId();
-					if($result['user_email_on_pm'] == "1") {
-						email($lang['Email_PM_Recieved_Subject'], "pm_recieved", array(
-							"USERNAME" => $result['username'],
-							"SITE_NAME" => $config['site_name'],
-							"DOMAIN" => $config['url'],
-							"PM_ID" => $pm_id), $result['user_email']);
-					}
+
+                    $get_config = "SELECT * FROM `_PREFIX_config`
+                               WHERE `config_name` = :use_smtp";
+                    $db2->query($get_config, array(":use_smtp" => "use_smtp"));
+                    $answer = $db2->fetchAll();
+
+                    $use_smtp = $answer[0]['config_value'];
+
+                    if ($use_smtp != 0) {
+
+                        $pm_id = $db2->lastInsertId();
+                        if ($result['user_email_on_pm'] == "1") {
+                            email($lang['Email_PM_Recieved_Subject'], "pm_recieved", array(
+                                "USERNAME" => $result['username'],
+                                "SITE_NAME" => $config['site_name'],
+                                "DOMAIN" => $config['url'],
+                                "PM_ID" => $pm_id), $result['user_email']);
+                        }
+                    }
 					
 					showMessage(ERR_CODE_PM_SENT, "pm.php");
 				} else if($_POST['action'] == "email") {
@@ -117,7 +127,8 @@ if($_GET['func'] == "send")
 						"USERNAME" => $result['username'],
 						"MESSAGE" => $_POST['body']), $result['user_email'], $user['user_email']);
 					showMessage(ERR_CODE_EMAIL_SENT, "pm.php");	
-				} else {
+				}
+                else {
 					showMessage(ERR_CODE_INVALID_ACTION);
 				}
 			} else {
@@ -287,7 +298,7 @@ else if($_GET['func'] == "edit")
 						":body" => $_POST['body'],
 						":pm_id" => $_GET['id']));
 						
-				showMessage(ERR_CODE_PM_EDITED, "pm.php");		
+				showMessage(ERR_CODE_PM_EDITED, "pm.php");
        		}
        	} else {
        		$sql = $db2->query("SELECT *
