@@ -88,8 +88,9 @@ class Session {
 	/**
 	 * refresh Refreshes the specified session with a new user id.
 	 * 
-	 * Prevents session fixation attacks. The function refreshCurrent
-	 * must be called when the user level changes to prevent this attack.
+	 * Prevents session fixation attacks. The function refresh or
+	 * refreshCurrent must be called when the user level changes to
+	 * prevent this kind of attack.
 	 * 
 	 * @param $session_id The session id to refresh.
 	 * After this call, the session id will be no longer valid.
@@ -188,7 +189,8 @@ class Session {
 	 * The persistance is implemented with a token in a cookie.
 	 *
 	 * @param $user_id The user id to persist the login.
-	 * @param $persistance_duration The duration of the persistance.
+	 * @param $persistance_duration The duration of the persistance,
+	 * in seconds.
 	 */
 	public static function persistLogin($user_id, $persistance_duration) {
 		global $db2;
@@ -222,10 +224,11 @@ class Session {
 	 * refreshPersistentLogin Refreshes the token for a persistent login.
 	 * 
 	 * The persistent login token should be refreshed each time it is
-	 * used (when the start() method resumes a session) to prevent token
-	 * reuse.
+	 * used (when the start() method resumes a persistent login) to prevent
+	 * token reuse.
 	 * 
-	 * @param $absolute_expiration_time The absolute expiration time.
+	 * @param $absolute_expiration_time The absolute expiration time,
+	 * in seconds.
 	 */
 	private static function refreshPersistentLogin($absolute_expiration_time) {
 		global $db2;
@@ -286,7 +289,7 @@ class Session {
 	}
 
 	/**
-	 * deletePersistentLogin Deletes a persistent login session.
+	 * deletePersistentLogin Deletes a persistent login.
 	 *
 	 * Also unsets the cookie containing the token.
 	 * Called on logout to clear the persistance.
@@ -311,12 +314,12 @@ class Session {
 	}
 
 	/**
-	 * completeLogout Completes the logout process.
+	 * logout Logouts the current user.
 	 * 
 	 * This function changes the session's user id to the user id of
 	 * guests (-1) and clears the persistent login if present.
 	 */
-	public static function completeLogout() {
+	public static function logout() {
 		self::refreshCurrent(-1);
 
 		if(isset($_COOKIE[self::PERSISTENT_LOGIN_COOKIE_KEY])) {
