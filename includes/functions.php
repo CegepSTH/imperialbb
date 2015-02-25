@@ -87,20 +87,20 @@ function format_text($text, $insert_bbcode=true, $insert_smilies=true, $remove_h
 	$text = str_replace("\r\n", "<br>", $text);
 	$text = str_replace("\n", "<br>", $text);
 
+	if($insert_bbcode) {
+		$text = bbcode($text);
+	}
+
+    if($censor_text) {
+        $text = ibb_censor($text);
+    }
+    
 	if($insert_smilies) {
 		$db2->query("SELECT `smilie_code`, `smilie_url` FROM `_PREFIX_smilies`");
 		
 		while ($row = $db2->fetch()) {
 			$text = str_replace($row['smilie_code'],"<img src=\"" . $root_path . "images/smilies/".$row['smilie_url']."\" border=\"0\">", $text);
 		}
-	}
-
-    if($censor_text) {
-        $text = ibb_censor($text);
-    }
-
-	if($insert_bbcode) {
-		$text = bbcode($text);
 	}
 	
 	return $text;
@@ -221,6 +221,10 @@ function bbcode($post)
 		
 		$filtered = str_replace("[", "&#91;", $value[0]);
 		$filtered = str_replace("]", "&#93;", $filtered);
+		$filtered = str_replace(")", "&#41;", $filtered);
+		$filtered = str_replace("(", "&#40;", $filtered);
+		$filtered = str_replace(":", "&#58;", $filtered);
+		
 		$post = str_replace("[code:0]".$value[0]."[/code:0]", 
 			"<div class=\"quotetable\"><strong>".$lang['Code']."</strong><br><div style=\"font-family: monospace, serif;margin-left:1.25%;\">".$filtered."</div></div>",
 			$post);
@@ -247,7 +251,7 @@ function bbcode($post)
 	$post = str_replace("[hr]", "<hr>", $post);
 		
 	//[img]
-	$post = preg_replace("#\[img\](.+://)((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#s",
+	$post = preg_replace("#\[img\](https?://)([\w\#$%&~/.\-;:=,?@\[\]+]*?)\[/img\]#s",
 		"<img src=\"$1$2\">", $post);
 
 	// [url=]

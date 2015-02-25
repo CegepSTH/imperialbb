@@ -107,7 +107,7 @@ if($_GET['func'] == "edit")
 				$query = "INSERT INTO `_PREFIX_users_token` (`user_id`, `token`, `token_type`, `timestamp_token`)
 						  VALUES (:user_id, :token, :token_type, :timestamp_token)";
 				$params = array(
-					":user_id" => $token,
+					":user_id" => $user['user_id'],
 					":token" => $token,
 					":token_type" => 1,
 					":timestamp_token" => time());
@@ -382,23 +382,58 @@ if($_GET['func'] == "edit")
 		showMessage(ERR_CODE_REQUIRE_LOGIN, "login.php");
 	}
 	if(isset($_GET['token'])) {
-		$db2->query("SELECT `user_id` FROM `_PREFIX_sessions` WHERE `session_id`=:token", array(":token" => $_GET['token']));
+
+		$db2->query("SELECT `user_id`
+                     FROM `_PREFIX_users_token`
+                     WHERE `token`=:token",
+                     array(":token" => $_GET['token']));
 		
 		if($user_token = $db2->fetch()) {
 			// Remove the user email and set the account as "inactive"
-			$db2->query("UPDATE `ibb_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id`=:userid", 
+			$db2->query("UPDATE `_PREFIX_users` SET `user_level` = '-1', `user_email` = '' WHERE `user_id` = :userid",
 				array(":userid" => $user_token['user_id']));
 
 			$ok = $db2->rowCount() > 0;
-			
+
+            // Delete token
 			$db2->query("DELETE FROM `_PREFIX_users_token`
-				WHERE `token_id` = :token", array(":token" => $token));
+                         WHERE `token` = :token", array(":token" => $_GET['token']));
 			
 			if($db2->rowCount() > 0 && $ok) {
 				// Then logout user
 				if($user['user_level'] < 5 && $user_token['user_id'] == $user['user_id']) {
 					Session::completeLogout();
 				}
+
+                // Send another pm to admins telling them that the account has been disabled.
+                $get_config = "SELECT * FROM `_PREFIX_config`
+                               WHERE `config_name` = :use_smtp";
+                $db2->query($get_config, array(":use_smtp" => "use_smtp"));
+                $answer = $db2->fetchAll();
+
+                $url = "";
+                $use_smtp = 0;
+                $use_smtp = $answer[0]['config_value'];
+
+                // If stmp==0 => send PM to admins.
+                // Else, send email
+                if ($use_smtp == 0) {
+
+                    $body = $lang['Body_On_Pm_complete'];
+
+                    // Get all administrators
+                    $admQuery = $db2->query("SELECT * FROM `_PREFIX_users` WHERE `user_level` = :admin", array(':admin' => '5'));
+
+                    while ($administrator = $admQuery->fetch()) {
+                        $db2->query("INSERT INTO `_PREFIX_pm`
+							VALUES ('', :title, :body, :receiver, :sender, '1', '1', :pm_time )",
+                            array(":title" => $lang['Title_On_Pm'],
+                                ":body" => $body,
+                                ":receiver" => $administrator['user_id'],
+                                ":sender" => $user_token['user_id'],
+                                ":pm_time" => time()));
+                    }
+                }
 
 				showMessage(ERR_CODE_ACCOUNT_DELETED_SUCCESS);
 			} else {

@@ -191,4 +191,3 @@ function outputPage($page_master, $page_title = null) {
 }
 
 ?>
-
