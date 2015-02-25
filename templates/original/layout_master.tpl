@@ -11,7 +11,7 @@
 				<div class="dummy">&nbsp;</div>
 				<div class="logo-name clearfix">
 					<div class="logo">
-						<img src="{T.TEMPLATE_PATH}/images/logov.png" />
+						<a href="index.php"> <img src="{T.TEMPLATE_PATH}/images/logov.png" /></a>
 					</div>
 					<div class="name">
 						ImperialBB<br />
