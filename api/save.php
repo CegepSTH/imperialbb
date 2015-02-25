@@ -50,7 +50,7 @@ if($_GET['act'] == "post") {
 	}
 	
 	$ok = ImperialService::sendPostToTopicId($_POST['post_body'], 
-		$_POST['user_id'], $_POST['topic_id']);
+		intval($_POST['user_id']), intval($_POST['topic_id']));
 
 	$error = array();
 		
@@ -60,6 +60,39 @@ if($_GET['act'] == "post") {
 	} else {
 		$error = array(
 			"error" => "POST_CANT_POST",
+			"error_level" => "FATAL",
+			"error_msg" => "Database is either busy, down, or Jim has died.");
+	}
+	
+	$json = json_encode($error);
+	echo $json;
+	exit();	
+}
+
+if($_GET['act'] == "createTopic") {
+	if(!isset($_POST['user_id']) || !isset($_POST['topic_title']) 
+		|| !isset($_POST['topic_content']) || isset($_POST['forum_id'])) 
+	{
+		$error = array(
+			"error" => "TOPIC_DATA_NOT_SET",
+			"error_level" => "FATAL",
+			"error_msg" => "There's a parameter missing, somewhere.");
+		$json = json_encode($error);
+		echo $json;
+		exit();		
+	}
+
+	$ok = ImperialService::sendTopicToForumId($_POST['forum_id'], 
+		$_POST['user_id'], $_POST['topic_title'], $_POST['topic_content']);
+
+	$error = array();
+		
+	if($ok) {
+		echo "SUCCESS";
+		exit();
+	} else {
+		$error = array(
+			"error" => "TOPIC_CANT_CREATE",
 			"error_level" => "FATAL",
 			"error_msg" => "Database is either busy, down, or Jim has died.");
 	}

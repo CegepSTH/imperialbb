@@ -426,6 +426,89 @@ class ImperialService {
 	}
 	
 	/**
+	 * Saves the new topic into the specified forum.
+	 * 
+	 * @param $n_forumId Forum's id.
+	 * @param $n_userId User's id. 
+	 * @param $str_title Topic's title.
+	 * @param $str_data Topic's first post/message.
+	 * @return True if success, false otherwise.
+	 */
+	public static function sendTopicToForumId($n_forumId, $n_userId, $str_title, $str_data) {
+		if(!is_numeric($n_forumId) || !is_numeric($n_userId) 
+			|| empty($str_title) || empty($str_data)) 
+		{
+			return false;
+		}
+		
+		global $database;
+		
+		$oDb = new Database($database, $database["prefix"]);
+		$oDb->query("INSERT INTO `_PREFIX_topics` (`topic_forum_id`,
+			`topic_title`, `topic_poll_title`, `topic_user_id`, `topic_time`)
+			VALUES (:fid, :title, :poll_title, :user_id, :time )",
+			array(":fid" => $n_forumId,
+				":title" => $str_title,
+				":poll_title" => "",
+				":user_id" => $n_userId,
+				":time" => time() ));
+				
+		$topicId = $oDb->lastInsertId();
+		
+		if($topicId < 0) {
+			return false;
+		}
+		
+		$oDb->query("INSERT INTO `_PREFIX_posts` (
+			`post_topic_id`, `post_user_id`, `post_text`, `post_timestamp`,
+			`post_disable_html`, `post_disable_bbcode`, `post_disable_smilies`,
+			`post_attach_signature`)
+			VALUES (:tid, :user_id, :post_body, :post_time, :disable_html,
+				:disable_bbcode, :disable_smilies, :attach_signature )",
+			array(":tid" => $topicId,
+				":user_id" => $n_userId,
+				":post_body" => $str_data,
+				":post_time" => time(),
+				":disable_html" => 0,
+				":disable_bbcode" => 0,
+				":disable_smilies" => 0,
+				":attach_signature" => 1));
+		// Post id.
+		$postId = $oDb->lastInsertId();
+		
+		if($postId < 0) {
+			return false;
+		}
+		
+		// Update forum info
+		$sql = $oDb->query("SELECT * FROM `_PREFIX_forums`
+			WHERE `forum_id` = :fid LIMIT 1",
+			array( ":fid" => $n_forumId ));
+				
+		if($row = $sql->fetch()) {
+			$new_topics = $row['forum_topics'] + 1;
+			$new_posts = $row['forum_posts'] + 1;
+			$oDb->query("UPDATE `_PREFIX_forums`
+				SET `forum_topics` = :new_topics, `forum_posts` = :new_posts,
+					`forum_last_post` = :pid
+				WHERE `forum_id` = :fid",
+				array(":new_topics" => $new_topics, 
+					":new_posts" => $new_posts,
+					":pid" => $postId,
+					":fid" => $n_forumId));
+		}
+
+		$oDb->query("UPDATE `_PREFIX_topics`
+			SET `topic_first_post` = :pid1, `topic_last_post` = :pid2
+			WHERE `topic_id` = :tid",
+			array(":pid1" => $postId,
+				":pid2" => $postId,
+				":tid" => $topicId));
+		
+		return ($oDb->rowCount() > 0);
+	} 
+	 	
+	/**
 	 * Sets the user informations
 	 * 
 	 * @param $infos Array containing user informations.
