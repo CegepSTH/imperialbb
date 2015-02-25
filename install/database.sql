@@ -19,7 +19,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `imperialbb`
 --
-CREATE DATABASE `imperialbb` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
 USE `imperialbb`;
 
 -- --------------------------------------------------------
@@ -130,8 +129,8 @@ INSERT INTO `ibb_config` (`config_id`, `config_name`, `config_value`, `config_pr
 (34, 'forum_root', '', 0, '', 0, 0, ''),
 (35, 'admincp_notepad', 'I&#039;m watching you Michael. Fuckerino. &amp;&amp;&amp;rnTest', 0, 'textbox', 0, 0, ''),
 (36, 'censor_enabled', '0', 0, 'true/false', 8, 3, 'Post_Configuration'),
-(37, 'paginate_pernum', '10', 0, 'textbox', 0, 0, 'General_Configuration')
-(38, 'pm_per_page', '20', 0, 'textbox', 0, 0, 'General_Configuration')
+(37, 'paginate_pernum', '10', 0, 'textbox', 0, 0, 'General_Configuration'),
+(38, 'pm_per_page', '20', 0, 'textbox', 0, 0, 'General_Configuration'),
 (39, 'members_per_page', '20', 0, 'textbox', 0, 0, 'General_Configuration');
 
 -- --------------------------------------------------------
@@ -529,7 +528,7 @@ CREATE TABLE IF NOT EXISTS `ibb_portal_news` (
   `news_content` int(11) NOT NULL, 
   `news_timestamp` int(11) NOT NULL, 
 PRIMARY KEY (`news_id`)
-) ENGINE=InnoDB DEFAULT CARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

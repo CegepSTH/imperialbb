@@ -129,6 +129,9 @@ else if($_GET['func'] == "activate_new_pass")
 				$persistance_duration = 0;
 				$seconds_in_day = 24 * 60 * 60;
 				switch($_POST['KeepConnected']) {
+					case PLOGIN_DUR_DAY:
+						$persistance_duration = 1 * $seconds_in_day;
+					break;
 					case PLOGIN_DUR_WEEK:
 						$persistance_duration = 7 * $seconds_in_day;
 					break;

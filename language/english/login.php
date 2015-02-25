@@ -27,4 +27,12 @@ $lang['Forgotten_Password_Email_Subject'] = $config['site_name'] . " password re
 $lang['Activate_New_Pass_Error'] = "Error activating your new password, invalid user id or activation key";
 $lang['New_Pass_Activation_Successful_Msg'] = "Your new password has been successfully activated.";
 
+$lang['Persistent_Login_None'] = "No";
+$lang['Persistent_Login_Day'] = "1 day";
+$lang['Persistent_Login_Week'] = "1 week";
+$lang['Persistent_Login_Month'] = "1 month";
+$lang['Persistent_Login_Half_Year'] = "6 months";
+$lang['Persistent_Login_Year'] = "1 year";
+$lang['Persistent_Login_Forever'] = "Forever";
+
 ?>
