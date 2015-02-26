@@ -71,7 +71,7 @@ if($_GET['act'] == "post") {
 
 if($_GET['act'] == "createTopic") {
 	if(!isset($_POST['user_id']) || !isset($_POST['topic_title']) 
-		|| !isset($_POST['topic_content']) || isset($_POST['forum_id'])) 
+		|| !isset($_POST['topic_content']) || !isset($_POST['forum_id'])) 
 	{
 		$error = array(
 			"error" => "TOPIC_DATA_NOT_SET",
@@ -82,11 +82,11 @@ if($_GET['act'] == "createTopic") {
 		exit();		
 	}
 
-	$ok = ImperialService::sendTopicToForumId($_POST['forum_id'], 
-		$_POST['user_id'], $_POST['topic_title'], $_POST['topic_content']);
+	$ok = ImperialService::sendTopicToForumId(intval($_POST['forum_id']), 
+		intval($_POST['user_id']), $_POST['topic_title'], $_POST['topic_content']);
 
 	$error = array();
-		
+	
 	if($ok) {
 		echo "SUCCESS";
 		exit();
@@ -98,6 +98,25 @@ if($_GET['act'] == "createTopic") {
 	}
 	
 	$json = json_encode($error);
+	echo $json;
+	exit();	
+}
+
+if($_GET['act'] == "search") {
+	if(!isset($_POST['search_string'])) 
+	{
+		$error = array(
+			"error" => "SEARCH_DATA_NOT_SET",
+			"error_level" => "FATAL",
+			"error_msg" => "There's a parameter missing, somewhere.");
+		$json = json_encode($error);
+		echo $json;
+		exit();		
+	}
+
+	$result = ImperialService::search($_POST['search_string']);
+
+	$json = json_encode($result);
 	echo $json;
 	exit();	
 }

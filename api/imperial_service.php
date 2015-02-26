@@ -345,6 +345,38 @@ class ImperialService {
 	}
 	
 	/**
+	 * Search and return results.
+	 * 
+	 * @param $str_search Search string (not parsed yet)
+	 * @return Empty array if error or no result. Else an array of topics.
+	 */
+	public static function search($str_search) {
+		if(empty($str_search) || !is_string($str_search)) {
+			
+			return array();
+		}
+		
+		global $database;
+		
+		$sql = "SELECT DISTINCT(t.`topic_id`), p.`post_timestamp`, t.`topic_title`, t.`topic_replies`, t.`topic_views`, f.`forum_id`, u.`user_id`, u.`username`
+			FROM `_PREFIX_topics` t 
+			JOIN `_PREFIX_forums` f ON f.`forum_id` = t.`topic_forum_id`
+			JOIN `_PREFIX_posts` p ON p.`post_topic_id` = t.`topic_id`
+			JOIN `_PREFIX_users` u ON u.`user_id` = p.`post_user_id`
+			WHERE t.`topic_title` LIKE :cond 
+				OR p.`post_text` LIKE :cond 
+				OR u.`username` LIKE :cond 
+			GROUP BY t.`topic_id`
+			ORDER BY t.`topic_id`";
+		$values = array(":cond" => "%".$str_search."%");
+		
+		$oDb = new Database($database, $database["prefix"]);
+		$oDb->query($sql, $values);
+		
+		return $oDb->fetchAll();	
+	}
+	
+	/**
 	 * Sets category informations.
 	 * 
 	 * @param $infos Array containing informations for a given category.
@@ -396,7 +428,7 @@ class ImperialService {
 		}
 		
 		global $database;
-		echo "WHAT";
+		
 		$oDb = new Database($database, $database["prefix"]);
 		$oDb->query("INSERT INTO `_PREFIX_posts` (`post_topic_id`, `post_user_id`,
 			`post_text`, `post_timestamp`) 
@@ -410,16 +442,29 @@ class ImperialService {
 		$rows = ($oDb->lastInsertId() > 0);
 		$postId = $oDb->lastInsertId();
 		
-		$oDb->query("UPDATE `_PREFIX_topics` SET `topic_last_post`=:pid 
+		$oDb->query("SELECT `topic_replies` FROM `_PREFIX_topics` 
+			WHERE `topic_id`=:tid LIMIT 1", array(":tid" => $n_topicId));
+		
+		$result = $oDb->fetch();
+		
+		$oDb->query("UPDATE `_PREFIX_topics` SET `topic_last_post`=:pid, 
+			`topic_replies`=:replies
 			WHERE `topic_id`=:tid", 
-			array(":pid" => $postId, ":tid" => $n_topicId));
+			array(":replies" => $result['topic_replies'] + 1, 
+				":pid" => $postId, ":tid" => $n_topicId));
 			
-		$oDb->query("SELECT `topic_forum_id` FROM `_PREFIX_forums` 
+		$oDb->query("SELECT `topic_forum_id` FROM `_PREFIX_topics` 
 			WHERE `topic_id`=:tid LIMIT 1", array(":tid" => $n_topicId));
 		$result = $oDb->fetch();
 		
-		$oDb->query("UPDATE `_PREFIX_forums` SET `forum_last_post`=:pid 
+		$oDb->query("SELECT `forum_posts` FROM `_PREFIX_forums`
+			WHERE `forum_id`=:fid", array(":fid" => $result['topic_forum_id']));
+		$resForumPosts = $oDb->fetch();
+		
+		$oDb->query("UPDATE `_PREFIX_forums` SET `forum_last_post`=:pid,
+				`forum_posts`=:posts
 			WHERE `forum_id`=:fid", array(":pid" => $postId,
+			":posts" => $resForumPosts['forum_posts'] +1,
 			":fid" => $result["topic_forum_id"]));
 		
 		return $rows;
