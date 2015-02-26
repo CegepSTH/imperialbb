@@ -296,7 +296,7 @@ class ImperialService {
 			FROM `_PREFIX_topics` 
 				JOIN `_PREFIX_users` ON `topic_user_id` = `user_id`
 			WHERE `topic_forum_id`=:forumId
-			ORDER BY `topic_id`";
+			ORDER BY `topic_time` DESC ";
 		
 		// For the limit clause, there's worlds of differences between DBMS
 		// MsSQL is not supported, because it's /quite/ difficult.
@@ -448,10 +448,12 @@ class ImperialService {
 		$result = $oDb->fetch();
 		
 		$oDb->query("UPDATE `_PREFIX_topics` SET `topic_last_post`=:pid, 
-			`topic_replies`=:replies
+			`topic_replies`=:replies, `topic_time`=:time
 			WHERE `topic_id`=:tid", 
 			array(":replies" => $result['topic_replies'] + 1, 
-				":pid" => $postId, ":tid" => $n_topicId));
+				":pid" => $postId, 
+				":tid" => $n_topicId,
+				":time" => time()));
 			
 		$oDb->query("SELECT `topic_forum_id` FROM `_PREFIX_topics` 
 			WHERE `topic_id`=:tid LIMIT 1", array(":tid" => $n_topicId));
@@ -549,6 +551,10 @@ class ImperialService {
 			array(":pid1" => $postId,
 				":pid2" => $postId,
 				":tid" => $topicId));
+		
+		$oUser = User::findUser($n_userId);
+		$oUser->setPostsCount($oUser->getPostsCount() + 1);
+		$oUser->update();
 		
 		return ($oDb->rowCount() > 0);
 	} 
