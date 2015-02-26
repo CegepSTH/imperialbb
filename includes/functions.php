@@ -230,8 +230,8 @@ function bbcode($post)
 			$post);
 	}
 	// Replace all occurences like [code:-1] :^)
-	$post = preg_replace("#&\#91;code:-?[1-9]\&\#93;#", "[code]", $post);
-	$post = preg_replace("#&\#91;\/code:-?[1-9]\&\#93;#", "[/code]", $post);
+	$post = preg_replace("#&\#91;code&\\#58;-?[1-9]\&\#93;#", "[code]", $post);
+	$post = preg_replace("#&\#91;\/code&\\#58;-?[1-9]\&\#93;#", "[/code]", $post);
 
 	// Bold tag. 
 	$post = match_nested_tags($post, "[b]", "[/b]", $matches);
