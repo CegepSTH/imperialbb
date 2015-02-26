@@ -1,3 +1,7 @@
+TODO & PLANNED: Translate docs in english. See licensing for license (MIT).   
+Code comments are in english.  
+  
+  
 # ImperialBB
 
 ### Version actuelle 
