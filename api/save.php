@@ -32,7 +32,7 @@ if($_GET['act'] == "profile") {
 			"error_level" => "FATAL",
 			"error_msg" => "Database is either busy, down, or Jim has died.");
 	}
-	
+	sleep(5);
 	$json = json_encode($error);
 	echo $json;
 	exit();	

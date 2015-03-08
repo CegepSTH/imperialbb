@@ -10,7 +10,6 @@ require_once($root_path."classes/password.php");
 
 /**
  * class User
- * author Alexandre Leblanc
  * Class representing a User.
  */
 class User {
