@@ -3,9 +3,9 @@ define("IN_IBB", 1);
 
 $root_path = "../";
 
-if(file_exists("../includes/config.php"))
+if(file_exists($root_path . "includes/config.php"))
 {
-	include("../includes/config.php");
+	include($root_path . "includes/config.php");
 
 
 	// Unset db config because we dont need it!
@@ -17,7 +17,7 @@ if(file_exists("../includes/config.php"))
 	// Check if the forum is already installed
 	if(defined("INSTALLED") && INSTALLED == 1)
 	{
-	        header("Location: ../");
+	        header("Location: " . $root_path);
 	        exit();
 	}
 }
@@ -200,7 +200,17 @@ if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '" . $_POST['forum_pat
 
 echo "Done<br /><br />";
 
-echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
+$config_path = $root_path . "includes/config.php";
+
+if(is_writable($config_path))
+{
+	$handle = fopen($config_path, "w");
+	fwrite($handle, $file_data);
+}
+
+else{
+	echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
+}
 
 echo <<<END
 							<br /><br /><h2>Forum Installed Successfully</h2><br />You may now continue to your board by <a href="../">Clicking Here</a>
