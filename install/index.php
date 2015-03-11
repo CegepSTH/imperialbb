@@ -28,6 +28,7 @@ require_once($root_path . "classes/csrf.php");
 require_once($root_path . "includes/rendering.php");
 require_once($root_path . "classes/template.php");
 require_once($root_path . "language/english/install.php");
+require_once($root_path . "classes/password.php");
 
 Template::setBasePath($root_path . "templates/original/install");
 $template_vars = array(
@@ -180,7 +181,7 @@ foreach($file_content as $sql_line)
 	}
 }
 
-if(!mysql_query("INSERT INTO `ibb_users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_rank`) VALUES ('".$_POST['admin_user']."', '".md5(md5($_POST['admin_pass']))."', '".$_POST['admin_email']."', '".time()."', '5', '3')"))
+if(!mysql_query("INSERT INTO `ibb_users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_rank`) VALUES ('".$_POST['admin_user']."', '".password_hash($_POST['admin_pass'], PASSWORD_DEFAULT)."', '".$_POST['admin_email']."', '".time()."', '5', '3')"))
 {
 	echo "<b>Error</b> : #1 Unable to insert admin user : " . mysql_error() . "<br />";
 }
