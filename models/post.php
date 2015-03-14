@@ -274,7 +274,7 @@ class Post
 				LIMIT 1", array(":tid" => $this->m_topicId));
 			$result = $oDb->fetch(); 
 
-			// Updat the topic
+			// Update the topic
 			$oDb->query("UPDATE `_PREFIX_topics`
 				SET `topic_replies`=:replies, `topic_first_post`=:fpost, 
 					`topic_last_post`=:lpost, `topic_time`=:time
