@@ -3,9 +3,9 @@ define("IN_IBB", 1);
 
 $root_path = "../";
 
-if(file_exists("../includes/config.php"))
+if(file_exists($root_path . "includes/config.php"))
 {
-	include("../includes/config.php");
+	include($root_path . "includes/config.php");
 
 
 	// Unset db config because we dont need it!
@@ -17,7 +17,7 @@ if(file_exists("../includes/config.php"))
 	// Check if the forum is already installed
 	if(defined("INSTALLED") && INSTALLED == 1)
 	{
-	        header("Location: ../");
+	        header("Location: " . $root_path);
 	        exit();
 	}
 }
@@ -28,6 +28,7 @@ require_once($root_path . "classes/csrf.php");
 require_once($root_path . "includes/rendering.php");
 require_once($root_path . "classes/template.php");
 require_once($root_path . "language/english/install.php");
+require_once($root_path . "classes/password.php");
 
 Template::setBasePath($root_path . "templates/original/install");
 $template_vars = array(
@@ -180,7 +181,7 @@ foreach($file_content as $sql_line)
 	}
 }
 
-if(!mysql_query("INSERT INTO `ibb_users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_rank`) VALUES ('".$_POST['admin_user']."', '".md5(md5($_POST['admin_pass']))."', '".$_POST['admin_email']."', '".time()."', '5', '3')"))
+if(!mysql_query("INSERT INTO `ibb_users` (`username`, `user_password`, `user_email`, `user_date_joined`, `user_level`, `user_rank`) VALUES ('".$_POST['admin_user']."', '".password_hash($_POST['admin_pass'], PASSWORD_DEFAULT)."', '".$_POST['admin_email']."', '".time()."', '5', '3')"))
 {
 	echo "<b>Error</b> : #1 Unable to insert admin user : " . mysql_error() . "<br />";
 }
@@ -200,7 +201,17 @@ if(!mysql_query("UPDATE `ibb_config` SET `config_value` = '" . $_POST['forum_pat
 
 echo "Done<br /><br />";
 
-echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
+$config_path = $root_path . "includes/config.php";
+
+if(is_writable($config_path))
+{
+	$handle = fopen($config_path, "w");
+	fwrite($handle, $file_data);
+}
+
+else{
+	echo "<b>Configuration File</b><br /><br />Please upload the below file contents into includes/config.php<br /><textarea rows=\"20\" cols=\"75\">".htmlspecialchars($file_data)."</textarea>";
+}
 
 echo <<<END
 							<br /><br /><h2>Forum Installed Successfully</h2><br />You may now continue to your board by <a href="../">Clicking Here</a>

@@ -260,7 +260,7 @@ class Post
 		
 		$oDb->query($query, $values);
 		$lastId = $oDb->lastInsertId();
-		
+		 
 		if($lastId > 0) {
 			$this->setPostId($lastId);
 			
