@@ -54,6 +54,13 @@ class Topic
 		$this->setUserId($n_userId);
 		$this->setForumId($n_forumId);
 		$this->setTitle($str_title);
+		$this->setPollTitle("");
+		$this->setStatus(0);
+		$this->setType(0);
+		$this->setFirstPostId(-1);
+		$this->setLastPostId(-1);
+		$this->m_repliesCount = 0;
+		$this->m_viewsCount = 0;
 		$this->m_post = $post;
 	}
 	
@@ -105,7 +112,7 @@ class Topic
 	 */
 	public function update() {
 		if(is_null($this->m_topicId)) {
-			return insert();
+			return $this->insert();
 		}
 		
 		global $database;
@@ -130,6 +137,7 @@ class Topic
 				`topic_poll_title`=:ptitle,
 				`topic_status`=:status,
 				`topic_type`=:type,
+				`topic_first_post`=:fpost,
 				`topic_user_id`=:uid,
 				`topic_replies`=:rcount,
 				`topic_views`=:vcount,
@@ -149,9 +157,11 @@ class Topic
 		if(!is_numeric($this->m_forumId)) {
 			return false;
 		}
-		/*
+		
 		global $database;
 		$oDb = new Database($database, $database["prefix"]);
+		
+		$this->m_modificationTime = time();
 		
 		$values = array(":fid" => $this->m_forumId,
 			":title" => $this->m_title,
@@ -164,7 +174,24 @@ class Topic
 			":vcount" => $this->m_viewsCount,
 			":lpost" => $this->m_lastPostId, 
 			":time" => $this->m_modificationTime);
-		*/
+		$query = "INSERT INTO `_PREFIX_topics` (`topic_forum_id`, `topic_title`, 
+			`topic_poll_title`, `topic_status`, `topic_type`, 
+			`topic_first_post`, `topic_user_id`, `topic_replies`, 
+			`topic_views`, `topic_last_post`, `topic_time`) 
+			VALUES(:fid, :title, :ptitle, :status, :type, :fpost, :uid, :rcount,
+				:vcount, :lpost, :time)";
+		
+		$oDb->query($query, $values);
+		
+		$this->setTopicId($oDb->lastInsertId());
+		
+		
+		$this->m_post->setTopicId($this->getTopicId());
+		$this->m_post->update();
+		
+		$this->setFirstPostId($this->m_post->getPostId());
+		$this->setLastPostId($this->m_post->getPostId());
+		$this->update();
 	}
 	
 	/**

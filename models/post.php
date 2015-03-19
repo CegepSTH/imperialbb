@@ -154,11 +154,11 @@ class Post
 	 * 
 	 * @param $n_topicId Post numeric integer.
 	 */
-	private function setTopicId($n_topicId) {
+	public function setTopicId($n_topicId) {
 		if(is_numeric($n_topicId)) {
 			$this->m_topicId = intval($n_topicId);
 		} else {
-			die("Post->setTopicId [from CTOR] failed. Must be valid "
+			die("Post->setTopicId failed. Must be valid "
 				."integer. Value passed was '".$n_topicId."'");
 		}
 	}
@@ -280,11 +280,12 @@ class Post
 					`topic_last_post`=:lpost, `topic_time`=:time
 				WHERE `topic_id`=:tid 
 				LIMIT 1", 
-				array(":replies" => ($result['topic_replies'] + 1),
+				array(":replies" => ($result['topic_first_post'] < 1) ? ($result['topic_replies'] + 1) : 0,
 					":fpost" => $result['topic_first_post'] < 1 ? $lastId : $result['topic_first_post'], 
 					":lpost" => $lastId, 
 					":time" => time(),
 					":tid" => $this->m_topicId));
+					
 			$ok = $oDb->rowCount() > 0;
 			
 			if(!$ok) {
