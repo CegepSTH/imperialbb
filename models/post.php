@@ -74,9 +74,7 @@ class Post
 		
 		// Create Post object.
 		$oPost = new Post($result['post_topic_id'], $result['post_text'],
-			$result['post_user_id'], $result['post_disable_bbcode'] == 1, 
-			$result['post_disable_smilies'] == 1, $result['post_attach_signature'] == 1, 
-			$result['post_timestamp']);
+			$result['post_user_id']);
 		
 		//Set data
 		$oPost->m_postId = $result['post_id'];
@@ -87,6 +85,46 @@ class Post
 		$oPost->disableHtml = $result['post_disable_html'];	
 		
 		return $oPost;
+	}
+	
+	/**
+	 * Finds all post for topic id. 
+	 * 
+	 * @param $n_topicId Topic's id.
+	 * @param $n_start Start from count 
+	 * @param $n_end End to count
+	 * 
+	 * @return Array[i] => Post Object
+	 */
+	public static function findPostsForTopicId($n_topicId, $n_start = 0, $n_end = 50) {
+		if(!is_numeric($n_topicId) || !is_numeric($n_start) 
+			|| !is_numeric($n_end))
+		{
+			return null;
+		}
+		
+		global $database;
+		$oDb = new Database($database, $database["prefix"]);
+		
+		$oDb->query("SELECT * FROM `_PREFIX_posts` 
+			WHERE `post_topic_id`=:tid
+			LIMIT ".intval($n_start).",".intval($n_end),
+			array(":tid" => $n_topicId));
+		$results = array();
+		
+		while($result = $oDb->fetch()) {
+			$post = new Post($n_topicId, $result["post_text"], $result["post_user_id"]);
+			$post->m_postId = intval($result["post_id"]);
+			$post->disableHtml = (bool)$result["post_disable_html"] == 1;
+			$post->disableSmilies = (bool)$result["post_disable_smilies"] == 1;
+			$post->disableBBCode = (bool)$result["post_disable_bbcode"] == 1;
+			$post->joinSignature = (bool)$result["post_attach_signature"] == 1;
+			$post->setDate($result["post_timestamp"]);
+			
+			$results[] = $post;
+		}
+		
+		return $results;
 	}
 	
 	/**
