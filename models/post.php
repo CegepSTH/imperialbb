@@ -302,12 +302,133 @@ class Post
 					":lpost" => $lastId,
 					":topics" => $result['topic_first_post'] < 1 ? ($result['forum_topics'] + 1) : $result['forum_topics'],
 					":fid" => $result['forum_id']));
-			$ok = $oDb->rowCount();
+					
+			$ok = $oDb->rowCount() > 0;
+			
+			if(!$ok) {
+				return false;
+			}
+			
+			// Totally forgot User post count
+			$oDb->query("SELECT `user_posts` FROM `_PREFIX_users` 
+				WHERE `user_id`=:uid LIMIT 1", 
+				array(":uid" => $this->getUserId()));
+			
+			$result = $oDb->fetch();
+			
+			$ok = $oDb->query("UPDATE `_PREFIX_users` SET `user_posts`=:posts
+				WHERE `user_id`=:uid", array(":uid" => $this->getUserId(), 
+				":posts" => $result["user_posts"] + 1));
 			
 			return $ok;
 		} else {
 			return false;
 		}
+	}
+	
+	/**
+	 * Deletes a post from the database.
+	 * 
+	 * @param $n_postId Post's id.
+	 */
+	public static function delete($n_postId) {
+		if(!is_numeric($n_postId)) {
+			return false;
+		}
+		
+		global $database;
+	
+		$oDb = new Database($database, $database["prefix"]);
+		
+		// when deleting a post, you need to decrement the counts in 
+		// forum and topic. First off, we'll need to know what is the 
+		// count of posts in the topic, then forum
+		// This is an issue coming form MyISAM engine.
+		
+		// Also, we need to cover the use of last_post and first_post
+		// in both _forums and _topics.
+		$query = "SELECT `topic_first_post`, `topic_last_post`, 
+				`forum_last_post`, `topic_replies`, `topic_time`,
+				`forum_id`, `forum_posts`, `topic_id`, `topic_views`, 
+				`user_id`, `user_posts`
+			FROM `_PREFIX_posts`
+				JOIN `_PREFIX_topics` ON `topic_id` = `post_topic_id`
+				JOIN `_PREFIX_forums` ON `forum_id` = `topic_forum_id`
+				JOIN `_PREFIX_users` ON `user_id` = `post_user_id`
+			WHERE `post_id`=:pid LIMIT 1";
+		$oDb->query($query, array(":pid" => $n_postId));
+		$result = $oDb->fetch();
+		
+		if($result["user_id"] != -1) {
+			// First update user and decrement his posts count.
+			$oDb->query("UPDATE `_PREFIX_users` SET `user_posts`=:posts
+				WHERE `user_id`=:uid", 
+				array(":uid" => intval($result["user_id"]),
+					":posts" => intval($result["user_posts"]) - 1));
+		}
+		
+		// Update  last and first post of topic.
+		if($result["topic_last_post"] == $n_postId) {
+			// Update with new last post id.
+			$oDb->query("SELECT MAX(`post_id`) AS `post_id` 
+				FROM `_PREFIX_posts` AS `p`
+				WHERE `p`.`post_id` <> :pid AND `post_topic_id`=:tid", 
+				array(":pid" => intval($n_postId), 
+					":tid" => intval($result["topic_id"])));
+			
+			$sub_res = $oDb->fetch();
+			
+			$oDb->query("SELECT `post_timestamp` FROM `_PREFIX_posts`
+				WHERE `post_id`=:pid", array(":pid" => $sub_res["post_id"]));
+			$sub_res_time = $oDb->fetch();
+			
+			$result["topic_last_post"] = $sub_res["post_id"];
+			$result["topic_time"] = $sub_res_time["post_timestamp"];
+		}
+		
+		// Update the topic replies (and posts id (l/f)
+		$oDb->query("UPDATE `_PREFIX_topics` SET `topic_first_post`=:fpost,
+			`topic_last_post`=:lpost, `topic_replies`=:replies, 
+			`topic_time`=:time
+			WHERE `topic_id`=:tid",
+				array(":fpost" => intval($result["topic_first_post"]), 
+				":lpost" => intval($result["topic_last_post"]), 
+				":replies" => intval($result["topic_replies"]) - 1,
+				":time" => intval($result["topic_time"]),
+				":tid" => intval($result["topic_id"])));
+				
+		if($oDb->rowCount() <= 0) {
+			return false;
+		}
+		
+		// Update forum.
+		if($result["forum_last_post"] == $n_postId) {
+			$oDb->query("SELECT MAX(`post_id`) AS `last_post_id` FROM `_PREFIX_forums` 
+				JOIN `_PREFIX_topics` ON `topic_forum_id`=:fid
+				JOIN `_PREFIX_posts` ON `post_topic_id` = `topic_id` 
+				WHERE `post_id` <> :pid",
+				array(":fid" => intval($result["forum_id"]), 
+					":pid" => intval($n_postId)));
+			$lastIdResult = $oDb->fetch();
+			$result["forum_last_post"] = $lastIdResult["last_post_id"];
+		}
+		
+		$oDb->query("UPDATE `_PREFIX_forums` SET `forum_last_post`=:lpost,
+			`forum_posts`=:posts
+			WHERE `forum_id`=:fid", 
+			array(":lpost" => intval($result["forum_last_post"]),
+				":posts" => intval($result["forum_posts"]) - 1,
+				":fid" => intval($result["forum_id"])));
+		
+		if($oDb->rowCount() <= 0) {
+			return false;
+		}
+		
+		// Delete post, finally.
+		$oDb->query("DELETE FROM `_PREFIX_posts` WHERE `post_id`=:pid",
+			array(":pid" => intval($n_postId)));
+		
+		return $oDb->rowCount() > 0;
 	}
 }
 
