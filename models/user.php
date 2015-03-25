@@ -41,6 +41,7 @@ class User {
 	private $m_password;		// string(225)
 	
 	private static $m_lastUser; // Last user queried.
+	private static $m_users = array(); // Users cache.
 	
 	/**
 	 * CTOR
@@ -93,26 +94,35 @@ class User {
 	 * @param $id_username Id or username of the user.
 	 * @returns User class if success, null otherwise.
 	 */
-	static function findUser($id_username) {
+	public static function findUser($id_username) {
+		if(is_null($id_username)) {
+			return null;
+		}
+		
+		if(empty($id_username)) {
+			return null;
+		}
+		
+		if(!is_int($id_username) && !is_string($id_username)) {
+			return null;
+		}
 		
 		// If last user is same user than requested here, 
 		// just return it.
-		if(!is_null(self::$m_lastUser)) {
-			if(is_numeric($id_username) && self::$m_lastUser->getId() == $id_username) {
-				return self::$m_lastUser;
-			} else if (is_string($id_username) && self::$m_lastUser->getUsername() == $id_username) {
-				return self::$m_lastUser;
-			}
-		} 
+		if(!is_null(self::$m_users[$id_username]) 
+			&& !empty(self::$m_users[$id_username])) 
+		{
+			return self::$m_users[$id_username];
+		}
 		
 		$result = array();
 		global $database;
 		
 		$db = new Database($database, $database['prefix']);
 		
-		if(is_numeric($id_username)) {
+		if(is_int($id_username)) {
 			// Search with id.
-			$db->query("SELECT * FROM _PREFIX_users WHERE user_id=:uid", array(":uid" => intval($id_username)));
+			$db->query("SELECT * FROM _PREFIX_users WHERE user_id=:uid", array(":uid" => $id_username));
 			$result = $db->fetch();
 		} 
 		elseif (is_string($id_username)) {
@@ -151,7 +161,7 @@ class User {
 		$user->setUsergroupId(intval($result["user_usergroup"]));
 		$user->setWebsite($result["user_website"]);		
 		
-		self::$m_lastUser = $user;
+		self::$m_users[$id_username] = $user;
 		return $user;
 	}
 	
