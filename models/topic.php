@@ -464,6 +464,83 @@ class Topic
 	public function getLastModificationTime() {
 		return $this->m_modificationTime;
 	}
+	
+	/**
+	 * Deletes the specified topic with the given id.
+	 * 
+	 * @param $n_topicId Topic's id.
+	 * @return True if success, false otherwise.
+	 */
+	public static function delete($n_topicId) {
+		if(!is_numeric($n_topicId)) {
+			return false; 
+		}
+		global $database;
+		$oDb = new Database($database, $database["prefix"]);
+		
+		$query = "SELECT `forum_last_post`, `topic_replies`, 
+				`forum_id`, `forum_posts`, `forum_topics`
+			FROM `_PREFIX_topics`
+				JOIN `_PREFIX_forums` ON `forum_id` = `topic_forum_id`
+			WHERE `topic_id`=:tid LIMIT 1";
+		$oDb->query($query, array(":tid" => $n_topicId));
+		
+		// Topic data.
+		$topicData = $oDb->fetch();
+		
+		if(is_null($topicData)) {
+			return false;
+		}
+		
+		// Get users id and posts to remove.
+		$sql = "SELECT `post_user_id`, `user_posts`, COUNT(*) AS `user_topic_posts_count`
+			FROM `_PREFIX_posts`
+				JOIN `_PREFIX_users` ON `user_id` = `post_user_id`
+			WHERE `post_topic_id`=:tid
+			GROUP BY `post_user_id`";
+		$oDb->query($sql, array(":tid" => intval($n_topicId)));
+		
+		// Prepare future users queries.
+		$usersSQL =""; 
+		while($uInfos = $oDb->fetch()) {
+			// So sad... 
+			$postCount = intval($uInfos["user_posts"]) - intval($uInfos["user_topic_posts_count"]); 
+			$usersSQL = $usersSQL."UPDATE `_PREFIX_users` 
+				SET `user_posts`=".$postCount."
+				WHERE `user_id`=".intval($uInfos["post_user_id"]).";";
+		}
+		
+		// Update users.
+		$oDb->query($usersSQL, array());
+		
+		// Delete posts.
+		$oDb->query("DELETE FROM `_PREFIX_posts` WHERE `post_topic_id`=:tid",
+			array(":tid" => intval($n_topicId)));
+		// Delete topic.
+		$oDb->query("DELETE FROM `_PREFIX_topics` WHERE `topic_id`=:tid",
+			array(":tid" => intval($n_topicId)));
+		
+		// Get last forum post. 
+		$oDb->query("SELECT MAX(`post_id`) AS `id` 
+			FROM `_PREFIX_forums`
+				JOIN `_PREFIX_topics` ON `topic_forum_id`=:fid 
+				JOIN `_PREFIX_posts` ON `post_topic_id`=`topic_id`
+			WHERE `forum_id`=:fid",
+			array(":fid" => intval($topicData["forum_id"])));
+		$postId = $oDb->fetch();
+		
+		// Update forum.
+		$oDb->query("UPDATE `_PREFIX_forums` 
+			SET `forum_posts`=:posts, `forum_topics`=:topics, 
+				`forum_last_post`=:lpost
+			WHERE `forum_id`=:fid", 
+			array(":posts" => intval($topicData["forum_post"]) - intval($topicData["topic_replies"]), 
+				":topics" => intval($topicData["forum_topics"]) - 1, 
+				":lpost" => $postId["id"],
+				":fid" => intval($topicData["forum_id"])));
+				
+		return true;
+	}
 }
 
 ?>
