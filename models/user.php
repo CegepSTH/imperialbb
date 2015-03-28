@@ -109,10 +109,12 @@ class User {
 		
 		// If last user is same user than requested here, 
 		// just return it.
-		if(!is_null(self::$m_users[$id_username]) 
-			&& !empty(self::$m_users[$id_username])) 
-		{
-			return self::$m_users[$id_username];
+		if(in_array($id_username, self::$m_users)) {
+			if(!is_null(self::$m_users[$id_username]) 
+				&& !empty(self::$m_users[$id_username])) 
+			{
+				return self::$m_users[$id_username];
+			}
 		}
 		
 		$result = array();
