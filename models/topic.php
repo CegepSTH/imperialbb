@@ -534,7 +534,7 @@ class Topic
 			SET `forum_posts`=:posts, `forum_topics`=:topics, 
 				`forum_last_post`=:lpost
 			WHERE `forum_id`=:fid", 
-			array(":posts" => intval($topicData["forum_post"]) - intval($topicData["topic_replies"]), 
+			array(":posts" => intval($topicData["forum_posts"]) - intval($topicData["topic_replies"]), 
 				":topics" => intval($topicData["forum_topics"]) - 1, 
 				":lpost" => $postId["id"],
 				":fid" => intval($topicData["forum_id"])));
