@@ -47,7 +47,7 @@ class Topic
 			die("Topic::__construct : Non-string content.");
 		}
 		
-		if(is_null($post) || !($post instanceof Post)) {
+		if(!($post instanceof Post) && !is_null($post)) {
 			die("Topic::__construct : First post not valid Post object.");
 		}
 		
@@ -62,6 +62,30 @@ class Topic
 		$this->m_repliesCount = 0;
 		$this->m_viewsCount = 0;
 		$this->m_post = $post;
+	}
+	
+	/**
+	 * Returns a Topic from DB Result
+	 * 
+	 * @param $dbResult Database Result array. 
+	 * @return Topic object if true, false otherwise.
+	 */
+	public static function fromDbResult(array &$dbResult) {
+		if(empty($dbResult)) {
+			return null;
+		}
+		$topic = new Topic($dbResult["topic_user_id"], $dbResult["topic_forum_id"],
+			$dbResult["topic_title"], null);
+		$topic->m_pollTitle = $dbResult["topic_title"];
+		$topic->m_status = intval($dbResult["topic_status"]);
+		$topic->m_type = intval($dbResult["topic_type"]);
+		$topic->m_firstPostId = intval($dbResult["topic_first_post"]);
+		$topic->m_lastPostId = intval($dbResult["topic_last_post"]);
+		$topic->m_repliesCount = intval($dbResult["topic_replies"]);
+		$topic->m_viewsCount = intval($dbResult["topic_views"]);
+		$topic->m_modification = intval($dbResult["topic_time"]);
+		
+		return $topic;
 	}
 	
 	/**
