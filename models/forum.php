@@ -93,15 +93,34 @@ class Forum {
 	 * 		only subforums.
 	 * @return Multi-dimensionnal array or plain array depending on 
 	 * 		$b_nested value (multi by default). Maximum depth: 
-	 * 		array[cat_id][forum_id]["sub_forums"] => array([id] => Forum) 
-	 * 		array[cat_id][forum_id] => Forum, Subforums
-	 * 		array[cat_id] => array([id] => Forum, Subforums)
+	 * 		array[cat_id][forum_id] => Forum object
 	 */
-	public static function getForums($n_catId, $b_nested = true) {
+	public static function getForums($n_catId = null, $b_nested = true) {
 		$lstForums = array();
 		
-		if(!is_numeric($n_forumId)) {
+		if(!is_numeric($n_catId) && !is_null($n_catId)) {
 			return $lstForums;
+		}
+		
+		global $database;
+		
+		$oDb = new Database($database, $database["prefix"]);
+		
+		if($n_catId == null) {
+			$oDb->query("SELECT * FROM `_PREFIX_forums`", array());
+		
+			while($result = $oDb->fetch()) {
+				$forum = self::fillForumInfos($result);
+				$lstForums[$forum->getCatId()][] = $forum;
+			}
+		} else {
+			$oDb->query("SELECT * FROM `_PREFIX_forums` WHERE `forum_cat_id`=:cid",
+				array(":cid" => intval($n_catId)));
+		
+			while($result = $oDb->fetch()) {
+				$forum = self::fillForumInfos($result);
+				$lstForums[$forum->getCatId()][] = $forum;
+			}			
 		}
 		
 		// This one would've been easy: 
@@ -120,7 +139,6 @@ class Forum {
 		 */
 		// but hey, we're using MySQL, so no CTEs for us!
 		 
-		
 		return $lstForums;
 	}
 	
