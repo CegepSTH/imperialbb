@@ -404,11 +404,31 @@ class Forum {
 	public function __construct() {
 	}
 	
+	/**
+	 * Deletes a forum from the forum
+	 * 
+	 * @param $n_forumId Forum's id.
+	 * 
+	 * @return True if success, false otherwise.
+	 */
 	public static function delete($n_forumId) {
 		if(!is_numeric($n_forumId)) {
 			return false;
 		}
+		global $database;
 		
+		// Delete all. #sadness. 
+		$sql = "DELETE f, t, p
+			FROM `_PREFIX_forums` f
+				JOIN `_PREFIX_topics` t ON `t`.`topic_forum_id` = `f`.`forum_id`
+				JOIN `_PREFIX_posts` p ON `p`.`post_topic_id` = `t`.`topic_id`
+			WHERE `f`.`forum_id` = :fid";
+		$values = array(":fid" => intval($n_forumId));
+		
+		$oDb = new Database($database, $database["prefix"]);
+		$oDb->query($sql, $values);
+		
+		return $oDb->rowCount() > 0;
 	}
 	
 	/**
