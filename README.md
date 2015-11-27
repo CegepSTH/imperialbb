@@ -1,10 +1,15 @@
-TODO & PLANNED: Translate docs in english. See licensing for license (MIT).   
-Code comments are in english.  
-  
-  
-# ImperialBB
+# Imperial BB
+**This project is currently abandonned**
 
-### Actual version
+### Description
+As a collegial project, our goal was to develop an existing software and so we chose ImperialBB. Starting from version 2.3.1, we planned iterations according to new features idea and bugs fixing. We used an AGILE-like methodology for 6 weeks. The final result is a more robust software than its predecessor. 
+
+ImperialBB is a bulletin board / forum software based on PHP and MySQL.
+
+### License
+See LICENSE.md for more informations.
+
+### Version
 3.0.0  
 * See iterations 1, 2, 3 & 4.
   
