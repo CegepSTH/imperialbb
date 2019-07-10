@@ -1,5 +1,5 @@
 # Imperial BB
-**This project is currently abandonned**
+**This project is currently abandoned**
 
 ### Description
 As a collegial project, our goal was to develop an existing software and so we chose ImperialBB. Starting from version 2.3.1, we planned iterations according to new features idea and bugs fixing. We used an AGILE-like methodology for 6 weeks. The final result is a more robust software than its predecessor. 
